@@ -1,0 +1,155 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:grip/networkerror.dart';
+import 'package:grip/pages/chapter_detailes/chapterdetails.dart';
+import 'package:grip/pages/chapter_detailes/member_info.dart';
+import 'package:grip/pages/mainsplashscreen.dart';
+import 'package:grip/pages/meeting.dart';
+import 'package:grip/pages/navigator_key.dart';
+import 'package:grip/pages/one_to_one/others_one_to_one.dart';
+import 'package:grip/pages/one_to_one/recived_one_to_one.dart';
+import 'package:grip/pages/one_to_one/viewone_to_one.dart';
+import 'package:grip/pages/one_to_one/viewmembers.dart';
+import 'package:grip/pages/referrals/receivedreferral.dart';
+import 'package:grip/pages/testimonials/given_test.dart';
+import 'package:grip/pages/testimonials/received_test.dart';
+import 'package:grip/pages/thankunote/giventhanku.dart';
+import 'package:grip/pages/thankunote/recivedthankyou.dart';
+import 'package:grip/pages/thankunote/thankyouview.dart';
+import 'package:grip/pages/notifications.dart';
+import 'package:grip/pages/referrals/addreferrals.dart';
+import 'package:grip/pages/homepage/homescreen.dart';
+import 'package:grip/pages/loginpage.dart';
+import 'package:grip/pages/one_to_one/one_to_one.dart';
+import 'package:grip/pages/profilepage.dart';
+import 'package:grip/pages/referrals/givenrefferel.dart';
+import 'package:grip/pages/referrals/referalview.dart';
+import 'package:grip/pages/splashscreen.dart';
+import 'package:grip/pages/testimonials/addtestimonials.dart';
+import 'package:grip/pages/testimonials/testimonialsview.dart';
+import 'package:grip/pages/thankunote/thankyounote.dart';
+import 'package:grip/pages/visitors.dart';
+
+final GoRouter router = GoRouter(
+   navigatorKey: rootNavigatorKey, // ✅ Pass it here
+  initialLocation: '/gripsplashscreen',
+  routes: [
+    GoRoute(
+      path: '/gripsplashscreen',
+      builder: (context, state) =>GripSplashScreen(),
+    ),
+    GoRoute(
+      path: '/splashscreen',
+      builder: (context, state) => SplashScreenWidget(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => LoginScreen(),
+    ),
+    GoRoute(
+      path: '/homepage',
+      builder: (context, state) => Homescreen(),
+    ),
+    GoRoute(
+      path: '/profilepage',
+      builder: (context, state) => ProfilePage(),
+    ),
+    GoRoute(
+      path: '/addreferalpage',
+      builder: (context, state) => ReferralPage(),
+    ),
+    GoRoute(
+      path: '/thankyounote',
+      builder: (context, state) => ThankYouNotePage(),
+    ),
+    GoRoute(
+      path: '/onetoone',
+      builder: (context, state) => OneToOneSlipPage(),
+    ),
+    GoRoute(
+      path: '/visitors',
+      builder: (context, state) => VisitorFormPage(),
+    ),
+    GoRoute(
+      path: '/referralview',
+      builder: (context, state) => ReferralDetailsPage(),
+    ),
+    GoRoute(
+      path: '/givenreferral',
+      builder: (context, state) => GivenReferralSlipPage(),
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) => NotificationsScreen(),
+    ),
+    GoRoute(
+      path: '/addtestimonials',
+      builder: (context, state) => TestimonialSlipPage(),
+    ),
+    GoRoute(
+      path: '/testimonialview',
+      builder: (context, state) => Testimonialsviewpage(),
+    ),
+    GoRoute(
+      path: '/thankyouview',
+      builder: (context, state) => Thankyouviewpage(),
+    ),
+    GoRoute(
+      path: '/referralDetailGiven',
+      builder: (context, state) => GivenReferralSlipPage(),
+    ),
+    GoRoute(
+      path: '/referralDetailRecived',
+      builder: (context, state) => ReceivedreferralSlip(),
+    ),
+    GoRoute(
+      path: '/Recivedthankyou',
+      builder: (context, state) => RecivedthankyouPage(),
+    ),
+    GoRoute(
+      path: '/Giventhankyou',
+      builder: (context, state) => GiventhankyouPage(),
+    ),
+    GoRoute(
+      path: '/GivenTestimonials',
+      builder: (context, state) =>Giventestimonialspage(),
+    ),
+    GoRoute(
+      path: '/ReceivedTestimonials',
+      builder: (context, state) => Recivedtestimonials(),
+    ),
+    GoRoute(
+      path: '/ChapterDetails',
+      builder: (context, state) => MyChapterPage(),
+    ),
+    GoRoute(
+      path: '/networkerror',
+      builder: (context, state) => Networkerror(),
+    ),
+    GoRoute(
+      path: '/meeting',
+      builder: (context, state) => MeetingDetailsPage(),
+    ),
+    GoRoute(
+      path: '/viewone',
+      builder: (context, state) =>onetooneviewpage(),
+    ),
+    GoRoute(
+      path: '/Chaptermember',
+      builder: (context, state) =>chapterdetails(),
+    ),
+     GoRoute(
+      path: '/ViewOthers',
+      builder: (context, state) =>MemberListPage(),
+    ),
+     GoRoute(
+      path: '/OthersOneToOnesPage',
+      builder: (context, state) =>OthersOneToOnesPage(),
+    ),
+     GoRoute(
+      path: '/viewonetoone',
+      builder: (context, state) =>OneToOneDetailsPage(),
+    ),
+  ],
+);
+

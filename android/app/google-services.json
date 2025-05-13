@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "461540485157",
+    "project_id": "grip-34662",
+    "storage_bucket": "grip-34662.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461540485157:android:1f922ef4e907e4a8b3f7cc",
+        "android_client_info": {
+          "package_name": "com.example.grip"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAR2T_BGDC1sKCuj0OyST9ETtuOFPCZTIk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
