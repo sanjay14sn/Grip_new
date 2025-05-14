@@ -105,23 +105,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                   SizedBox(height: 2.h),
 
                   // Date Picker
-                  _datePickerField(
-                    selectedDate: selectedDate,
-                    onTap: () async {
-                      DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2100),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          selectedDate =
-                              DateFormat('dd-MM-yyyy').format(picked);
-                        });
-                      }
-                    },
-                  ),
+                  _datePickerField(),
 
                   SizedBox(height: 2.h),
 
@@ -382,37 +366,34 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
     );
   }
 
-  Widget _datePickerField({
-    required String? selectedDate,
-    required VoidCallback onTap,
-  }) {
+  Widget _datePickerField() {
+    final String todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 1.h),
-        GestureDetector(
-          onTap: onTap,
-          child: Container(
-            height: 6.5.h,
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.grey.shade400),
-              borderRadius: BorderRadius.circular(2.w),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  selectedDate ?? "Date",
-                  style: TextStyle(
-                      fontSize: 14.sp,
-                      color: selectedDate == null ? Colors.grey : Colors.black),
+        Container(
+          height: 6.5.h,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(2.w),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                todayDate,
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: Colors.black,
                 ),
-                const Icon(Icons.calendar_today, color: Colors.grey),
-              ],
-            ),
+              ),
+              const Icon(Icons.calendar_today, color: Colors.grey),
+            ],
           ),
         ),
       ],

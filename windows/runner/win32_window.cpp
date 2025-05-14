@@ -5,7 +5,7 @@
 
 #include "resource.h"
 
-namespace {
+grip {
 
 /// Window attribute that enables dark mode window decorations.
 ///
@@ -53,7 +53,7 @@ void EnableFullDpiSupportIfAvailable(HWND hwnd) {
   FreeLibrary(user32_module);
 }
 
-}  // namespace
+}  // grip
 
 // Manages the Win32Window's window class registration.
 class WindowClassRegistrar {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/components/attandance_sucessfull.dart';
+import 'package:grip/components/failure_attandance.dart';
 import 'package:grip/networkerror.dart';
 import 'package:grip/pages/chapter_detailes/chapterdetails.dart';
 import 'package:grip/pages/chapter_detailes/member_info.dart';
@@ -10,6 +12,7 @@ import 'package:grip/pages/one_to_one/others_one_to_one.dart';
 import 'package:grip/pages/one_to_one/recived_one_to_one.dart';
 import 'package:grip/pages/one_to_one/viewone_to_one.dart';
 import 'package:grip/pages/one_to_one/viewmembers.dart';
+import 'package:grip/pages/qrscanner.dart';
 import 'package:grip/pages/referrals/receivedreferral.dart';
 import 'package:grip/pages/testimonials/given_test.dart';
 import 'package:grip/pages/testimonials/received_test.dart';
@@ -149,6 +152,18 @@ final GoRouter router = GoRouter(
      GoRoute(
       path: '/viewonetoone',
       builder: (context, state) =>OneToOneDetailsPage(),
+    ),
+     GoRoute(
+      path: '/QRscanner',
+      builder: (context, state) =>QRScanPage(),
+    ),
+    GoRoute(
+      path: '/AttendanceSuccess',
+      builder: (context, state) =>AttendanceSuccessPage(),
+    ),
+    GoRoute(
+      path: '/AttendanceFailure',
+      builder: (context, state) =>AttendanceFailurePage(),
     ),
   ],
 );

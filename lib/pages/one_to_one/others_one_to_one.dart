@@ -4,9 +4,9 @@ import 'package:grip/backend/gorouter.dart';
 import 'package:sizer/sizer.dart';
 
 class OthersOneToOnesPage extends StatelessWidget {
-   
-  const OthersOneToOnesPage({super.key, });
- 
+  const OthersOneToOnesPage({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +22,16 @@ class OthersOneToOnesPage extends StatelessWidget {
               Align(
                 alignment: Alignment.topLeft,
                 child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE0E2E7),
-                    shape: BoxShape.circle,
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE0E2E7),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_back),
                   ),
-                  child: const Icon(Icons.arrow_back),
                 ),
-              ),
               ),
               SizedBox(height: 1.h),
 
@@ -57,7 +57,8 @@ class OthersOneToOnesPage extends StatelessWidget {
               // Profile Image
               CircleAvatar(
                 radius: 40,
-                backgroundImage: AssetImage('assets/images/profile1.jpg'), // Replace with actual image
+                backgroundImage: AssetImage(
+                    'assets/images/profile1.jpg'), // Replace with actual image
               ),
               SizedBox(height: 1.2.h),
 
@@ -133,8 +134,8 @@ class OthersOneToOnesPage extends StatelessWidget {
                           context.push('/viewonetoone');
                         },
                         child: Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 12),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(24),
                             gradient: const LinearGradient(

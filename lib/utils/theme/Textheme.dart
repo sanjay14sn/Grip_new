@@ -206,5 +206,25 @@ class TTextStyles {
     fontSize: 12.sp,
     fontWeight: FontWeight.w600,
   );
-
+      static final TextStyle Attendancehead= GoogleFonts.roboto(
+    color:  Color(0xFFCF5150),
+    fontSize: 22.sp,
+    fontWeight: FontWeight.w600,
+  );
+static final TextStyle Scan= GoogleFonts.roboto(
+    color:   Colors.black,
+    fontSize: 25.sp,
+    fontWeight: FontWeight.w600,
+  );
+  static final TextStyle youratt= GoogleFonts.roboto(
+    color:   Colors.black,
+    fontSize: 20.sp,
+    fontWeight: FontWeight.w300,
+    
+  );
+     static final TextStyle attDone= GoogleFonts.roboto(
+    color: Colors.white,
+    fontSize: 18.sp,
+    fontWeight: FontWeight.w600,
+  );
 }
