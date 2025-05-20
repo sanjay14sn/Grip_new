@@ -37,7 +37,7 @@ class ReceivedreferralSlip extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFFCF5150),
+                    color: Color(0xFFC6221A),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
@@ -119,7 +119,7 @@ class ReceivedreferralSlip extends StatelessWidget {
                                         child: Icon(
                                           Icons.call,
                                           size: 16,
-                                          color: Color(0xFFCF5150),
+                                          color: Color(0xFFC6221A),
                                         ),
                                       ),
                                       TextSpan(
@@ -142,7 +142,7 @@ class ReceivedreferralSlip extends StatelessWidget {
                           child: Row(
                             children: [
                               const Icon(Icons.location_on,
-                                  color: Color(0xFFCF5150), size: 16),
+                                  color: Color(0xFFC6221A), size: 16),
                               const SizedBox(width: 5),
                               Text('Anna Nagar', style: TTextStyles.Refcontact),
                             ],

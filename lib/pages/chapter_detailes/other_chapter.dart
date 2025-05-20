@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:sizer/sizer.dart';
 
 class ChapterSelector extends StatefulWidget {
@@ -48,7 +49,7 @@ class _ChapterSelectorState extends State<ChapterSelector> {
             height: 5.5.h,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Color(0xFFC83837),
+              gradient: Tcolors.red_button, // ✅ Use gradient instead of color
             ),
             child: Center(
               child: Text(

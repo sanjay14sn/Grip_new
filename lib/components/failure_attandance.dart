@@ -16,18 +16,18 @@ class AttendanceFailurePage extends StatelessWidget {
         leading: Padding(
           padding: EdgeInsets.only(left: 3.w),
           child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_back),
-                    ),
-                  ),
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE0E2E7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back),
+            ),
+          ),
         ),
         centerTitle: true,
         title: Text(

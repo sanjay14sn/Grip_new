@@ -14,7 +14,7 @@ class _ReferralPageState extends State<ReferralPage> {
   bool toldThemYouWouldCall = false;
   bool givenYourCard = false;
 
-  final Color customRed = const Color(0xFFCF5150);
+  final Color customRed = const Color(0xFFC6221A);
   final Color labelGrey = const Color(0xFF989898);
 
   String? selectedPerson;

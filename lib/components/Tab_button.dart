@@ -21,7 +21,17 @@ class TabButton extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 10),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isSelected ?Tcolors.title_color : Colors.transparent,
+        gradient: isSelected
+            ? const LinearGradient(
+                colors: [
+                  Color(0xFFC6221A), // Vibrant red (left)
+                  Color(0xFF3C3A3A), // Dark muted gray-brown (right)
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: isSelected ? null : Colors.transparent,
         borderRadius: BorderRadius.horizontal(
           left: leftRadius ? Radius.circular(8) : Radius.zero,
           right: rightRadius ? Radius.circular(8) : Radius.zero,

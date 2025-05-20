@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:dashed_circle/dashed_circle.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -25,7 +26,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
     'At Their Location',
     'At A Common Location'
   ];
-  final Color customRed = const Color(0xFFCF5150);
+  final Color customRed = const Color(0xFFC6221A);
 
   File? _pickedImage;
 
@@ -252,6 +253,8 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                     ),
                   ),
                   SizedBox(height: 2.h),
+
+
 
                   // Submit Button
                   SizedBox(

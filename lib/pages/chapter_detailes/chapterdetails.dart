@@ -19,7 +19,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[200],
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(3.w),
@@ -209,7 +209,7 @@ class SectionHeader extends StatelessWidget {
       width: 73.w,
       height: 3.3.h,
       decoration: BoxDecoration(
-        color: Color(0xFF66B0CB),
+        color: const Color(0xFF2C2B2B), // Rich dark gray
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(10),
           bottomRight: Radius.circular(10),

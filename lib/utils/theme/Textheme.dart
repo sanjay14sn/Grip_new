@@ -100,7 +100,7 @@ class TTextStyles {
     color: Color(0xFFC83837),
   );
   static final TextStyle ReferralSlip = GoogleFonts.roboto(
-    color: Color(0xFFCF5150),
+    color: Color(0xFFC6221A),
     fontSize: 22.sp,
     fontWeight: FontWeight.w600,
   );
@@ -167,7 +167,7 @@ class TTextStyles {
     fontWeight: FontWeight.w600,
   );
     static final TextStyle Refcontact = GoogleFonts.roboto(
-    color: Color(0xFFCF5150),
+    color: Color(0xFFC6221A),
     fontSize: 16.sp,
     fontWeight: FontWeight.w600,
   );
@@ -197,7 +197,7 @@ class TTextStyles {
   fontWeight: FontWeight.w600,
 );
   static final TextStyle membername = GoogleFonts.roboto(
-    color: Color(0xFFCF5150),
+    color: Color(0xFFC6221A),
     fontSize: 16.sp,
     fontWeight: FontWeight.w500,
   );
@@ -207,7 +207,7 @@ class TTextStyles {
     fontWeight: FontWeight.w600,
   );
       static final TextStyle Attendancehead= GoogleFonts.roboto(
-    color:  Color(0xFFCF5150),
+    color:  Color(0xFFC6221A),
     fontSize: 22.sp,
     fontWeight: FontWeight.w600,
   );

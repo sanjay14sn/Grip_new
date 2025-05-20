@@ -11,7 +11,8 @@ class CustomBottomBar extends StatelessWidget {
       height: 9.h,
       padding: EdgeInsets.symmetric(horizontal: 6.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF59AFCB),
+        color: const Color(0xFF2C2B2B), // Rich dark gray
+
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(10),
           topRight: Radius.circular(10),
@@ -23,7 +24,7 @@ class CustomBottomBar extends StatelessWidget {
           // Chapter Details Button
           _BottomBarButton(
             onTap: () => context.push('/ChapterDetails'),
-            icon: Icon(Icons.groups, color: Colors.blueAccent, size: 6.5.w),
+            icon: Icon(Icons.groups, color: Color(0xFFC6221A), size: 6.5.w),
             label: 'Chapter\nDetails',
           ),
 
@@ -53,7 +54,8 @@ class CustomBottomBar extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.qr_code_2_rounded, color: Color(0xFFC83837), size: 9.w),
+                  Icon(Icons.qr_code_2_rounded,
+                      color: Color(0xFFC83837), size: 9.w),
                   SizedBox(height: 1),
                   Text(
                     'Scan',
@@ -73,6 +75,7 @@ class CustomBottomBar extends StatelessWidget {
             onTap: () => context.push('/meeting'),
             icon: Image.asset(
               'assets/images/meeting_appbar.png',
+              color: Color(0xFFC6221A),
               width: 6.5.w,
               height: 6.5.w,
             ),

@@ -37,7 +37,7 @@ class RecivedthankyouPage extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFFCF5150),
+                    color: Color(0xFFC6221A),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
@@ -106,14 +106,14 @@ class RecivedthankyouPage extends StatelessWidget {
                                 children: [
                                   Icon(
                                     Icons.currency_rupee,
-                                    color: Color(0xFFCF5150),
+                                    color: Color(0xFFC6221A),
                                     size: 20.sp,
                                   ),
                                   SizedBox(width: 1.w),
                                   Text(
                                     '100000',
                                     style: TextStyle(
-                                      color: Color(0xFFCF5150),
+                                      color: Color(0xFFC6221A),
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20.sp,
                                     ),

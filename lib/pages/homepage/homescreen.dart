@@ -19,7 +19,7 @@ class _HomescreenState extends State<Homescreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[200],
       body: Padding(
           padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
 
@@ -112,7 +112,7 @@ class _HomescreenState extends State<Homescreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(25),
                           child: Image.asset(
-                            'assets/images/sliderbackground.png',
+                            'assets/images/image.png',
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -231,6 +231,7 @@ class _HomescreenState extends State<Homescreen> {
               ],
             ),
           )),
+          // bottomNavigationBar:CurvedBottomNavBar(), // <-- This adds the bottom bar
       bottomNavigationBar: CustomBottomBar(), // <-- This adds the bottom bar
     );
   }

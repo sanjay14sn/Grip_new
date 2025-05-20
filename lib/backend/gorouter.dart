@@ -12,6 +12,7 @@ import 'package:grip/pages/one_to_one/others_one_to_one.dart';
 import 'package:grip/pages/one_to_one/recived_one_to_one.dart';
 import 'package:grip/pages/one_to_one/viewone_to_one.dart';
 import 'package:grip/pages/one_to_one/viewmembers.dart';
+import 'package:grip/pages/payment/membershipdetails.dart';
 import 'package:grip/pages/qrscanner.dart';
 import 'package:grip/pages/referrals/receivedreferral.dart';
 import 'package:grip/pages/testimonials/given_test.dart';
@@ -164,6 +165,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/AttendanceFailure',
       builder: (context, state) =>AttendanceFailurePage(),
+    ),
+     GoRoute(
+      path: '/membershipdetails',
+      builder: (context, state) =>MembershipDetailsPage(),
     ),
   ],
 );

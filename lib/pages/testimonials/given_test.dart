@@ -37,7 +37,7 @@ class Giventestimonialspage extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFFCF5150),
+                    color: Color(0xFFC6221A),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(

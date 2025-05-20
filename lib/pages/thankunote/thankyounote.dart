@@ -12,7 +12,7 @@ class ThankYouNotePage extends StatefulWidget {
 class _ThankYouNotePageState extends State<ThankYouNotePage> {
   String? selectedPerson;
   final List<String> personList = ['Person A', 'Person B', 'Person C'];
-  final Color customRed = const Color(0xFFCF5150);
+  final Color customRed = const Color(0xFFC6221A);
 
   @override
   Widget build(BuildContext context) {

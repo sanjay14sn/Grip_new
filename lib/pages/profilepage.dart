@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:grip/backend/gorouter.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -104,6 +106,48 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(
+                height: 2.h,
+              ),
+             GestureDetector(
+  onTap: () {
+ context.push('/membershipdetails');
+  },
+  child: Align(
+    alignment: Alignment.center,
+    child: Container(
+      padding: EdgeInsets.all(1.w), // Outer padding - controls thickness of gradient border
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2E8DDB), Color(0xFFE14F4F)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.2.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+        ),
+        child: Text(
+          'Membership',
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.bold,
+            foreground: Paint()
+              ..shader = const LinearGradient(
+                colors: [Color(0xFF00BFA6), Color(0xFFE14F4F)],
+              ).createShader(
+                const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
+              ),
+          ),
+        ),
+      ),
+    ),
+  ),
+)
             ],
           ),
         ),

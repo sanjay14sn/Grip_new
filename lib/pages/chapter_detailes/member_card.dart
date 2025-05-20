@@ -70,9 +70,16 @@ class MemberCard extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   height: 3.h,
-                  decoration: BoxDecoration(
-                    color: Tcolors.title_color,
-                    borderRadius: const BorderRadius.vertical(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFFC6221A), // Vibrant red (left)
+                        Color(0xFF3C3A3A), // Dark muted gray-brown (right)
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.vertical(
                       bottom: Radius.circular(10),
                     ),
                   ),
