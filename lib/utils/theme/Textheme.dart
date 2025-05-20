@@ -150,7 +150,7 @@ class TTextStyles {
     fontSize: 14.sp,
     fontWeight: FontWeight.w400,
   );
-   static final TextStyle livelocation = GoogleFonts.roboto(
+  static final TextStyle livelocation = GoogleFonts.roboto(
     color: Colors.white,
     fontSize: 15.sp,
     fontWeight: FontWeight.w500,
@@ -160,71 +160,89 @@ class TTextStyles {
     fontSize: 14.sp,
     fontWeight: FontWeight.w500,
   );
-    static final TextStyle Rivenrefsmall = GoogleFonts.roboto(
+  static final TextStyle Rivenrefsmall = GoogleFonts.roboto(
     color: Color(0xFF828282),
-
     fontSize: 14.sp,
     fontWeight: FontWeight.w600,
   );
-    static final TextStyle Refcontact = GoogleFonts.roboto(
+  static final TextStyle Refcontact = GoogleFonts.roboto(
     color: Color(0xFFC6221A),
     fontSize: 16.sp,
     fontWeight: FontWeight.w600,
   );
-    static final TextStyle reftext= GoogleFonts.roboto(
+  static final TextStyle reftext = GoogleFonts.roboto(
     color: Colors.black,
     fontSize: 15.sp,
     fontWeight: FontWeight.w700,
   );
-      static final TextStyle refname= GoogleFonts.roboto(
+  static final TextStyle refname = GoogleFonts.roboto(
     color: Colors.black,
     fontSize: 23.sp,
     fontWeight: FontWeight.w700,
   );
-    static final TextStyle networkerror= GoogleFonts.roboto(
+  static final TextStyle networkerror = GoogleFonts.roboto(
     color: Colors.white,
     fontSize: 17.sp,
     fontWeight: FontWeight.w500,
   );
-  static final TextStyle nxtmeet= GoogleFonts.roboto(
+  static final TextStyle nxtmeet = GoogleFonts.roboto(
     color: Colors.black,
     fontSize: 17.sp,
     fontWeight: FontWeight.w500,
   );
   static final TextStyle membercard = GoogleFonts.roboto(
-  color: Color(0xFF797373),
-  fontSize: 13.sp,
-  fontWeight: FontWeight.w600,
-);
+    color: Color(0xFF797373),
+    fontSize: 13.sp,
+    fontWeight: FontWeight.w600,
+  );
   static final TextStyle membername = GoogleFonts.roboto(
     color: Color(0xFFC6221A),
     fontSize: 16.sp,
     fontWeight: FontWeight.w500,
   );
-    static final TextStyle chapterrole= GoogleFonts.roboto(
+  static final TextStyle chapterrole = GoogleFonts.roboto(
     color: Colors.white,
     fontSize: 12.sp,
     fontWeight: FontWeight.w600,
   );
-      static final TextStyle Attendancehead= GoogleFonts.roboto(
-    color:  Color(0xFFC6221A),
+  static final TextStyle Attendancehead = GoogleFonts.roboto(
+    color: Color(0xFFC6221A),
     fontSize: 22.sp,
     fontWeight: FontWeight.w600,
   );
-static final TextStyle Scan= GoogleFonts.roboto(
-    color:   Colors.black,
+  static final TextStyle Scan = GoogleFonts.roboto(
+    color: Colors.black,
     fontSize: 25.sp,
     fontWeight: FontWeight.w600,
   );
-  static final TextStyle youratt= GoogleFonts.roboto(
-    color:   Colors.black,
+  static final TextStyle youratt = GoogleFonts.roboto(
+    color: Colors.black,
     fontSize: 20.sp,
     fontWeight: FontWeight.w300,
-    
   );
-     static final TextStyle attDone= GoogleFonts.roboto(
+  static final TextStyle attDone = GoogleFonts.roboto(
     color: Colors.white,
     fontSize: 18.sp,
+    fontWeight: FontWeight.w600,
+  );
+  static final TextStyle membership = GoogleFonts.roboto(
+    color: Colors.black,
+    fontSize: 16.sp,
+    fontWeight: FontWeight.w600,
+  );
+  static final TextStyle membershipstatus = GoogleFonts.roboto(
+    color: Color(0xFF828282),
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w400,
+  );
+   static final TextStyle ProfileName = GoogleFonts.roboto(
+    color: Colors.black,
+    fontSize: 18.sp,
+    fontWeight: FontWeight.w600,
+  );
+  static final TextStyle gripname = GoogleFonts.roboto(
+    color: Color(0xFFC6221A),
+    fontSize: 16.sp,
     fontWeight: FontWeight.w600,
   );
 }

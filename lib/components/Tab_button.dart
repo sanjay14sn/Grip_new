@@ -24,8 +24,8 @@ class TabButton extends StatelessWidget {
         gradient: isSelected
             ? const LinearGradient(
                 colors: [
-                  Color(0xFFC6221A), // Vibrant red (left)
-                  Color(0xFF3C3A3A), // Dark muted gray-brown (right)
+                  Color(0xFFFF3534), // Soft red
+                  Color(0xFF575757), // Muted gray
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

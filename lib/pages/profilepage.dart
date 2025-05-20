@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/gorouter.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -69,6 +70,50 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 2.h),
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    context.push('/membershipdetails');
+                  },
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: EdgeInsets.all(1
+                          .w), // Outer padding - controls thickness of gradient border
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF2E8DDB), Color(0xFFE14F4F)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 8.w, vertical: 1.2.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        child: Text(
+                          'Membership',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                            foreground: Paint()
+                              ..shader = const LinearGradient(
+                                colors: [Color(0xFF00BFA6), Color(0xFFE14F4F)],
+                              ).createShader(
+                                const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
+                              ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 2.h),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Text(
@@ -90,64 +135,37 @@ class ProfilePage extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: SizedBox(
-                  height: 2.5.h, // 23 in sizer (approx)
-                  width: 18.5.w, // 73 in sizer (approx)
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.lightBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5), // Radius 5
-                      ),
-                      padding: EdgeInsets
-                          .zero, // Remove default padding to match exact size
+                  height: 3.5.h,
+                  width: 22.5.w,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: Tcolors.red_button,
+                      borderRadius: BorderRadius.circular(5),
                     ),
-                    child: const Text("Logout"),
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Colors.transparent, // Important for gradient
+                        shadowColor: Colors
+                            .transparent, // Optional: remove button shadow
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(
+                            color: Colors.white), // Text color on gradient
+                      ),
+                    ),
                   ),
                 ),
               ),
               SizedBox(
                 height: 2.h,
               ),
-             GestureDetector(
-  onTap: () {
- context.push('/membershipdetails');
-  },
-  child: Align(
-    alignment: Alignment.center,
-    child: Container(
-      padding: EdgeInsets.all(1.w), // Outer padding - controls thickness of gradient border
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2E8DDB), Color(0xFFE14F4F)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.2.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-        ),
-        child: Text(
-          'Membership',
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.bold,
-            foreground: Paint()
-              ..shader = const LinearGradient(
-                colors: [Color(0xFF00BFA6), Color(0xFFE14F4F)],
-              ).createShader(
-                const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
-              ),
-          ),
-        ),
-      ),
-    ),
-  ),
-)
             ],
           ),
         ),

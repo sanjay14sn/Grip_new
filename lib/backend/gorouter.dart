@@ -4,7 +4,8 @@ import 'package:grip/components/attandance_sucessfull.dart';
 import 'package:grip/components/failure_attandance.dart';
 import 'package:grip/networkerror.dart';
 import 'package:grip/pages/chapter_detailes/chapterdetails.dart';
-import 'package:grip/pages/chapter_detailes/member_info.dart';
+import 'package:grip/pages/chapter_detailes/mychapter/member_info.dart';
+import 'package:grip/pages/chapter_detailes/otherchapter/otherchaptersproile.dart';
 import 'package:grip/pages/mainsplashscreen.dart';
 import 'package:grip/pages/meeting.dart';
 import 'package:grip/pages/navigator_key.dart';
@@ -169,6 +170,10 @@ final GoRouter router = GoRouter(
      GoRoute(
       path: '/membershipdetails',
       builder: (context, state) =>MembershipDetailsPage(),
+    ),
+     GoRoute(
+      path: '/Otherschapter',
+      builder: (context, state) =>OtherChapterPage(),
     ),
   ],
 );

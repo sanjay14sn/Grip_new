@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/backend/gorouter.dart';
-import 'package:grip/pages/chapter_detailes/chapterdetails.dart';
-import 'package:grip/utils/constants/Tcolors.dart';
+
+import 'package:grip/pages/chapter_detailes/membermodel.dart';
+
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -73,8 +73,8 @@ class MemberCard extends StatelessWidget {
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color(0xFFC6221A), // Vibrant red (left)
-                        Color(0xFF3C3A3A), // Dark muted gray-brown (right)
+                        Color(0xFFFF3534), // Soft red
+                        Color(0xFF575757), // Muted gray
                       ],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,

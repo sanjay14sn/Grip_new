@@ -26,8 +26,8 @@ class Customcard extends StatelessWidget {
 
     return Card(
       elevation: 3,
-     // color: Tcolors.homecard,
-     color: Colors.white,
+      // color: Tcolors.homecard,
+      color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -35,8 +35,8 @@ class Customcard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 60,
-              height: 60,
+              width: 14.w,
+              height: 12.h,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(100),

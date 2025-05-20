@@ -14,11 +14,10 @@ class Tcolors {
     ],
     stops: [0.3505, 0.667], // Matching the 35.05% and 66.7%
   );
-
   static const Gradient red_button = LinearGradient(
     colors: [
-      Color(0xFFC6221A), // Vibrant red (left)
-      Color(0xFF3C3A3A), // Dark muted gray-brown (right)
+      Color(0xFFFF3534), // Soft red
+      Color(0xFF575757), // Muted gray
     ],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,

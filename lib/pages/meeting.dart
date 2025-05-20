@@ -36,13 +36,19 @@ class MeetingDetailsPage extends StatelessWidget {
                   ),
                   SizedBox(width: 2.w),
                   Text('Meeting Details', style: TTextStyles.myprofile),
-                  Spacer(),
-                  Icon(Icons.groups, color: Colors.blueAccent, size: 5.w),
                 ],
               ),
             ),
 
             // Section Title
+            Center(
+              child: Image.asset(
+                'assets/images/meeting_appbar.png',
+                color: Color(0xFFC6221A),
+                width: 10.w,
+                height: 10.w,
+              ),
+            ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 4.w),
               child: Text('Next Meeting', style: TTextStyles.nxtmeet),
@@ -99,7 +105,7 @@ class MeetingDetailsPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   attendanceCard('23', 'Present', Colors.green),
-                  attendanceCard('5', 'Late', Colors.orange),
+                  attendanceCard('5', 'Late', Color(0xFFB07DFF)),
                   attendanceCard('8', 'Absent', Colors.red),
                 ],
               ),

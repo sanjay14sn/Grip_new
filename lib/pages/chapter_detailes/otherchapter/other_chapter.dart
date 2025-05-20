@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:sizer/sizer.dart';
 
@@ -38,11 +40,7 @@ class _ChapterSelectorState extends State<ChapterSelector> {
         SizedBox(height: 4.h),
         GestureDetector(
           onTap: () {
-            // Handle selection internally
-            print("Selected Region: $selectedRegion");
-            print("Selected Chapter: $selectedChapter");
-
-            // You can also use Navigator or Provider here if needed
+           context.push('/Otherschapter');
           },
           child: Container(
             width: double.infinity,

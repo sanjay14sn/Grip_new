@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class MembershipDetailsPage extends StatefulWidget {
@@ -16,71 +18,122 @@ class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
       appBar: AppBar(
         title: Text(
           'Membership Details',
-          style: TextStyle(color: Colors.red, fontSize: 13.sp),
+          style: TTextStyles.ReferralSlip,
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 18.sp),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        leadingWidth: 50, // ⬅️ Make room for a smaller leading
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12), // ⬅️ Push it slightly right
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context); // Go back
+            },
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: Color(0xFFE0E2E7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_back,
+                size: 18, // ⬅️ Smaller icon
+                color: Colors.black,
+              ),
+            ),
+          ),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+        padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 0.h),
         child: Column(
           children: [
             SizedBox(height: 2.h),
-            CircleAvatar(
-              radius: 7.h,
-              backgroundImage: NetworkImage(
-                  'https://example.com/avatar.jpg'), // Replace with actual URL
-            ),
-            SizedBox(height: 1.5.h),
-            Text(
-              'Dinesh Kumar',
-              style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'GRIP ARAM',
-              style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11.sp),
-            ),
-            SizedBox(height: 4.h),
-            _buildInfoRow("Amount", "₹ 1,500"),
-            divider(),
-            _buildInfoRow("Subscription Plan", "Yearly Plan"),
-            divider(),
-            _buildInfoRow("Status", "Active"),
-            divider(),
-            _buildInfoRow("Start Date", "October 21, 2025"),
-            divider(),
-            _buildInfoRow("Expiry Date", "October 21, 2026"),
-            divider(),
-            const Spacer(),
-            SizedBox(
-              width: 30.w,
-              height: 5.h,
-              child: OutlinedButton(
-                onPressed: () {
-                  // Renew logic
-                },
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.red),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+
+            // Profile + Membership Container
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+              margin: EdgeInsets.all(4.w),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
                   ),
-                ),
-                child: Text(
-                  "Renew",
-                  style: TextStyle(color: Colors.red, fontSize: 11.sp),
-                ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 7.h,
+                    backgroundImage:
+                        NetworkImage('https://example.com/avatar.jpg'),
+                  ),
+                  SizedBox(height: 1.5.h),
+                  Text('Dinesh Kumar', style: TTextStyles.ProfileName),
+                  Text('GRIP ARAM', style: TTextStyles.gripname),
+                  SizedBox(height: 3.5.h),
+                  _buildInfoRow("Amount", "₹ 1,500"),
+                  divider(),
+                  _buildInfoRow("Subscription Plan", "Yearly Plan"),
+                  divider(),
+                  _buildInfoRow("Status", "Active"),
+                  divider(),
+                  _buildInfoRow("Start Date", "October 21, 2025"),
+                  divider(),
+                  _buildInfoRow("Expiry Date", "October 21, 2026"),
+                ],
               ),
             ),
+
+           
+            // Renew Button
+            GestureDetector(
+                onTap: () {
+                  //context.push('/membershipdetails');
+                },
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    padding: EdgeInsets.all(1
+                        .w), // Outer padding - controls thickness of gradient border
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2E8DDB), Color(0xFFE14F4F)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8.w, vertical: 1.2.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Text(
+                        'RENEW',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                          foreground: Paint()
+                            ..shader = const LinearGradient(
+                              colors: [Color(0xFF00BFA6), Color(0xFFE14F4F)],
+                            ).createShader(
+                              const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
+                            ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
           ],
         ),
       ),
@@ -94,21 +147,13 @@ class _MembershipDetailsPageState extends State<MembershipDetailsPage> {
         children: [
           Expanded(
             flex: 2,
-            child: Text(
-              label,
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 11.sp),
-            ),
+            child: Text(label, style: TTextStyles.membership),
           ),
           Expanded(
             flex: 3,
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontSize: 11.sp,
-                color: label == "Status" ? Colors.green : Colors.black,
-              ),
-            ),
+            child: Text(value,
+                textAlign: TextAlign.right,
+                style: TTextStyles.membershipstatus),
           ),
         ],
       ),

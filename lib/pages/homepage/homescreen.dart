@@ -22,7 +22,6 @@ class _HomescreenState extends State<Homescreen> {
       backgroundColor: Colors.grey[200],
       body: Padding(
           padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,8 +111,19 @@ class _HomescreenState extends State<Homescreen> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(25),
                           child: Image.asset(
-                            'assets/images/image.png',
+                            'assets/images/image.png', // Make sure this is the correct path
                             fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+
+                      // Red Tint Overlay
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(25),
+                          child: Container(
+                            color: const Color(0xFFFF3534)
+                                .withOpacity(0.10), // Red with opacity
                           ),
                         ),
                       ),
@@ -145,7 +155,9 @@ class _HomescreenState extends State<Homescreen> {
                     ],
                   ),
                 ),
-
+                SizedBox(
+                  height: 1.h,
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -177,7 +189,9 @@ class _HomescreenState extends State<Homescreen> {
                       onTapAddView: () {
                         context.push('/thankyounote');
                       },
-                      onTapView: () {context.push('/thankyouview');},
+                      onTapView: () {
+                        context.push('/thankyouview');
+                      },
                       imagePath: 'assets/images/handshake.png',
                     ),
                     SizedBox(height: 16),
@@ -193,8 +207,11 @@ class _HomescreenState extends State<Homescreen> {
                       onTapAddView: () {
                         context.push('/addtestimonials');
                       },
-                      onTapView: (){context.push('/testimonialview');},
-                      imagePath: 'assets/images/fluent_person-feedback-16-filled.png',
+                      onTapView: () {
+                        context.push('/testimonialview');
+                      },
+                      imagePath:
+                          'assets/images/fluent_person-feedback-16-filled.png',
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -231,7 +248,7 @@ class _HomescreenState extends State<Homescreen> {
               ],
             ),
           )),
-          // bottomNavigationBar:CurvedBottomNavBar(), // <-- This adds the bottom bar
+      // bottomNavigationBar:CurvedBottomNavBar(), // <-- This adds the bottom bar
       bottomNavigationBar: CustomBottomBar(), // <-- This adds the bottom bar
     );
   }
