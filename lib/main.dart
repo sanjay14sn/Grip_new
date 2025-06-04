@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/location_provider.dart';
 import 'package:grip/pages/navigator_key.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:grip/backend/gorouter.dart';
@@ -64,10 +66,10 @@ class _MyAppState extends State<MyApp> {
     _checkInitialConnectivity();
 
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
-      _handleConnectivityChange,
-      onError: _handleError,
-      onDone: _handleDone,
-    );
+          _handleConnectivityChange,
+          onError: _handleError,
+          onDone: _handleDone,
+        );
   }
 
   Future<void> _initFCM() async {
@@ -114,7 +116,8 @@ class _MyAppState extends State<MyApp> {
     // 📲 App launched by tapping notification
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (message != null) {
-        print('🚀 App launched by tapping notification: ${message.notification?.title}');
+        print(
+            '🚀 App launched by tapping notification: ${message.notification?.title}');
       }
     });
 
@@ -134,7 +137,8 @@ class _MyAppState extends State<MyApp> {
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;
 
-    final currentUri = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+    final currentUri =
+        GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
 
     if (result == ConnectivityResult.none) {
       if (!currentUri.contains('/networkerror')) {
@@ -165,11 +169,17 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return Sizer(
       builder: (context, orientation, deviceType) {
-        return MaterialApp.router(
-          routerConfig: router,
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(primarySwatch: Colors.blue),
-          builder: (context, child) => child!,
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => LocationProvider()),
+            // Add other providers here if needed
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(primarySwatch: Colors.blue),
+            builder: (context, child) => child!,
+          ),
         );
       },
     );

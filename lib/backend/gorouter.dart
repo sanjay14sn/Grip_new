@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/Registration.dart';
 import 'package:grip/components/attandance_sucessfull.dart';
 import 'package:grip/components/failure_attandance.dart';
 import 'package:grip/networkerror.dart';
+import 'package:grip/pages/Eventpage.dart';
 import 'package:grip/pages/chapter_detailes/chapterdetails.dart';
 import 'package:grip/pages/chapter_detailes/mychapter/member_info.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/otherchaptersproile.dart';
@@ -33,15 +34,17 @@ import 'package:grip/pages/splashscreen.dart';
 import 'package:grip/pages/testimonials/addtestimonials.dart';
 import 'package:grip/pages/testimonials/testimonialsview.dart';
 import 'package:grip/pages/thankunote/thankyounote.dart';
-import 'package:grip/pages/visitors.dart';
+import 'package:grip/pages/visitors/visitors.dart';
+import 'package:grip/pages/visitors/visitors_detailed.dart';
+import 'package:grip/pages/visitors/visitors_view.dart';
 
 final GoRouter router = GoRouter(
-   navigatorKey: rootNavigatorKey, // ✅ Pass it here
+  navigatorKey: rootNavigatorKey, // ✅ Pass it here
   initialLocation: '/gripsplashscreen',
   routes: [
     GoRoute(
       path: '/gripsplashscreen',
-      builder: (context, state) =>GripSplashScreen(),
+      builder: (context, state) => GripSplashScreen(),
     ),
     GoRoute(
       path: '/splashscreen',
@@ -117,7 +120,7 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/GivenTestimonials',
-      builder: (context, state) =>Giventestimonialspage(),
+      builder: (context, state) => Giventestimonialspage(),
     ),
     GoRoute(
       path: '/ReceivedTestimonials',
@@ -137,44 +140,59 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/viewone',
-      builder: (context, state) =>onetooneviewpage(),
+      builder: (context, state) => onetooneviewpage(),
     ),
     GoRoute(
       path: '/Chaptermember',
-      builder: (context, state) =>chapterdetails(),
+      builder: (context, state) => chapterdetails(),
     ),
-     GoRoute(
+    GoRoute(
       path: '/ViewOthers',
-      builder: (context, state) =>MemberListPage(),
+      builder: (context, state) => MemberListPage(),
     ),
-     GoRoute(
+    GoRoute(
       path: '/OthersOneToOnesPage',
-      builder: (context, state) =>OthersOneToOnesPage(),
+      builder: (context, state) => OthersOneToOnesPage(),
     ),
-     GoRoute(
+    GoRoute(
       path: '/viewonetoone',
-      builder: (context, state) =>OneToOneDetailsPage(),
+      builder: (context, state) => OneToOneDetailsPage(),
     ),
-     GoRoute(
+    GoRoute(
       path: '/QRscanner',
-      builder: (context, state) =>QRScanPage(),
+      builder: (context, state) => QRScanPage(),
     ),
     GoRoute(
       path: '/AttendanceSuccess',
-      builder: (context, state) =>AttendanceSuccessPage(),
+      builder: (context, state) => AttendanceSuccessPage(),
     ),
     GoRoute(
       path: '/AttendanceFailure',
-      builder: (context, state) =>AttendanceFailurePage(),
+      builder: (context, state) => AttendanceFailurePage(),
     ),
-     GoRoute(
+    GoRoute(
       path: '/membershipdetails',
-      builder: (context, state) =>MembershipDetailsPage(),
+      builder: (context, state) => MembershipDetailsPage(),
+    ),
+    GoRoute(
+      path: '/Otherschapter',
+      builder: (context, state) => OtherChapterPage(),
+    ),
+    GoRoute(
+      path: '/visitorsview',
+      builder: (context, state) => VisitorsViewpage(),
+    ),
+    GoRoute(
+      path: '/visiteddetails',
+      builder: (context, state) =>VisitorDetailsScreen(),
+    ),
+    GoRoute(
+      path: '/Event',
+      builder: (context, state) =>UpcomingEventsPage(),
     ),
      GoRoute(
-      path: '/Otherschapter',
-      builder: (context, state) =>OtherChapterPage(),
+      path: '/Registration',
+      builder: (context, state) => PaymentScreen(),
     ),
   ],
 );
-

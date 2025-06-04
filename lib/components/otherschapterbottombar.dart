@@ -51,7 +51,7 @@ class _BottomAppBarMenuState extends State<BottomAppBarMenu> {
         shape: CircularNotchedRectangle(),
         notchMargin: 8,
         child: Container(
-          height: 60,
+          height:60,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -59,7 +59,7 @@ class _BottomAppBarMenuState extends State<BottomAppBarMenu> {
                 icon: Icon(Icons.home, color: Colors.red),
                 onPressed: () {},
               ),
-              SizedBox(width: 40), // space for FAB
+              SizedBox(width:40), // space for FAB
               IconButton(
                 icon: Icon(Icons.person, color: Colors.grey),
                 onPressed: () {},

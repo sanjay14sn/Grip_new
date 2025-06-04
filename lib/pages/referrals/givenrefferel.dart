@@ -81,14 +81,9 @@ class GivenReferralSlipPage extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Pream S',
-                                   style: TTextStyles.refname
-                                ),
-                                Text(
-                                  'Marvel Interiors',
-                                  style: TTextStyles.Rivenrefsmall
-                                ),
+                                Text('Pream S', style: TTextStyles.refname),
+                                Text('Marvel Interiors',
+                                    style: TTextStyles.Rivenrefsmall),
                               ],
                             ),
                           ],
@@ -123,7 +118,7 @@ class GivenReferralSlipPage extends StatelessWidget {
                                         ),
                                       ),
                                       TextSpan(
-                                          text: ' 8112262656',
+                                          text: '8112262656',
                                           style: TTextStyles.Refcontact),
                                     ],
                                   ),

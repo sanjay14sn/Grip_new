@@ -245,4 +245,9 @@ class TTextStyles {
     fontSize: 16.sp,
     fontWeight: FontWeight.w600,
   );
+   static final TextStyle Or = GoogleFonts.roboto(
+    color: Color(0xFFC6221A),
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w600,
+  );
 }

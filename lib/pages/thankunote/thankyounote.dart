@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -13,6 +14,38 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
   String? selectedPerson;
   final List<String> personList = ['Person A', 'Person B', 'Person C'];
   final Color customRed = const Color(0xFFC6221A);
+
+  // Controllers for API integration
+  final TextEditingController associateMobileController =
+      TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController commentsController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Clean up controllers when widget is disposed
+    associateMobileController.dispose();
+    amountController.dispose();
+    commentsController.dispose();
+    super.dispose();
+  }
+
+  void submitForm() {
+    // Collect data for API call
+    final formData = {
+      'associateMobile': associateMobileController.text,
+      'thankYouTo': selectedPerson,
+      'amount': amountController.text,
+      'comments': commentsController.text,
+    };
+
+    // TODO: Implement API call using formData
+    print('Submitting form: $formData');
+    // Example:
+    // ApiService.submitThankYouNote(formData).then((response) {
+    //   // Handle response
+    // });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +64,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
+                          onTap: () => Navigator.pop(context),
                           child: Container(
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -43,6 +74,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                             child: const Icon(Icons.arrow_back),
                           ),
                         ),
+
                         Row(
                           children: [
                             Image.asset(
@@ -50,14 +82,37 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                               height: 44.sp,
                               width: 44.sp,
                             ),
-                            // SizedBox(width: 1.w),
+                            SizedBox(width: 2.w),
                             Text('Thank U Note Slip',
                                 style: TTextStyles.ReferralSlip),
                           ],
                         ),
 
                         SizedBox(height: 1.h),
-
+                        Container(
+                          width: double.infinity,
+                          height: 6.5.h,
+                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(2.w),
+                          ),
+                          child: TextField(
+                            controller: associateMobileController,
+                            maxLines: null,
+                            expands: true,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Enter associate mobile number",
+                            ),
+                            keyboardType: TextInputType.phone,
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Center(
+                          child: Text('( OR )', style: TTextStyles.Or),
+                        ),
+                        SizedBox(height: 2.h),
                         // Dropdown with label
                         Container(
                           height: 6.5.h,
@@ -75,7 +130,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                   child: DropdownButton<String>(
                                     isExpanded: true,
                                     value: selectedPerson,
-                                    hint: const Text("Thnak you To:"),
+                                    hint: const Text("Thank you To:"),
                                     items: personList.map((e) {
                                       return DropdownMenuItem<String>(
                                         value: e,
@@ -83,9 +138,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                       );
                                     }).toList(),
                                     onChanged: (value) {
-                                      setState(() {
-                                        selectedPerson = value;
-                                      });
+                                      setState(() => selectedPerson = value);
                                     },
                                   ),
                                 ),
@@ -111,7 +164,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                 height: double.infinity,
                                 width: 15.w,
                                 decoration: BoxDecoration(
-                                  color: customRed.withOpacity(0.9),
+                                  color: Tcolors.smalll_button,
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(2.w),
                                     bottomLeft: Radius.circular(2.w),
@@ -127,11 +180,14 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                   padding:
                                       EdgeInsets.symmetric(horizontal: 3.w),
                                   child: TextField(
+                                    controller: amountController,
                                     decoration: const InputDecoration(
                                       hintText: "Amount",
                                       border: InputBorder.none,
                                     ),
-                                    keyboardType: TextInputType.number,
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            decimal: true),
                                   ),
                                 ),
                               ),
@@ -150,10 +206,11 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                             color: Colors.grey[200],
                             borderRadius: BorderRadius.circular(2.w),
                           ),
-                          child: const TextField(
+                          child: TextField(
+                            controller: commentsController,
                             maxLines: null,
                             expands: true,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               border: InputBorder.none,
                               hintText: "Comments",
                             ),
@@ -167,7 +224,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                           width: double.infinity,
                           height: 6.5.h,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: submitForm,
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.zero,
                               shape: RoundedRectangleBorder(
@@ -178,14 +235,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                             ),
                             child: Ink(
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFC02221),
-                                    Color(0xFFF2AAAA)
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
+                                gradient: Tcolors.red_button,
                                 borderRadius: BorderRadius.circular(2.w),
                               ),
                               child: Center(
@@ -193,7 +243,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                   "Submit",
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 12.sp,
+                                      fontSize: 14.sp,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -202,8 +252,6 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                         ),
 
                         SizedBox(height: 2.h),
-
-                        // Home Icon at bottom
                       ],
                     ),
                   ),

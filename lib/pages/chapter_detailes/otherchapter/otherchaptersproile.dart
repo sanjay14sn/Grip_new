@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/pages/chapter_detailes/dummy.dart';
@@ -81,7 +82,6 @@ class _MyChapterPageState extends State<OtherChapterPage> {
             ),
           ),
 
-          // Floating Menu
           if (isMenuOpen)
             Positioned(
               bottom: 70,
@@ -94,13 +94,26 @@ class _MyChapterPageState extends State<OtherChapterPage> {
                   children: [
                     Transform.translate(
                       offset: Offset(0, 30),
-                      child: _menuItem(Icons.group, "Referrals"),
+                      child: _menuItem(Icons.group, "Referrals", () {
+                        print("Referrals tapped");
+                         context.push('/addreferalpage');
+                        // Add your navigation or logic here
+                      }),
                     ),
-                    _menuItem(Icons.handshake, "Thank U Notes"),
-                    _menuItem(Icons.chat, "Testimonials"),
+                    _menuItem(Icons.handshake, "Thank U Notes", () {
+                      print("Thank U Notes tapped");
+                           context.push('/thankyounote');
+                    }),
+                    _menuItem(Icons.chat, "Testimonials", () {
+                       context.push('/addtestimonials');
+                      print("Testimonials tapped");
+                    }),
                     Transform.translate(
                       offset: Offset(0, 30),
-                      child: _menuItem(Icons.group_work, "One-To-Ones"),
+                      child: _menuItem(Icons.group_work, "One-To-Ones", () {
+                        print("One-To-Ones tapped");
+                         context.push('/onetoone');
+                      }),
                     ),
                   ],
                 ),
@@ -210,38 +223,41 @@ class _MyChapterPageState extends State<OtherChapterPage> {
     );
   }
 
-  Widget _menuItem(IconData icon, String label) {
-    return Column(
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              padding: EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: Colors.white, size: 28),
-            ),
-            Positioned(
-              top: -8,
-              right: -4,
-              child: Container(
-                height: 16,
-                width: 16,
-                child: Icon(
-                  Icons.add,
-                  size: 14,
+  Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: EdgeInsets.all(14),
+                decoration: BoxDecoration(
                   color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: Colors.white, size: 28),
+              ),
+              Positioned(
+                top: -8,
+                right: -4,
+                child: Container(
+                  height: 16,
+                  width: 16,
+                  child: Icon(
+                    Icons.add,
+                    size: 14,
+                    color: Colors.red,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: 5),
-        Text(label, style: TextStyle(fontSize: 12)),
-      ],
+            ],
+          ),
+          SizedBox(height: 5),
+          Text(label, style: TextStyle(fontSize: 12)),
+        ],
+      ),
     );
   }
 

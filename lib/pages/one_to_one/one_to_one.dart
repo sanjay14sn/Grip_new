@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:dashed_circle/dashed_circle.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:grip/location_provider.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 class OneToOneSlipPage extends StatefulWidget {
@@ -27,7 +29,9 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
     'At A Common Location'
   ];
   final Color customRed = const Color(0xFFC6221A);
+  final BorderRadius boxRadius = BorderRadius.circular(12.0);
 
+  final TextEditingController commentController = TextEditingController();
   File? _pickedImage;
 
   Future<void> _pickImage() async {
@@ -82,6 +86,28 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
 
                   SizedBox(height: 3.h),
 
+                  Container(
+                    height: 6.5.h,
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F9),
+                      borderRadius: boxRadius,
+                    ),
+                    child: TextField(
+                      controller: commentController,
+                      maxLines: null,
+                      decoration: const InputDecoration.collapsed(
+                        hintText: 'Enter associate mobile number',
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Center(
+                    child: Text('( OR )', style: TTextStyles.Or),
+                  ),
+                  SizedBox(height: 2.h),
                   // Met With Dropdown
                   _labelledDropdownWithSearch(
                     hint: "Met With:",
@@ -114,8 +140,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                     children: [
                       // Autofill Address Field (at bottom)
                       Container(
-                        margin: EdgeInsets.only(
-                            top: 22), // space for button to overlap slightly
+                        margin: EdgeInsets.only(top: 22),
                         height: 85,
                         width: double.infinity,
                         alignment: Alignment.centerLeft,
@@ -124,7 +149,17 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(2.w),
                         ),
-                        child: const Text("Autofill"),
+                        child: Consumer<LocationProvider>(
+                          builder: (context, locationProvider, child) {
+                            if (locationProvider.isFetching) {
+                              return const CircularProgressIndicator();
+                            } else if (locationProvider.fullAddress != null) {
+                              return Text(locationProvider.fullAddress!);
+                            } else {
+                              return const Text("Autofill");
+                            }
+                          },
+                        ),
                       ),
 
                       // Positioned Button (overlapping top-center)
@@ -137,7 +172,11 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                             width: 260,
                             height: 44,
                             child: ElevatedButton.icon(
-                              onPressed: () {},
+                              onPressed: () {
+                                context
+                                    .read<LocationProvider>()
+                                    .fetchLocation();
+                              },
                               icon: const Icon(
                                 Icons.location_on_outlined,
                                 color: Colors.white,
@@ -254,8 +293,6 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                   ),
                   SizedBox(height: 2.h),
 
-
-
                   // Submit Button
                   SizedBox(
                     width: double.infinity,
@@ -272,11 +309,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                       ),
                       child: Ink(
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFC02221), Color(0xFFF2AAAA)],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
+                          gradient: Tcolors.red_button,
                           borderRadius: BorderRadius.circular(2.w),
                         ),
                         child: Center(

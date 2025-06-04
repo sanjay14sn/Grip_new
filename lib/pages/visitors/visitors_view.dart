@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/components/filter.dart';
-import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
-class Testimonialsviewpage extends StatefulWidget {
-  const Testimonialsviewpage({super.key});
+class VisitorsViewpage extends StatefulWidget {
+  const VisitorsViewpage({super.key});
 
   @override
-  State<Testimonialsviewpage> createState() => _ReferralDetailsPageState();
+  State<VisitorsViewpage> createState() => _ReferralDetailsPageState();
 }
 
-class _ReferralDetailsPageState extends State<Testimonialsviewpage> {
+class _ReferralDetailsPageState extends State<VisitorsViewpage> {
   bool isReceivedSelected = false;
 
   final List<Map<String, String>> receivedReferrals = [
@@ -99,6 +98,10 @@ class _ReferralDetailsPageState extends State<Testimonialsviewpage> {
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
+                  Center(
+                    child: Text('Visitors Invited by Me',
+                        style: TTextStyles.Editprofile),
+                  ),
 
                   // Filter Icon
                   GestureDetector(
@@ -139,82 +142,21 @@ class _ReferralDetailsPageState extends State<Testimonialsviewpage> {
               ),
               SizedBox(height: 2.h),
 
+              // Title
               Row(
                 children: [
-                  Text('Testimonials Details', style: TTextStyles.ReferralSlip),
+                  Text('Visitors', style: TTextStyles.Editprofile),
                   const SizedBox(width: 8),
                   Image.asset(
-                    'assets/images/fluent_person-feedback-16-filled.png', // Replace with your actual image path
+                    'assets/images/handshake.png', // Replace with your actual image path
                     width: 34,
                     height: 34,
                   )
                 ],
               ),
-
               SizedBox(height: 1.5.h),
 
               // Category toggle
-              Text('Category:', style: TTextStyles.Category),
-              SizedBox(height: 1.h),
-              Container(
-                width: double.infinity,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Row(
-                  children: [
-                    // GIVEN button
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => isReceivedSelected = false),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient:
-                                !isReceivedSelected ? Tcolors.red_button : null,
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Given',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: !isReceivedSelected
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // RECEIVED button
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => isReceivedSelected = true),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient:
-                                isReceivedSelected ? Tcolors.red_button : null,
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Received',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isReceivedSelected
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
               SizedBox(height: 2.h),
 
@@ -246,9 +188,9 @@ class _ReferralDetailsPageState extends State<Testimonialsviewpage> {
     return GestureDetector(
       onTap: () {
         if (isReceived) {
-          context.push('/ReceivedTestimonials'); // received route
+          context.push('/visiteddetails'); // received route
         } else {
-          context.push('/GivenTestimonials'); // given route
+          context.push('/visiteddetails'); // given route
         }
       },
       child: Card(

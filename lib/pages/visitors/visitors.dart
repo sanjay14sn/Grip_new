@@ -81,7 +81,7 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
               buildInputField('Category*', controller: categoryController),
               buildInputField('Mobile*', controller: mobileController),
               buildInputField('Email', controller: emailController),
-              buildInputField('Address', controller: addressController, maxLines: 2),
+              buildInputField('Address', controller: addressController),
               buildDateField('Visit Date*', controller: visitDateController),
 
               SizedBox(height: 3.h),
@@ -143,7 +143,8 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
     );
   }
 
-  Widget buildDateField(String label, {required TextEditingController controller}) {
+  Widget buildDateField(String label,
+      {required TextEditingController controller}) {
     return Padding(
       padding: EdgeInsets.only(bottom: 2.h),
       child: SizedBox(

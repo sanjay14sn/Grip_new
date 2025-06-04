@@ -4,6 +4,7 @@ import 'package:dashed_circle/dashed_circle.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -51,6 +52,27 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                   SizedBox(width: 2.w),
                   Text('Testimonial Slip', style: TTextStyles.ReferralSlip),
                 ],
+              ),
+              SizedBox(height: 2.h),
+              Container(
+                height: 6.5.h,
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F9),
+                  borderRadius: boxRadius,
+                ),
+                child: TextField(
+                  controller: commentController,
+                  maxLines: null,
+                  decoration: const InputDecoration.collapsed(
+                    hintText: 'Enter associate mobile number',
+                  ),
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Center(
+                child: Text('( OR )', style: TTextStyles.Or),
               ),
               SizedBox(height: 2.h),
               Container(
@@ -189,7 +211,11 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: IconButton(
-                              icon: Icon(Icons.delete, color: Colors.red,size:15,),
+                              icon: Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                                size: 15,
+                              ),
                               onPressed: () {
                                 setState(() {
                                   pickedFilePath = null;
@@ -226,9 +252,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                 height: 6.5.h,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFE66465), Color(0xFFc83837)],
-                  ),
+                  gradient: Tcolors.red_button,
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black12,
@@ -246,7 +270,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                   },
                   child: Text(
                     "Submit",
-                    style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                    style: TextStyle(color: Colors.white, fontSize: 14.sp),
                   ),
                 ),
               ),

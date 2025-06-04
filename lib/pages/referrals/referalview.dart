@@ -16,19 +16,59 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
   bool isReceivedSelected = false;
 
   final List<Map<String, String>> receivedReferrals = [
-    {'name': 'Paul Mauray', 'date': '12 Nov 2024', 'image': 'assets/images/profile1.jpg'},
-    {'name': 'Dinesh', 'date': '12 Nov 2024', 'image': 'assets/images/profile2.jpg'},
-    {'name': 'Amaran', 'date': '15 Nov 2024', 'image': 'assets/images/profile1.jpg'},
-    {'name': 'Babu', 'date': '17 Nov 2024', 'image': 'assets/images/profile3.jpg'},
-    {'name': 'Mani', 'date': '17 Nov 2024', 'image': 'assets/images/profile4.jpg'},
+    {
+      'name': 'Paul Mauray',
+      'date': '12 Nov 2024',
+      'image': 'assets/images/profile1.jpg'
+    },
+    {
+      'name': 'Dinesh',
+      'date': '12 Nov 2024',
+      'image': 'assets/images/profile2.jpg'
+    },
+    {
+      'name': 'Amaran',
+      'date': '15 Nov 2024',
+      'image': 'assets/images/profile1.jpg'
+    },
+    {
+      'name': 'Babu',
+      'date': '17 Nov 2024',
+      'image': 'assets/images/profile3.jpg'
+    },
+    {
+      'name': 'Mani',
+      'date': '17 Nov 2024',
+      'image': 'assets/images/profile4.jpg'
+    },
   ];
 
   final List<Map<String, String>> givenReferrals = [
-    {'name': 'Suresh Kumar', 'date': '10 Nov 2024', 'image': 'assets/images/profile1.jpg'},
-    {'name': 'Priya Dharshini', 'date': '11 Nov 2024', 'image': 'assets/images/profile2.jpg'},
-    {'name': 'John Moses', 'date': '12 Nov 2024', 'image': 'assets/images/profile3.jpg'},
-    {'name': 'Radha', 'date': '13 Nov 2024', 'image': 'assets/images/profile4.jpg'},
-    {'name': 'Ajay', 'date': '14 Nov 2024', 'image': 'assets/images/profile1.jpg'},
+    {
+      'name': 'Suresh Kumar',
+      'date': '10 Nov 2024',
+      'image': 'assets/images/profile1.jpg'
+    },
+    {
+      'name': 'Priya Dharshini',
+      'date': '11 Nov 2024',
+      'image': 'assets/images/profile2.jpg'
+    },
+    {
+      'name': 'John Moses',
+      'date': '12 Nov 2024',
+      'image': 'assets/images/profile3.jpg'
+    },
+    {
+      'name': 'Radha',
+      'date': '13 Nov 2024',
+      'image': 'assets/images/profile4.jpg'
+    },
+    {
+      'name': 'Ajay',
+      'date': '14 Nov 2024',
+      'image': 'assets/images/profile1.jpg'
+    },
   ];
 
   @override
@@ -91,7 +131,8 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                         color: Color(0xFFE0E2E7),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.filter_alt_outlined, color: Colors.black),
+                      child: const Icon(Icons.filter_alt_outlined,
+                          color: Colors.black),
                     ),
                   )
                 ],
@@ -126,7 +167,8 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                         onTap: () => setState(() => isReceivedSelected = false),
                         child: Container(
                           decoration: BoxDecoration(
-                            gradient: !isReceivedSelected ? Tcolors.red_button : null,
+                            gradient:
+                                !isReceivedSelected ? Tcolors.red_button : null,
                             borderRadius: BorderRadius.circular(24),
                           ),
                           alignment: Alignment.center,
@@ -134,7 +176,9 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                             'Given',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: !isReceivedSelected ? Colors.white : Colors.black,
+                              color: !isReceivedSelected
+                                  ? Colors.white
+                                  : Colors.black,
                             ),
                           ),
                         ),
@@ -147,7 +191,8 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                         onTap: () => setState(() => isReceivedSelected = true),
                         child: Container(
                           decoration: BoxDecoration(
-                            gradient: isReceivedSelected ? Tcolors.red_button : null,
+                            gradient:
+                                isReceivedSelected ? Tcolors.red_button : null,
                             borderRadius: BorderRadius.circular(24),
                           ),
                           alignment: Alignment.center,
@@ -155,7 +200,9 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                             'Received',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: isReceivedSelected ? Colors.white : Colors.black,
+                              color: isReceivedSelected
+                                  ? Colors.white
+                                  : Colors.black,
                             ),
                           ),
                         ),
@@ -170,10 +217,15 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
               // Referral List using ListView.builder
               Expanded(
                 child: ListView.builder(
-                  itemCount: isReceivedSelected ? receivedReferrals.length : givenReferrals.length,
+                  itemCount: isReceivedSelected
+                      ? receivedReferrals.length
+                      : givenReferrals.length,
                   itemBuilder: (context, index) {
-                    final item = isReceivedSelected ? receivedReferrals[index] : givenReferrals[index];
-                    return referralTile(item['name']!, item['date']!, item['image']!, isReceivedSelected);
+                    final item = isReceivedSelected
+                        ? receivedReferrals[index]
+                        : givenReferrals[index];
+                    return referralTile(item['name']!, item['date']!,
+                        item['image']!, isReceivedSelected);
                   },
                 ),
               ),
@@ -185,7 +237,8 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
   }
 
   // Tile Widget with different routes based on tab
-  Widget referralTile(String name, String date, String imagePath, bool isReceived) {
+  Widget referralTile(
+      String name, String date, String imagePath, bool isReceived) {
     return GestureDetector(
       onTap: () {
         if (isReceived) {

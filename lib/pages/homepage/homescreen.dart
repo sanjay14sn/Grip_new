@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/gorouter.dart';
 import 'package:grip/components/bottomappbar.dart';
+import 'package:grip/components/bottomappbartemp.dart';
 import 'package:grip/main.dart';
 import 'package:grip/pages/homepage/customcard.dart';
 import 'package:grip/utils/constants/Timages.dart';
@@ -240,16 +241,18 @@ class _HomescreenState extends State<Homescreen> {
                       onTapAddView: () {
                         context.push('/visitors');
                       },
-                      onTapView: () => print("View - Visitors"),
+                      onTapView: () => {context.push('/visitorsview')},
                       imagePath: 'assets/images/visitors.png',
                     ),
                   ],
                 ),
+                SizedBox(height: 4.h)
               ],
             ),
           )),
+
       // bottomNavigationBar:CurvedBottomNavBar(), // <-- This adds the bottom bar
-      bottomNavigationBar: CustomBottomBar(), // <-- This adds the bottom bar
+      bottomNavigationBar: CurvedBottomNavBar(), // <-- This adds the bottom bar
     );
   }
 }

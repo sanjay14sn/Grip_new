@@ -81,14 +81,9 @@ class ReceivedreferralSlip extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Krithick S',
-                                   style: TTextStyles.refname
-                                ),
-                                Text(
-                                  'Marvel Interiors',
-                                  style: TTextStyles.Rivenrefsmall
-                                ),
+                                Text('Krithick S', style: TTextStyles.refname),
+                                Text('Marvel Interiors',
+                                    style: TTextStyles.Rivenrefsmall),
                               ],
                             ),
                           ],

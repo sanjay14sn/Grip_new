@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/otherchaptersproile.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -70,14 +71,7 @@ class othersMemberCard extends StatelessWidget {
                   width: double.infinity,
                   height: 3.h,
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFFFF3534), // Soft red
-                        Color(0xFF575757), // Muted gray
-                      ],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
+                    color: Tcolors.smalll_button,
                     borderRadius: BorderRadius.vertical(
                       bottom: Radius.circular(10),
                     ),
