@@ -232,9 +232,7 @@ class _ReferralPageState extends State<ReferralPage> {
                                   borderRadius: BorderRadius.circular(2.w),
                                 ),
                               ),
-                              onPressed: () {
-                               
-                              },
+                              onPressed: () {},
                               child: Text(
                                 "Submit",
                                 style: TextStyle(

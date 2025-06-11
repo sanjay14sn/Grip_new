@@ -96,23 +96,23 @@ class _MyChapterPageState extends State<OtherChapterPage> {
                       offset: Offset(0, 30),
                       child: _menuItem(Icons.group, "Referrals", () {
                         print("Referrals tapped");
-                         context.push('/addreferalpage');
+                        context.push('/addreferalpage');
                         // Add your navigation or logic here
                       }),
                     ),
                     _menuItem(Icons.handshake, "Thank U Notes", () {
                       print("Thank U Notes tapped");
-                           context.push('/thankyounote');
+                      context.push('/thankyounote');
                     }),
                     _menuItem(Icons.chat, "Testimonials", () {
-                       context.push('/addtestimonials');
+                      context.push('/addtestimonials');
                       print("Testimonials tapped");
                     }),
                     Transform.translate(
                       offset: Offset(0, 30),
                       child: _menuItem(Icons.group_work, "One-To-Ones", () {
                         print("One-To-Ones tapped");
-                         context.push('/onetoone');
+                        context.push('/onetoone');
                       }),
                     ),
                   ],

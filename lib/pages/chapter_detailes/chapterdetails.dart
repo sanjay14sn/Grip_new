@@ -165,7 +165,6 @@ class _MyChapterPageState extends State<MyChapterPage> {
   }
 }
 
-
 class SectionHeader extends StatelessWidget {
   final String title;
   const SectionHeader({required this.title});

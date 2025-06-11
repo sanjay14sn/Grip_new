@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/backend/gorouter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -154,10 +153,16 @@ class ProfilePage extends StatelessWidget {
                         ),
                         padding: EdgeInsets.zero,
                       ),
-                      child: const Text(
-                        "Logout",
-                        style: TextStyle(
-                            color: Colors.white), // Text color on gradient
+                      child: GestureDetector(
+                        onTap: () {
+                          context.go('/login');
+                        },
+                        child: const Text(
+                          "Logout",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),

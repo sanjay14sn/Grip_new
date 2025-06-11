@@ -26,7 +26,6 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
     Timer(const Duration(seconds: 4), () {
       if (mounted) {
         context.push('/splashscreen');
-        print("🟢 Splash done, navigate to next screen...");
       }
     });
   }

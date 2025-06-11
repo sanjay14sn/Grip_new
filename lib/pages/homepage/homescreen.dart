@@ -5,6 +5,7 @@ import 'package:grip/components/bottomappbar.dart';
 import 'package:grip/components/bottomappbartemp.dart';
 import 'package:grip/main.dart';
 import 'package:grip/pages/homepage/customcard.dart';
+import 'package:grip/pages/homepage/slider.dart';
 import 'package:grip/utils/constants/Timages.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -102,60 +103,7 @@ class _HomescreenState extends State<Homescreen> {
                 ),
                 const SizedBox(height: 20),
 
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  child: Stack(
-                    children: [
-                      // Background Image
-                      Positioned.fill(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(25),
-                          child: Image.asset(
-                            'assets/images/image.png', // Make sure this is the correct path
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-
-                      // Red Tint Overlay
-                      Positioned.fill(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(25),
-                          child: Container(
-                            color: const Color(0xFFFF3534)
-                                .withOpacity(0.10), // Red with opacity
-                          ),
-                        ),
-                      ),
-
-                      // Centered Text
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Global Referral \nInteracting Platform',
-                                style: TTextStyles.slidertitle,
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'India’s #1 Digital Business Networking Platform',
-                                style: TTextStyles.sildersubtitle,
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+               Center(child: ReferralCarousel()),
                 SizedBox(
                   height: 1.h,
                 ),

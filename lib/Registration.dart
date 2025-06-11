@@ -3,21 +3,12 @@ import 'package:sizer/sizer.dart';
 
 class PaymentScreen extends StatelessWidget {
   final List<PaymentItem> items = [
-    PaymentItem(
-        "Hotel Registration",
-        "https://images.pexels.com/photos/3184394/pexels-photo-3184394.jpeg",
-        Colors.blue,
-        "15 June 2025"),
-    PaymentItem(
-        "Training Registration",
-        "https://images.pexels.com/photos/3184394/pexels-photo-3184394.jpeg",
-        Colors.purple,
-        "15 June 2025"),
-    PaymentItem(
-        "Dinner Registration",
-        "https://images.pexels.com/photos/3184394/pexels-photo-3184394.jpeg",
-        Colors.orange,
-        "15 June 2025"),
+    PaymentItem("Hotel Registration", "assets/images/registration.png",
+        Colors.blue, "15 June 2025"),
+    PaymentItem("Training Registration", "assets/images/tropy.png",
+        Colors.purple, "15 June 2025"),
+    PaymentItem("Dinner Registration", "assets/images/dinning.png",
+        Colors.orange, "15 June 2025"),
   ];
 
   @override
@@ -106,8 +97,8 @@ class PaymentCard extends StatelessWidget {
               color: item.iconColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(3.w),
             ),
-            child: Image.network(item.iconPath,
-                width: 8.w, height: 8.w, color: item.iconColor),
+            child: Image.asset(item.iconPath,
+                width: 10.w, height: 10.w, color: item.iconColor),
           ),
           SizedBox(width: 4.w),
           Expanded(
