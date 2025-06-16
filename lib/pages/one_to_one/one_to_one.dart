@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:dashed_circle/dashed_circle.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:grip/providers/location_provider.dart';
+import 'package:grip/backend/providers/location_provider.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:image_picker/image_picker.dart';

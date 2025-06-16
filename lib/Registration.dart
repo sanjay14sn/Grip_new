@@ -14,52 +14,47 @@ class PaymentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFC6221A),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          "Payment",
+          style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold),
+        ),
+      ),
       backgroundColor: Colors.grey.shade100,
-      body: Column(
-        children: [
-          Container(
-            height: 10.h,
-            color: Colors.redAccent,
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            child: Row(
-              children: [
-                Icon(Icons.arrow_back, color: Colors.white, size: 20.sp),
-                SizedBox(width: 4.w),
-                Text(
-                  "Payment",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(3.w),
-              child: Container(
-                padding: EdgeInsets.all(3.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.w),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black12, blurRadius: 4, spreadRadius: 2),
-                  ],
-                ),
-                child: ListView.separated(
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 2.h),
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return PaymentCard(item: item);
-                  },
-                ),
+      body: Padding(
+        padding: EdgeInsets.all(3.w),
+        child: Container(
+          padding: EdgeInsets.all(3.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(4.w),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                spreadRadius: 2,
               ),
-            ),
+            ],
           ),
-        ],
+          child: ListView.separated(
+            itemCount: items.length,
+            separatorBuilder: (_, __) => SizedBox(height: 2.h),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return PaymentCard(item: item);
+            },
+          ),
+        ),
       ),
     );
   }

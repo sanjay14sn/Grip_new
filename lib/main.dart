@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/providers/location_provider.dart';
+import 'package:grip/backend/orientation_lock.dart';
+import 'package:grip/backend/providers/location_provider.dart';
 import 'package:grip/pages/navigator_key.dart';
-import 'package:grip/providers/person_provider.dart';
+import 'package:grip/backend/providers/person_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -31,6 +32,7 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await lockOrientationToPortrait(); // 🔐 Lock orientation
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   print("✅ Firebase initialized successfully");
 

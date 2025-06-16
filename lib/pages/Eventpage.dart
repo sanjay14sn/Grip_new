@@ -9,70 +9,43 @@ class UpcomingEventsPage extends StatelessWidget {
     return Sizer(
       builder: (context, orientation, deviceType) {
         return Scaffold(
+          appBar: AppBar(
+            backgroundColor: const Color(0xFFC6221A),
+            title: Text(
+              'Upcoming Events',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600,color: Colors.white),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back,color: Colors.white,),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
           backgroundColor: Colors.white,
-          body: Column(
-            children: [
-              // Top App Bar
-              Container(
-                height: 10.h,
-                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFC6221A),
+          body: Padding(
+            padding: EdgeInsets.all(4.w),
+            child: ListView(
+              children: [
+                const EventCard(
+                  title: 'Womens Day Celebration',
+                  date: '10-15-2025',
+                  time: '7:30 AM',
+                  location: 'Royal Palace, T Nagar',
+                  imageUrl:
+                      'https://images.pexels.com/photos/3184394/pexels-photo-3184394.jpeg',
                 ),
-                child: Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.center, // Vertically center
-                  children: [
-                    SizedBox(height:3.h,),
-                    Icon(Icons.arrow_back, color: Colors.white),
-                    SizedBox(width: 4.w),
-                    Expanded(
-                      // So text doesn't overflow and centers better
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Upcoming Events',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                SizedBox(height: 2.h),
+                const EventCard(
+                  title: 'Mega Visitor Day',
+                  date: '10-15-2025',
+                  time: '7:30 AM',
+                  location: 'Royal Palace, T Nagar',
+                  imageUrl:
+                      'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg',
                 ),
-              ),
-
-              SizedBox(
-                height: 1.5.h,
-              ),
-              // Event list
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.all(4.w),
-                  children: [
-                    EventCard(
-                      title: 'Womens Day Celebration',
-                      date: '10-15-2025',
-                      time: '7:30 Am',
-                      location: 'Royal Palace, T Nagar',
-                      imageUrl:
-                          'https://images.pexels.com/photos/3184394/pexels-photo-3184394.jpeg', // Example image
-                    ),
-                    SizedBox(height: 2.h),
-                    EventCard(
-                      title: 'Mega Visitor Day',
-                      date: '10-15-2025',
-                      time: '7:30 Am',
-                      location: 'Royal Palace, T Nagar',
-                      imageUrl:
-                          'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg',
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -115,7 +88,7 @@ class EventCard extends StatelessWidget {
         children: [
           // Image with title overlay
           ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Stack(
               alignment: Alignment.bottomLeft,
               children: [
@@ -159,14 +132,14 @@ class EventCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 16, color: Colors.black54),
+                    const Icon(Icons.calendar_today, size: 16, color: Colors.black54),
                     SizedBox(width: 2.w),
                     Text(
                       date,
                       style: TextStyle(fontSize: 12.sp, color: Colors.black87),
                     ),
-                    Spacer(),
-                    Icon(Icons.access_time, size: 16, color: Colors.black54),
+                    const Spacer(),
+                    const Icon(Icons.access_time, size: 16, color: Colors.black54),
                     SizedBox(width: 2.w),
                     Text(
                       time,
@@ -177,13 +150,12 @@ class EventCard extends StatelessWidget {
                 SizedBox(height: 1.h),
                 Row(
                   children: [
-                    Icon(Icons.location_on, size: 16, color: Colors.black54),
+                    const Icon(Icons.location_on, size: 16, color: Colors.black54),
                     SizedBox(width: 2.w),
                     Expanded(
                       child: Text(
                         location,
-                        style:
-                            TextStyle(fontSize: 12.sp, color: Colors.black87),
+                        style: TextStyle(fontSize: 12.sp, color: Colors.black87),
                       ),
                     ),
                   ],
