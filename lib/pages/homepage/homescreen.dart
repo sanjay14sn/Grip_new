@@ -21,24 +21,8 @@ class _HomescreenState extends State<Homescreen> {
   @override
   void initState() {
     super.initState();
-    // _loadStoredToken();
+    
   }
-
-  // void _loadStoredToken() async {
-  //   const storage = FlutterSecureStorage();
-  //   final token = await storage.read(key: 'auth_token');
-
-  //   if (token != null) {
-  //     print('🔐 Found stored token: ${token.substring(0, 30)}... [truncated]');
-  //     setState(() {
-  //       _storedToken = token;
-  //     });
-
-  //     // You can use _storedToken if needed
-  //   } else {
-  //     print('🔓 No stored token found.');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {

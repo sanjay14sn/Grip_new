@@ -4,6 +4,7 @@ import 'package:dashed_circle/dashed_circle.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:grip/backend/providers/location_provider.dart';
+import 'package:grip/components/Associate_number.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,7 +32,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
   final Color customRed = const Color(0xFFC6221A);
   final BorderRadius boxRadius = BorderRadius.circular(12.0);
 
-  final TextEditingController commentController = TextEditingController();
+  final TextEditingController AssociatenumberController = TextEditingController();
   File? _pickedImage;
 
   Future<void> _pickImage() async {
@@ -86,22 +87,11 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
 
                   SizedBox(height: 3.h),
 
-                  Container(
-                    height: 6.5.h,
-                    width: double.infinity,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F9),
-                      borderRadius: boxRadius,
-                    ),
-                    child: TextField(
-                      controller: commentController,
-                      maxLines: null,
-                      decoration: const InputDecoration.collapsed(
-                        hintText: 'Enter associate mobile number',
-                      ),
-                    ),
+                  CustomInputField(
+                    label: 'Enter Associate Mobile Number',
+                    isRequired: false,
+                    controller: AssociatenumberController,
+                    enableContactPicker: true, // 👈 Add this
                   ),
                   SizedBox(height: 2.h),
                   Center(

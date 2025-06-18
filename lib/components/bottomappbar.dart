@@ -1,85 +1,94 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
-class CustomBottomBar extends StatelessWidget {
+class CurvedBottomNavBarhome extends StatelessWidget {
+  const CurvedBottomNavBarhome({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 9.h,
-      padding: EdgeInsets.symmetric(horizontal: 6.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2C2B2B),
-
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return SizedBox(
+      height: 8.h,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topCenter,
         children: [
-          // Chapter Details Button
-          _BottomBarButton(
-            onTap: () => context.push('/ChapterDetails'),
-            icon: Icon(Icons.groups, color: Color(0xFFC6221A), size: 6.5.w),
-            label: 'Chapter\nDetails',
+          // Curved background with top corners rounded
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
+            ),
+            child: CustomPaint(
+              size: Size(MediaQuery.of(context).size.width, 10.h),
+              painter: NavBarCustomPainter(),
+            ),
           ),
 
-          // Scan Circle Button
-          GestureDetector(
-            onTap: () {
-              context.push('/QRscanner'); // Set your scan route
-            },
-            child: Container(
-              width: 15.w,
-              height: 15.w,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [Colors.white, Color(0xFFE3E3E3)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 6,
-                    offset: Offset(0, 4),
-                  )
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.qr_code_2_rounded,
-                      color: Color(0xFFC83837), size: 9.w),
-                  SizedBox(height: 1),
-                  Text(
-                    'Scan',
-                    style: TextStyle(
-                      color: Color(0xFFC83837),
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
+          // Floating Scan Button
+          Positioned(
+            top: -3.h,
+            child: GestureDetector(
+              onTap: () => context.push('/QRscanner'),
+              child: Container(
+                width: 12.w,
+                height: 12.w,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF2C2B2B),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6,
+                      offset: Offset(0, 4),
                     ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.home, color: Colors.white, size: 8.w),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Nav bar buttons
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _BottomBarButton(
+                    onTap: () => context.push('/meeting'),
+                    icon: Icons.people,
+                    label: 'Meeting',
+                  ),
+                  _BottomBarButton(
+                    onTap: () => context.push('/ChapterDetails'),
+                    icon: Icons.groups,
+                    label: 'Chapters',
+                  ),
+                  SizedBox(width: 16.w), // Leave space for the center button
+                  _BottomBarButton(
+                    onTap: () => context.push('/Event'),
+                    icon: Icons.event,
+                    label: 'Events',
+                  ),
+                  _BottomBarButton(
+                    onTap: () => context.push('/Registration'),
+                    icon: Icons.credit_card,
+                    label: 'Registration',
                   ),
                 ],
               ),
             ),
-          ),
-
-          // Meeting Button
-          _BottomBarButton(
-            onTap: () => context.push('/meeting'),
-            icon: Image.asset(
-              'assets/images/meeting_appbar.png',
-              color: Color(0xFFC6221A),
-              width: 6.5.w,
-              height: 6.5.w,
-            ),
-            label: 'Meeting',
           ),
         ],
       ),
@@ -89,7 +98,7 @@ class CustomBottomBar extends StatelessWidget {
 
 class _BottomBarButton extends StatelessWidget {
   final VoidCallback onTap;
-  final Widget icon;
+  final IconData icon;
   final String label;
 
   const _BottomBarButton({
@@ -100,35 +109,73 @@ class _BottomBarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 28.w,
-      height: 5.2.h,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFFFFFF),
-            Color(0xFFD6E0E1),
-          ],
-        ),
-        borderRadius: BorderRadius.all(Radius.circular(30)),
-      ),
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: icon,
-        label: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TTextStyles.bottombartext,
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: const StadiumBorder(),
-          padding: EdgeInsets.zero,
-        ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white, size: 7.w),
+          SizedBox(height: 0.3.h), // Reduced spacing
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13.sp,
+            ),
+          ),
+        ],
       ),
     );
   }
+}
+
+class NavBarCustomPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF2C2B2B) // DO NOT CHANGE
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+
+    final center = size.width / 2;
+    final notchRadius = 36.0;
+    final notchDepth = 28.0;
+
+    path.moveTo(0, 0);
+    path.lineTo(center - notchRadius - 12, 0);
+
+    // Left curve into notch
+    path.quadraticBezierTo(
+      center - notchRadius,
+      0,
+      center - notchRadius + 6,
+      notchDepth / 2,
+    );
+
+    // Notch semi-circle
+    path.arcToPoint(
+      Offset(center + notchRadius - 6, notchDepth / 2),
+      radius: Radius.circular(36),
+      clockwise: false,
+    );
+
+    // Right curve out of notch
+    path.quadraticBezierTo(
+      center + notchRadius,
+      0,
+      center + notchRadius + 12,
+      0,
+    );
+
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

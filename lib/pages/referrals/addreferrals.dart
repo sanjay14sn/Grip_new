@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/components/Associate_number.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -88,8 +89,12 @@ class _ReferralPageState extends State<ReferralPage> {
                             ),
                           ),
                           SizedBox(height: 2.h),
-                          buildInputField("Enter associate mobile number", true,
-                              controller: associatenumber),
+                          CustomInputField(
+                            label: 'Enter Associate Mobile Number',
+                            isRequired: false,
+                            controller: associatenumber,
+                            enableContactPicker: true, // 👈 Add this
+                          ),
                           Center(
                             child: Text('( OR )', style: TTextStyles.Or),
                           ),

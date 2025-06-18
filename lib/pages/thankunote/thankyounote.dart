@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/components/Associate_number.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -89,25 +90,12 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                         ),
 
                         SizedBox(height: 1.h),
-                        Container(
-                          width: double.infinity,
-                          height: 6.5.h,
-                          padding: EdgeInsets.symmetric(horizontal: 4.w),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(2.w),
-                          ),
-                          child: TextField(
+                       CustomInputField(
+                            label: 'Enter Associate Mobile Number',
+                            isRequired: false,
                             controller: associateMobileController,
-                            maxLines: null,
-                            expands: true,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Enter associate mobile number",
-                            ),
-                            keyboardType: TextInputType.phone,
+                            enableContactPicker: true, // 👈 Add this
                           ),
-                        ),
                         SizedBox(height: 2.h),
                         Center(
                           child: Text('( OR )', style: TTextStyles.Or),

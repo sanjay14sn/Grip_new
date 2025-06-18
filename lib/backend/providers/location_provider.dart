@@ -21,7 +21,7 @@ class LocationProvider with ChangeNotifier {
       isFetching = true;
       notifyListeners();
 
-      // Check location permission
+      // Permissions check
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -36,22 +36,36 @@ class LocationProvider with ChangeNotifier {
         return;
       }
 
-      // Check if location services are enabled
+      // Check location services
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         print("❌ Location services are disabled.");
         return;
       }
 
-      // Get position
-      final Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+      // Wait 2 seconds to improve GPS fix
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Fetch two positions and use the one with better accuracy
+      final Position firstTry = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+        forceAndroidLocationManager: true,
+      );
+      await Future.delayed(const Duration(seconds: 2));
+      final Position secondTry = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+        forceAndroidLocationManager: true,
       );
 
-      latitude = position.latitude;
-      longitude = position.longitude;
+      final Position bestPosition =
+          firstTry.accuracy < secondTry.accuracy ? firstTry : secondTry;
 
-      print("✅ Location fetched: lat = $latitude, long = $longitude");
+      latitude = bestPosition.latitude;
+      longitude = bestPosition.longitude;
+
+      print("✅ Best location: lat = $latitude, long = $longitude");
+      print("🎯 Accuracy: ${bestPosition.accuracy} meters");
+      print("⏰ Timestamp: ${bestPosition.timestamp}");
 
       // Reverse geocoding
       if (latitude != null && longitude != null) {
@@ -72,10 +86,10 @@ class LocationProvider with ChangeNotifier {
 
           print("🏘️ Address fetched:");
           print("Street: $street");
-          print("Area (Sub-locality): $area");
-          print("City (Locality): $city");
-          print("District (Sub-admin area): $district");
-          print("State (Admin area): $state");
+          print("Area: $area");
+          print("City: $city");
+          print("District: $district");
+          print("State: $state");
           print("Country: $country");
           print("Postal Code: $postalCode");
           print("Full Address: $fullAddress");

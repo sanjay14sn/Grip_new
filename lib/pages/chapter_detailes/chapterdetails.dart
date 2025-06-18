@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grip/components/Tab_button.dart';
+import 'package:grip/components/bottomappbar.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
 import 'package:grip/pages/chapter_detailes/dummy.dart';
@@ -94,6 +95,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
           ),
         ),
       ),
+      //  bottomNavigationBar: CurvedBottomNavBarhome(), // <-- This adds the bottom bar
     );
   }
 
