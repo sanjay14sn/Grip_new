@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:location/location.dart' as loc;
+import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
 class LocationProvider with ChangeNotifier {
@@ -15,40 +15,45 @@ class LocationProvider with ChangeNotifier {
   String? fullAddress;
   bool isFetching = false;
 
-  final loc.Location _location = loc.Location();
-
   Future<void> fetchLocation() async {
     try {
       print("📍 Starting location fetch...");
       isFetching = true;
       notifyListeners();
 
-      bool serviceEnabled = await _location.serviceEnabled();
+      // Check location permission
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print("❌ Location permission denied.");
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        print("❌ Location permission permanently denied.");
+        return;
+      }
+
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print("⚠️ Location service not enabled. Requesting...");
-        serviceEnabled = await _location.requestService();
-        if (!serviceEnabled) {
-          print("❌ Location service not enabled. Aborting.");
-          return;
-        }
+        print("❌ Location services are disabled.");
+        return;
       }
 
-      loc.PermissionStatus permissionGranted = await _location.hasPermission();
-      if (permissionGranted == loc.PermissionStatus.denied) {
-        print("🔐 Permission denied. Requesting...");
-        permissionGranted = await _location.requestPermission();
-        if (permissionGranted != loc.PermissionStatus.granted) {
-          print("❌ Permission not granted. Aborting.");
-          return;
-        }
-      }
+      // Get position
+      final Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
 
-      final loc.LocationData locationData = await _location.getLocation();
-      latitude = locationData.latitude;
-      longitude = locationData.longitude;
+      latitude = position.latitude;
+      longitude = position.longitude;
 
       print("✅ Location fetched: lat = $latitude, long = $longitude");
 
+      // Reverse geocoding
       if (latitude != null && longitude != null) {
         List<Placemark> placemarks =
             await placemarkFromCoordinates(latitude!, longitude!);
@@ -58,7 +63,7 @@ class LocationProvider with ChangeNotifier {
           street = placemark.street;
           area = placemark.subLocality;
           city = placemark.locality;
-          district = placemark.subAdministrativeArea; // <- District
+          district = placemark.subAdministrativeArea;
           state = placemark.administrativeArea;
           country = placemark.country;
           postalCode = placemark.postalCode;
@@ -75,7 +80,7 @@ class LocationProvider with ChangeNotifier {
           print("Postal Code: $postalCode");
           print("Full Address: $fullAddress");
         } else {
-          print("⚠️ No placemarks found for coordinates.");
+          print("⚠️ No placemarks found.");
         }
       }
     } catch (e) {
