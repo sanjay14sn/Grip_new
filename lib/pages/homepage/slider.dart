@@ -74,7 +74,7 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
                             ),
                             SizedBox(height: 0.5.h),
                             Text(
-                              "TOP REFERRAL\nOF THE MONTH",
+                              "TOP REFERRAL OF \n THE MONTH",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16.sp,

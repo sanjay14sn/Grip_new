@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/backend/gorouter.dart';
-import 'package:grip/components/bottomappbar.dart';
 import 'package:grip/components/bottomappbartemp.dart';
-import 'package:grip/main.dart';
 import 'package:grip/pages/homepage/customcard.dart';
 import 'package:grip/pages/homepage/slider.dart';
 import 'package:grip/utils/constants/Timages.dart';
@@ -18,6 +16,30 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
+  String? _storedToken;
+
+  @override
+  void initState() {
+    super.initState();
+    // _loadStoredToken();
+  }
+
+  // void _loadStoredToken() async {
+  //   const storage = FlutterSecureStorage();
+  //   final token = await storage.read(key: 'auth_token');
+
+  //   if (token != null) {
+  //     print('🔐 Found stored token: ${token.substring(0, 30)}... [truncated]');
+  //     setState(() {
+  //       _storedToken = token;
+  //     });
+
+  //     // You can use _storedToken if needed
+  //   } else {
+  //     print('🔓 No stored token found.');
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +125,7 @@ class _HomescreenState extends State<Homescreen> {
                 ),
                 const SizedBox(height: 20),
 
-               Center(child: ReferralCarousel()),
+                Center(child: ReferralCarousel()),
                 SizedBox(
                   height: 1.h,
                 ),

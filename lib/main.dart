@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/orientation_lock.dart';
 import 'package:grip/backend/providers/location_provider.dart';
@@ -31,6 +32,10 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+    // ✅ Load .env file
+  await dotenv.load();
+  print("🌐 Loaded API_BASE_URL: ${dotenv.env['API_BASE_URL']}");
   await Firebase.initializeApp();
   await lockOrientationToPortrait(); // 🔐 Lock orientation
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

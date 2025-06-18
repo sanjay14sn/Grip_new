@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
@@ -6,6 +7,18 @@ import 'package:sizer/sizer.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+  void _handleLogout(BuildContext context) async {
+    const storage = FlutterSecureStorage();
+
+    // 🧹 Clear all secure storage values
+    await storage.deleteAll();
+
+    print('🚪 User logged out. Secure storage cleared.');
+
+    // 🔄 Navigate to login screen
+    context.go('/login');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,26 +155,19 @@ class ProfilePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => _handleLogout(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.transparent, // Important for gradient
-                        shadowColor: Colors
-                            .transparent, // Optional: remove button shadow
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
                         padding: EdgeInsets.zero,
                       ),
-                      child: GestureDetector(
-                        onTap: () {
-                          context.go('/login');
-                        },
-                        child: const Text(
-                          "Logout",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          color: Colors.white,
                         ),
                       ),
                     ),

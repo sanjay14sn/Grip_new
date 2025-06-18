@@ -235,7 +235,7 @@ class TTextStyles {
     fontSize: 14.sp,
     fontWeight: FontWeight.w400,
   );
-   static final TextStyle ProfileName = GoogleFonts.roboto(
+  static final TextStyle ProfileName = GoogleFonts.roboto(
     color: Colors.black,
     fontSize: 18.sp,
     fontWeight: FontWeight.w600,
@@ -245,7 +245,7 @@ class TTextStyles {
     fontSize: 16.sp,
     fontWeight: FontWeight.w600,
   );
-   static final TextStyle Or = GoogleFonts.roboto(
+  static final TextStyle Or = GoogleFonts.roboto(
     color: Color(0xFFC6221A),
     fontSize: 14.sp,
     fontWeight: FontWeight.w600,

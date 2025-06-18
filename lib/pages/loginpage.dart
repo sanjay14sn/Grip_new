@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/backend/gorouter.dart';
+import 'package:grip/backend/api-requests/auth_api.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Timages.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:sizer/sizer.dart';
@@ -16,12 +20,62 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>(); // ✅ Form key
+
   @override
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();
     super.dispose();
   }
+
+void _handleLogin() async {
+  // 🔒 Close the keyboard
+  FocusScope.of(context).unfocus();
+
+  if (_formKey.currentState!.validate()) {
+    final username = usernameController.text.trim();
+    final password = passwordController.text;
+
+    print('🔐 Attempting login with username: $username');
+
+    final response = await PublicRoutesApi.Login(
+      username: username,
+      password: password,
+    );
+
+    print('📡 API Response Status: ${response.statusCode}');
+
+    final responseDataString = response.data.toString();
+    final truncatedResponse = responseDataString.length > 500
+        ? '${responseDataString.substring(0, 500)}... [truncated]'
+        : responseDataString;
+    print('📡 API Response Body: $truncatedResponse');
+
+    if (response.isSuccess && response.data['success'] == true) {
+      final token = response.data['token'];
+      final userJson = response.data['user'];
+
+      print('✅ Login successful.');
+      print('🔑 Token: ${token.toString().substring(0, 30)}... [truncated]');
+      print('👤 User Info: $userJson');
+
+      // ✅ Store token and user data in secure storage
+      const storage = FlutterSecureStorage();
+      await storage.write(key: 'auth_token', value: token);
+      await storage.write(key: 'user_data', value: jsonEncode(userJson));
+
+      // ✅ Show success toast
+      ToastUtil.showToast('✅ Login successful!');
+
+      // ✅ Navigate to homepage
+      context.go('/homepage');
+    } else {
+      final message = response.data?['message'] ?? response.message;
+      ToastUtil.showToast(' Login failed. Message: $message');
+    }
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -50,42 +104,55 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(Timages.griplogo),
-                      const SizedBox(height: 50),
-                      _InputBox(
-                          controller: usernameController, hinttext: 'username'),
-                      _InputBox(
-                          controller: passwordController, hinttext: 'password'),
-                      const SizedBox(height: 20),
-                      Center(
-                        child: GestureDetector(
-                          onTap: () {
-                            context.push('/homepage');
+                  child: Form(
+                    key: _formKey, // ✅ Wrap with Form
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(Timages.griplogo),
+                        const SizedBox(height: 50),
+                        _InputBox(
+                          controller: usernameController,
+                          hinttext: 'User Name',
+                        ),
+                        _InputBox(
+                          controller: passwordController,
+                          hinttext: 'Password',
+                          obscureText: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter password';
+                            }
+                            return null;
                           },
-                          child: Container(
-                            height: 6.h,
-                            width: 36.w, // similar to ~132px on 360px screen
-                            decoration: BoxDecoration(
-                              gradient: Tcolors.red_button,
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Login",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.bold,
+                        ),
+                        const SizedBox(height: 20),
+                        Center(
+                          child: GestureDetector(
+                            onTap:
+                                _handleLogin, // ✅ Use validation before navigation
+                            child: Container(
+                              height: 6.h,
+                              width: 36.w,
+                              decoration: BoxDecoration(
+                                gradient: Tcolors.red_button,
+                                borderRadius: BorderRadius.circular(60),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -97,14 +164,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-/// Private reusable input field
 class _InputBox extends StatelessWidget {
   final TextEditingController controller;
   final String hinttext;
+  final String? Function(String?)? validator;
+  final bool obscureText;
 
   const _InputBox({
     required this.controller,
     required this.hinttext,
+    this.validator,
+    this.obscureText = false,
   });
 
   @override
@@ -113,6 +183,8 @@ class _InputBox extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
         controller: controller,
+        obscureText: obscureText,
+        validator: validator, // ✅ attach validator
         decoration: InputDecoration(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),

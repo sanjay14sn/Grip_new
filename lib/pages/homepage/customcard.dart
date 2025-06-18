@@ -96,7 +96,7 @@ class Customcard extends StatelessWidget {
                                 height: 3.h,
                                 width: 25.w,
                                 decoration: BoxDecoration(
-                                 color: Tcolors.smalll_button,
+                                  color: Tcolors.smalll_button,
                                   borderRadius: BorderRadius.circular(60),
                                 ),
                                 child: const Center(

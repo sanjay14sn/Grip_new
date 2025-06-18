@@ -34,6 +34,7 @@ import 'package:grip/pages/splashscreen.dart';
 import 'package:grip/pages/testimonials/addtestimonials.dart';
 import 'package:grip/pages/testimonials/testimonialsview.dart';
 import 'package:grip/pages/thankunote/thankyounote.dart';
+import 'package:grip/pages/timeout.dart';
 import 'package:grip/pages/visitors/visitors.dart';
 import 'package:grip/pages/visitors/visitors_detailed.dart';
 import 'package:grip/pages/visitors/visitors_view.dart';
@@ -193,6 +194,10 @@ final GoRouter router = GoRouter(
      GoRoute(
       path: '/Registration',
       builder: (context, state) => PaymentScreen(),
+    ),
+    GoRoute(
+      path: '/token',
+      builder: (context, state) => TokenValidityPage(),
     ),
   ],
 );

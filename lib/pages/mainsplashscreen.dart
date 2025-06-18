@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
 class GripSplashScreen extends StatefulWidget {
@@ -11,21 +12,30 @@ class GripSplashScreen extends StatefulWidget {
 
 class _GripSplashScreenState extends State<GripSplashScreen> {
   double _opacity = 0.0;
+  final FlutterSecureStorage storage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    // Start opacity animation
+
+    // Start logo fade-in
     Timer(const Duration(milliseconds: 1000), () {
       setState(() {
         _opacity = 1.0;
       });
     });
 
-    // Navigate to next page after some delay
-    Timer(const Duration(seconds: 4), () {
-      if (mounted) {
-        context.push('/splashscreen');
+    // After splash delay, check auth and navigate accordingly
+    Timer(const Duration(seconds: 4), () async {
+      if (!mounted) return;
+
+      final token = await storage.read(key: 'auth_token');
+      final userData = await storage.read(key: 'user_data');
+
+      if (token != null && userData != null) {
+        context.go('/homepage'); // ✅ Go to homepage
+      } else {
+        context.go('/login'); // ❌ Not logged in, go to login
       }
     });
   }
@@ -37,10 +47,10 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
       body: Center(
         child: AnimatedOpacity(
           opacity: _opacity,
-          duration: const Duration(seconds: 4),
+          duration: const Duration(seconds: 2),
           child: Image.asset(
-            'assets/images/logo.png', // Correct the asset path as needed
-            width: 200, // adjust as needed
+            'assets/images/logo.png', // ✅ Replace with your correct path
+            width: 200,
           ),
         ),
       ),
