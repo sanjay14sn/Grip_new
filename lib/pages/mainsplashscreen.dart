@@ -34,6 +34,7 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
 
       if (token != null && userData != null) {
         context.go('/homepage'); // ✅ Go to homepage
+        // context.go('/token'); // ✅ Go to homepage
       } else {
         context.go('/login'); // ❌ Not logged in, go to login
       }

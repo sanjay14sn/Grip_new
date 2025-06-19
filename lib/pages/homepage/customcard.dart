@@ -37,17 +37,6 @@ class Customcard extends StatelessWidget {
             Container(
               width: 14.w,
               height: 12.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(100),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Image.asset(
