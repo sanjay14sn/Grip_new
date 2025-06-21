@@ -113,14 +113,14 @@ class PublicRoutesApiService {
 /// 🔒 Auth-related public routes
 class PublicRoutesApi {
   static Future<ApiResponse> Login({
-    required String username,
-    required String password,
+    required String mobileNumber,
+    required String pin,
   }) async {
-    final String apiUrl = '$endPointbaseUrl/api/admin/user-login';
+    final String apiUrl = '$endPointbaseUrl/api/mobile/member-login';
 
     final Map<String, dynamic> requestBody = {
-      "username": username,
-      "password": password,
+      "mobileNumber": mobileNumber,
+      "pin":pin,
     };
 
     return PublicRoutesApiService.makeRequest(

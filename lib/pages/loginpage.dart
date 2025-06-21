@@ -29,53 +29,53 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-void _handleLogin() async {
-  // 🔒 Close the keyboard
-  FocusScope.of(context).unfocus();
+  void _handleLogin() async {
+    // 🔒 Close the keyboard
+    FocusScope.of(context).unfocus();
 
-  if (_formKey.currentState!.validate()) {
-    final username = usernameController.text.trim();
-    final password = passwordController.text;
+    if (_formKey.currentState!.validate()) {
+      final mobileNumber = usernameController.text.trim();
+      final pin = passwordController.text;
 
-    print('🔐 Attempting login with username: $username');
+      print('🔐 Attempting login with username: $pin');
 
-    final response = await PublicRoutesApi.Login(
-      username: username,
-      password: password,
-    );
+      final response = await PublicRoutesApi.Login(
+        mobileNumber: mobileNumber,
+        pin: pin,
+      );
 
-    print('📡 API Response Status: ${response.statusCode}');
+      print('📡 API Response Status: ${response.statusCode}');
 
-    final responseDataString = response.data.toString();
-    final truncatedResponse = responseDataString.length > 500
-        ? '${responseDataString.substring(0, 500)}... [truncated]'
-        : responseDataString;
-    print('📡 API Response Body: $truncatedResponse');
+      final responseDataString = response.data.toString();
+      final truncatedResponse = responseDataString.length > 500
+          ? '${responseDataString.substring(0, 500)}... [truncated]'
+          : responseDataString;
+      print('📡 API Response Body: $truncatedResponse');
 
-    if (response.isSuccess && response.data['success'] == true) {
-      final token = response.data['token'];
-      final userJson = response.data['user'];
+      if (response.isSuccess && response.data['success'] == true) {
+        final token = response.data['token'];
+        final userJson = response.data['member'];
 
-      print('✅ Login successful.');
-      print('🔑 Token: ${token.toString().substring(0, 30)}... [truncated]');
-      print('👤 User Info: $userJson');
+        print('✅ Login successful.');
+        print('🔑 Token: ${token.toString().substring(0, 30)}... [truncated]');
+        print('👤 User Info: $userJson');
 
-      // ✅ Store token and user data in secure storage
-      const storage = FlutterSecureStorage();
-      await storage.write(key: 'auth_token', value: token);
-      await storage.write(key: 'user_data', value: jsonEncode(userJson));
+        // ✅ Store token and user data in secure storage
+        const storage = FlutterSecureStorage();
+        await storage.write(key: 'auth_token', value: token);
+        await storage.write(key: 'user_data', value: jsonEncode(userJson));
 
-      // ✅ Show success toast
-      ToastUtil.showToast('✅ Login successful!');
+        // ✅ Show success toast
+        ToastUtil.showToast('✅ Login successful!');
 
-      // ✅ Navigate to homepage
-      context.go('/homepage');
-    } else {
-      final message = response.data?['message'] ?? response.message;
-      ToastUtil.showToast(' Login failed. Message: $message');
+        // ✅ Navigate to homepage
+        context.go('/homepage');
+      } else {
+        final message = response.data?['message'] ?? response.message;
+        ToastUtil.showToast(' Login failed. Message: $message');
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
