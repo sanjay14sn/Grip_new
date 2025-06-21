@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:grip/backend/providers/chapter_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/main.dart';
+
 import 'package:sizer/sizer.dart';
 
 class MemberListPage extends StatefulWidget {
@@ -15,28 +17,20 @@ class _MemberListPageState extends State<MemberListPage> {
   String searchText = '';
   String? selectedMember;
 
-  final List<String> allMembers = [
-    "Akash Kumar.P",
-    "Akshya.R",
-    "Arun.K",
-    "Akilan.A",
-    "Balu.M",
-    "Balamurugan.A",
-    "Balaji.S",
-    "Balu.K",
-    "Dharshini.J",
-    "Farzi.M",
-    "Iniyan.S",
-    "Kiran.T",
-    "Santhosh.B",
-    "Santhosh.A",
-  ];
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filteredMembers = allMembers
-        .where(
-            (member) => member.toLowerCase().contains(searchText.toLowerCase()))
+    final chapterProvider = Provider.of<ChapterProvider>(context);
+    final chapter = chapterProvider.chapterDetails;
+    final memberList = chapterProvider.members;
+
+    final filteredMembers = memberList
+        .where((member) =>
+            member.name.toLowerCase().contains(searchText.toLowerCase()))
         .toList();
 
     return Sizer(
@@ -49,13 +43,10 @@ class _MemberListPageState extends State<MemberListPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Back Icon
                   IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => Navigator.pop(context),
                   ),
-
-                  // Header Button
                   Center(
                     child: Container(
                       padding:
@@ -74,10 +65,7 @@ class _MemberListPageState extends State<MemberListPage> {
                       ),
                     ),
                   ),
-
                   SizedBox(height: 2.h),
-
-                  // Search Field with Expand/Collapse Button
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 4.w),
                     decoration: BoxDecoration(
@@ -117,10 +105,7 @@ class _MemberListPageState extends State<MemberListPage> {
                       ],
                     ),
                   ),
-
                   SizedBox(height: 2.h),
-
-                  // Members List Header with Expand/Collapse
                   GestureDetector(
                     onTap: () {
                       setState(() {
@@ -139,9 +124,9 @@ class _MemberListPageState extends State<MemberListPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            "Aram Members List:",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          Text(
+                            "${chapter?.chapterName ?? 'Chapter'} Members List:",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Icon(
                             isExpanded
@@ -153,8 +138,6 @@ class _MemberListPageState extends State<MemberListPage> {
                       ),
                     ),
                   ),
-
-                  // Member Items
                   if (isExpanded)
                     Expanded(
                       child: Container(
@@ -169,11 +152,11 @@ class _MemberListPageState extends State<MemberListPage> {
                           itemCount: filteredMembers.length,
                           itemBuilder: (context, index) {
                             final member = filteredMembers[index];
-                            final isSelected = member == selectedMember;
+                            final isSelected = member.name == selectedMember;
                             return ListTile(
                               dense: true,
                               title: Text(
-                                member,
+                                member.name,
                                 style: TextStyle(
                                   color: isSelected ? Colors.red : Colors.black,
                                   fontWeight: isSelected
@@ -182,8 +165,16 @@ class _MemberListPageState extends State<MemberListPage> {
                                 ),
                               ),
                               onTap: () {
+                                setState(() {
+                                  selectedMember = member.name;
+                                });
+                                print("👤 Name: ${member.name}");
+                                print("📞 Mobile: ${member.mobileNumber}");
+                                print("🆔 UID: ${member.id}");
+                                print("🏷️ Chapter ID: ${chapter?.id}");
+                                print(
+                                    "🏷️ Chapter Name: ${chapter?.chapterName}");
                                 context.push('/OthersOneToOnesPage');
-                                print("tapped!!!");
                               },
                             );
                           },

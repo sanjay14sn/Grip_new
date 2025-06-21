@@ -5,6 +5,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:grip/backend/providers/location_provider.dart';
 import 'package:grip/components/Associate_number.dart';
+import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,7 +33,8 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
   final Color customRed = const Color(0xFFC6221A);
   final BorderRadius boxRadius = BorderRadius.circular(12.0);
 
-  final TextEditingController AssociatenumberController = TextEditingController();
+  final TextEditingController AssociatenumberController =
+      TextEditingController();
   File? _pickedImage;
 
   Future<void> _pickImage() async {
@@ -99,15 +101,18 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                   ),
                   SizedBox(height: 2.h),
                   // Met With Dropdown
-                  _labelledDropdownWithSearch(
-                    hint: "Met With:",
-                    value: selectedPerson,
-                    items: personList,
-                    onChanged: (value) {
-                      setState(() => selectedPerson = value);
+                  MemberDropdown(
+                    onSelect: (name, uid, chapterId, chapterName) {
+                      print('✅ Name: $name');
+                      print('🆔 UID: $uid');
+                      print('🏷️ Chapter ID: $chapterId');
+                      print('📛 Chapter Name: $chapterName');
+
+                      setState(() {
+                        selectedPerson = name; // or save UID etc. if needed
+                      });
                     },
                   ),
-
                   SizedBox(height: 2.h),
 
                   // Where Did You Meet?
@@ -319,44 +324,6 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
     });
   }
 
-  Widget _labelledDropdownWithSearch({
-    required String? value,
-    required List<String> items,
-    required Function(String?) onChanged,
-    required String hint,
-  }) {
-    return Container(
-      height: 6.5.h,
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade400),
-        borderRadius: BorderRadius.circular(2.w),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                isExpanded: true,
-                value: value,
-                hint: Text(hint),
-                items: items.map((e) {
-                  return DropdownMenuItem<String>(
-                    value: e,
-                    child: Text(e),
-                  );
-                }).toList(),
-                onChanged: onChanged,
-              ),
-            ),
-          ),
-          const Icon(Icons.search, color: Colors.red),
-        ],
-      ),
-    );
-  }
-
   Widget _simpleDropdown({
     required String? value,
     required List<String> items,
@@ -369,8 +336,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
           height: 6.5.h,
           padding: EdgeInsets.symmetric(horizontal: 4.w),
           decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.grey.shade400),
+            color: Colors.grey[200],
             borderRadius: BorderRadius.circular(2.w),
           ),
           child: DropdownButtonHideUnderline(
@@ -404,8 +370,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 4.w),
           decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.grey.shade400),
+            color: Colors.grey[200],
             borderRadius: BorderRadius.circular(2.w),
           ),
           child: Row(

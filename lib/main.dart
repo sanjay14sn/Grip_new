@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:grip/backend/orientation_lock.dart';
 import 'package:grip/backend/providers/location_provider.dart';
 import 'package:grip/pages/navigator_key.dart';
-import 'package:grip/backend/providers/person_provider.dart';
+import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -180,7 +180,7 @@ class _MyAppState extends State<MyApp> {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => LocationProvider()),
-            ChangeNotifierProvider(create: (_) => PersonProvider()),
+            ChangeNotifierProvider(create: (_) =>ChapterProvider()),
             // Add other providers here if needed
           ],
           child: MaterialApp.router(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grip/components/Associate_number.dart';
+import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -17,22 +18,6 @@ class _ReferralPageState extends State<ReferralPage> {
   final Color customRed = const Color(0xFFC6221A);
   String? selectedPerson;
 
-  final List<String> personList = [
-    "Akash Kumar.P",
-    "Akshya.R",
-    "Arun.K",
-    "Akilan.A",
-    "Balu.M",
-    "Balamurugan.A",
-    "Balaji.S",
-    "Balu.K",
-    "Dharshini.J",
-    "Farzi.M",
-    "Iniyan.S",
-    "Kiran.T",
-    "Santhosh.B",
-    "Santhosh.A",
-  ];
   final TextEditingController associatenumber = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
@@ -99,44 +84,18 @@ class _ReferralPageState extends State<ReferralPage> {
                             child: Text('( OR )', style: TTextStyles.Or),
                           ),
                           SizedBox(height: 2.h),
-                          Container(
-                            // Removed unnecessary Row wrapper
-                            height: 6.25.h,
-                            padding: EdgeInsets.symmetric(horizontal: 4.w),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(2.w),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      isExpanded: true,
-                                      dropdownColor: Colors.white,
-                                      value: selectedPerson,
-                                      hint: const Text(
-                                        "To:",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      items: personList.map((e) {
-                                        return DropdownMenuItem<String>(
-                                          value: e,
-                                          child: Text(e),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          selectedPerson = value;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Icon(Icons.search, color: customRed),
-                              ],
-                            ),
+                          MemberDropdown(
+                            onSelect: (name, uid, chapterId, chapterName) {
+                              print('✅ Name: $name');
+                              print('🆔 UID: $uid');
+                              print('🏷️ Chapter ID: $chapterId');
+                              print('📛 Chapter Name: $chapterName');
+
+                              setState(() {
+                                selectedPerson =
+                                    name; // or save UID etc. if needed
+                              });
+                            },
                           ),
                           SizedBox(height: 2.h),
                           Text("Referral Status:",

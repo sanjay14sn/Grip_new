@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/bottomappbartemp.dart';
 import 'package:grip/pages/homepage/customcard.dart';
 import 'package:grip/pages/homepage/slider.dart';
 import 'package:grip/utils/constants/Timages.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 class Homescreen extends StatefulWidget {
@@ -17,11 +21,71 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
   String? _storedToken;
+  String? _username;
 
   @override
   void initState() {
     super.initState();
-    
+    _loadUserData();
+    _loadChapterDetails();
+  }
+
+  void _loadChapterDetails() async {
+    const storage = FlutterSecureStorage();
+
+    // 🔓 Read user_data from secure storage
+    final userDataString = await storage.read(key: 'user_data');
+
+    if (userDataString == null) {
+      print('❌ No user data found in secure storage.');
+      return;
+    }
+
+    final Map<String, dynamic> userData = jsonDecode(userDataString);
+    final chapterId = userData['chapterId'];
+
+    if (chapterId == null) {
+      print('❌ No chapterId found in user data.');
+      return;
+    }
+
+    print('📥 Fetched chapterId from storage: $chapterId');
+
+    // 📡 Fetch chapter details
+    final provider = Provider.of<ChapterProvider>(context, listen: false);
+    await provider.fetchChapterDetails(chapterId);
+
+    final details = provider.chapterDetails;
+    final members = provider.members;
+
+    if (details != null) {
+      print('📘 Chapter Name: ${details.chapterName}');
+      print(
+          '🌍 Location: ${details.meetingVenue}, ${details.stateName}, ${details.countryName}');
+      print('📅 Meeting Time: ${details.meetingDayAndTime}');
+      print('📌 Meeting Type: ${details.meetingType}');
+      print('🧭 Zone: ${details.zoneName}');
+      print('👤 CID: ${details.cidName} (${details.cidEmail})');
+      print('👥 Members:');
+      for (var member in members) {
+        print(
+            '  🔹 ${member.name} | ${member.email} | ${member.mobileNumber} | ${member.id}');
+      }
+    } else {
+      print('⚠️ No chapter details available.');
+    }
+  }
+
+  void _loadUserData() async {
+    const storage = FlutterSecureStorage();
+    final userDataJson = await storage.read(key: 'user_data');
+
+    if (userDataJson != null) {
+      final userData = jsonDecode(userDataJson);
+      setState(() {
+        _username = userData['username']; // e.g., Kumar R
+      });
+    }
   }
 
   @override
@@ -54,7 +118,7 @@ class _HomescreenState extends State<Homescreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Welcome, Dinesh",
+                            "Welcome, ${_username ?? 'User'}", // ✅ Dynamic
                             style: TTextStyles.usernametitle,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
