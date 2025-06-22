@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grip/components/Associate_number.dart';
+import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -13,6 +14,7 @@ class ThankYouNotePage extends StatefulWidget {
 
 class _ThankYouNotePageState extends State<ThankYouNotePage> {
   String? selectedPerson;
+  String? selectedPersonId ;
   final List<String> personList = ['Person A', 'Person B', 'Person C'];
   final Color customRed = const Color(0xFFC6221A);
 
@@ -90,50 +92,31 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                         ),
 
                         SizedBox(height: 1.h),
-                       CustomInputField(
-                            label: 'Enter Associate Mobile Number',
-                            isRequired: false,
-                            controller: associateMobileController,
-                            enableContactPicker: true, // 👈 Add this
-                          ),
+                        CustomInputField(
+                          label: 'Enter Associate Mobile Number',
+                          isRequired: false,
+                          controller: associateMobileController,
+                          enableContactPicker: true, // 👈 Add this
+                        ),
                         SizedBox(height: 2.h),
                         Center(
                           child: Text('( OR )', style: TTextStyles.Or),
                         ),
                         SizedBox(height: 2.h),
                         // Dropdown with label
-                        Container(
-                          height: 6.5.h,
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 4.w),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey.shade400),
-                            borderRadius: BorderRadius.circular(2.w),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    isExpanded: true,
-                                    value: selectedPerson,
-                                    hint: const Text("Thank you To:"),
-                                    items: personList.map((e) {
-                                      return DropdownMenuItem<String>(
-                                        value: e,
-                                        child: Text(e),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(() => selectedPerson = value);
-                                    },
-                                  ),
-                                ),
-                              ),
-                              Icon(Icons.search, color: customRed),
-                            ],
-                          ),
+                        MemberDropdown(
+                          onSelect: (name, uid, chapterId, chapterName) {
+                            print('✅ Name: $name');
+                            print('🆔 UID: $uid');
+                            print('🏷️ Chapter ID: $chapterId');
+                            print('📛 Chapter Name: $chapterName');
+
+                            setState(() {
+                              selectedPerson =
+                                  name; // or save UID etc. if needed
+                              selectedPersonId = uid; // <-- store ID instead
+                            });
+                          },
                         ),
 
                         SizedBox(height: 2.h),

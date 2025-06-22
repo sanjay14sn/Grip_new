@@ -1,11 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 
 class MemberDropdown extends StatefulWidget {
-  final void Function(
-      String name, String uid, String chapterId, String chapterName)? onSelect;
+  final void Function(String name, String uid, String chapterId, String chapterName)? onSelect;
 
   const MemberDropdown({super.key, this.onSelect});
 
@@ -15,15 +16,39 @@ class MemberDropdown extends StatefulWidget {
 
 class _MemberDropdownState extends State<MemberDropdown> {
   String? selectedPerson;
+  String? currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUserId();
+  }
+
+  Future<void> _loadCurrentUserId() async {
+    const storage = FlutterSecureStorage();
+    final userData = await storage.read(key: 'user_data');
+    if (userData != null) {
+      final decoded = jsonDecode(userData);
+      setState(() {
+        currentUserId = decoded['id'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ChapterProvider>(context);
     final chapter = provider.chapterDetails;
 
-    // Combine members and CID into one dropdown list
+    // Filter members: Exclude current user
+    final filteredMembers = provider.members
+        .where((e) => e.id != currentUserId)
+        .map((e) => {'name': e.name, 'id': e.id})
+        .toList();
+
+    // Add CID
     final items = [
-      ...provider.members.map((e) => {'name': e.name, 'id': e.id}),
+      ...filteredMembers,
       if (chapter != null) {'name': chapter.cidName, 'id': 'CID'}
     ];
 
@@ -63,7 +88,6 @@ class _MemberDropdownState extends State<MemberDropdown> {
                   final chapterId = chapter?.id ?? '';
                   final chapterName = chapter?.chapterName ?? '';
 
-                  // Print or trigger callback
                   print('✅ Name: $name');
                   print('🆔 UID: $uid');
                   print('🏷️ Chapter ID: $chapterId');

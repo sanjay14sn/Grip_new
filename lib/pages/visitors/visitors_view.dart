@@ -4,71 +4,10 @@ import 'package:grip/components/filter.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
-class VisitorsViewpage extends StatefulWidget {
-  const VisitorsViewpage({super.key});
+class VisitorsViewpage extends StatelessWidget {
+  final List<dynamic> visitors;
 
-  @override
-  State<VisitorsViewpage> createState() => _ReferralDetailsPageState();
-}
-
-class _ReferralDetailsPageState extends State<VisitorsViewpage> {
-  bool isReceivedSelected = false;
-
-  final List<Map<String, String>> receivedReferrals = [
-    {
-      'name': 'Paul Mauray',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Dinesh',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'Amaran',
-      'date': '15 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Babu',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Mani',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-  ];
-
-  final List<Map<String, String>> givenReferrals = [
-    {
-      'name': 'Suresh Kumar',
-      'date': '10 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Priya Dharshini',
-      'date': '11 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'John Moses',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Radha',
-      'date': '13 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-    {
-      'name': 'Ajay',
-      'date': '14 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-  ];
+  const VisitorsViewpage({super.key, required this.visitors});
 
   @override
   Widget build(BuildContext context) {
@@ -80,15 +19,12 @@ class _ReferralDetailsPageState extends State<VisitorsViewpage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top bar
+              // 🔙 Top bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Back Button
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => context.pop(),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -98,12 +34,7 @@ class _ReferralDetailsPageState extends State<VisitorsViewpage> {
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-                  Center(
-                    child: Text('Visitors Invited by Me',
-                        style: TTextStyles.Editprofile),
-                  ),
-
-                  // Filter Icon
+                  Text('Visitors Invited by Me', style: TTextStyles.Editprofile),
                   GestureDetector(
                     onTap: () {
                       showGeneralDialog(
@@ -111,7 +42,7 @@ class _ReferralDetailsPageState extends State<VisitorsViewpage> {
                         barrierDismissible: true,
                         barrierLabel: "Dismiss",
                         barrierColor: Colors.transparent,
-                        transitionDuration: Duration(milliseconds: 200),
+                        transitionDuration: const Duration(milliseconds: 200),
                         pageBuilder: (_, __, ___) {
                           return Stack(
                             children: [
@@ -130,50 +61,56 @@ class _ReferralDetailsPageState extends State<VisitorsViewpage> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Color(0xFFE0E2E7),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.filter_alt_outlined,
                           color: Colors.black),
                     ),
-                  )
+                  ),
                 ],
               ),
+
               SizedBox(height: 2.h),
 
-              // Title
+              // 👥 Title row
               Row(
                 children: [
                   Text('Visitors', style: TTextStyles.Editprofile),
                   const SizedBox(width: 8),
                   Image.asset(
-                    'assets/images/handshake.png', // Replace with your actual image path
+                    'assets/images/handshake.png',
                     width: 34,
                     height: 34,
                   )
                 ],
               ),
-              SizedBox(height: 1.5.h),
-
-              // Category toggle
 
               SizedBox(height: 2.h),
 
-              // Referral List using ListView.builder
+              // 📋 Visitor List
               Expanded(
-                child: ListView.builder(
-                  itemCount: isReceivedSelected
-                      ? receivedReferrals.length
-                      : givenReferrals.length,
-                  itemBuilder: (context, index) {
-                    final item = isReceivedSelected
-                        ? receivedReferrals[index]
-                        : givenReferrals[index];
-                    return referralTile(item['name']!, item['date']!,
-                        item['image']!, isReceivedSelected);
-                  },
-                ),
+                child: visitors.isEmpty
+                    ? const Center(child: Text('No visitors found.'))
+                    : ListView.builder(
+                        itemCount: visitors.length,
+                        itemBuilder: (context, index) {
+                          final visitor = visitors[index];
+                          final name = visitor['name'] ?? 'Unknown';
+                          final visitDate = visitor['visitDate'] ?? '';
+                          final formattedDate =
+                              visitDate.toString().substring(0, 10);
+
+                          return referralTile(
+                            context,
+                            visitor,
+                            name,
+                            formattedDate,
+                            'assets/images/profile1.jpg',
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -182,16 +119,12 @@ class _ReferralDetailsPageState extends State<VisitorsViewpage> {
     );
   }
 
-  // Tile Widget with different routes based on tab
-  Widget referralTile(
-      String name, String date, String imagePath, bool isReceived) {
+  /// ✅ Fix: Pass `visitor` as an argument
+  Widget referralTile(BuildContext context, Map<String, dynamic> visitor,
+      String name, String date, String imagePath) {
     return GestureDetector(
       onTap: () {
-        if (isReceived) {
-          context.push('/visiteddetails'); // received route
-        } else {
-          context.push('/visiteddetails'); // given route
-        }
+        context.push('/visiteddetails', extra: visitor);
       },
       child: Card(
         color: Colors.white,

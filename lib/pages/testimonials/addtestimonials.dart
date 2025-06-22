@@ -5,6 +5,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grip/components/Associate_number.dart';
+import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -23,6 +24,8 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
   final TextEditingController commentController = TextEditingController();
 
   String? pickedFilePath;
+  String? selectedPersonId;
+  String? selectedPerson;
 
   @override
   Widget build(BuildContext context) {
@@ -66,28 +69,18 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                 child: Text('( OR )', style: TTextStyles.Or),
               ),
               SizedBox(height: 2.h),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-                decoration: BoxDecoration(
-                  borderRadius: boxRadius,
-                  color: const Color(0xFFF5F5F5),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: toController,
-                        decoration: const InputDecoration(
-                          hintText: 'To:',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    const Icon(Icons.arrow_drop_down),
-                    SizedBox(width: 2.w),
-                    Icon(Icons.search, color: customRed),
-                  ],
-                ),
+              MemberDropdown(
+                onSelect: (name, uid, chapterId, chapterName) {
+                  print('✅ Name: $name');
+                  print('🆔 UID: $uid');
+                  print('🏷️ Chapter ID: $chapterId');
+                  print('📛 Chapter Name: $chapterName');
+
+                  setState(() {
+                    selectedPerson = name; // or save UID etc. if needed
+                    selectedPersonId = uid; // <-- store ID instead
+                  });
+                },
               ),
               SizedBox(height: 3.h),
               Center(

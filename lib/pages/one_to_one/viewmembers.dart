@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:sizer/sizer.dart';
 
 class MemberListPage extends StatefulWidget {
@@ -16,10 +17,23 @@ class _MemberListPageState extends State<MemberListPage> {
   bool isExpanded = true;
   String searchText = '';
   String? selectedMember;
+  String? currentUserId;
 
   @override
   void initState() {
     super.initState();
+    _loadCurrentUserId();
+  }
+
+  Future<void> _loadCurrentUserId() async {
+    const storage = FlutterSecureStorage();
+    final userData = await storage.read(key: 'user_data');
+    if (userData != null) {
+      final decoded = jsonDecode(userData);
+      setState(() {
+        currentUserId = decoded['id'];
+      });
+    }
   }
 
   @override
@@ -28,9 +42,11 @@ class _MemberListPageState extends State<MemberListPage> {
     final chapter = chapterProvider.chapterDetails;
     final memberList = chapterProvider.members;
 
+    // 🧠 Filter out current user and match search text
     final filteredMembers = memberList
         .where((member) =>
-            member.name.toLowerCase().contains(searchText.toLowerCase()))
+            member.name.toLowerCase().contains(searchText.toLowerCase()) &&
+            member.id != currentUserId)
         .toList();
 
     return Sizer(
@@ -153,6 +169,7 @@ class _MemberListPageState extends State<MemberListPage> {
                           itemBuilder: (context, index) {
                             final member = filteredMembers[index];
                             final isSelected = member.name == selectedMember;
+
                             return ListTile(
                               dense: true,
                               title: Text(
@@ -168,12 +185,14 @@ class _MemberListPageState extends State<MemberListPage> {
                                 setState(() {
                                   selectedMember = member.name;
                                 });
+
                                 print("👤 Name: ${member.name}");
                                 print("📞 Mobile: ${member.mobileNumber}");
                                 print("🆔 UID: ${member.id}");
                                 print("🏷️ Chapter ID: ${chapter?.id}");
                                 print(
                                     "🏷️ Chapter Name: ${chapter?.chapterName}");
+
                                 context.push('/OthersOneToOnesPage');
                               },
                             );

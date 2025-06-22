@@ -141,8 +141,12 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/viewone',
-      builder: (context, state) => onetooneviewpage(),
+      builder: (context, state) {
+        final oneToOneList = state.extra as List<dynamic>? ?? [];
+        return onetooneviewpage(oneToOneList: oneToOneList);
+      },
     ),
+
     GoRoute(
       path: '/Chaptermember',
       builder: (context, state) => chapterdetails(),
@@ -179,19 +183,37 @@ final GoRouter router = GoRouter(
       path: '/Otherschapter',
       builder: (context, state) => OtherChapterPage(),
     ),
+    // GoRoute(
+    //   path: '/visitorsview',
+    //   builder: (context, state) => VisitorsViewpage(),
+    // ),
+
     GoRoute(
       path: '/visitorsview',
-      builder: (context, state) => VisitorsViewpage(),
+      builder: (context, state) {
+        final List<dynamic> visitors = state.extra as List<dynamic>;
+        return VisitorsViewpage(visitors: visitors);
+      },
     ),
+
+    // GoRoute(
+    //   path: '/visiteddetails',
+    //   builder: (context, state) => VisitorDetailsScreen(),
+    // ),
+
     GoRoute(
       path: '/visiteddetails',
-      builder: (context, state) =>VisitorDetailsScreen(),
+      builder: (context, state) {
+        final visitor = state.extra as Map<String, dynamic>? ?? {};
+        return VisitorDetailsScreen(visitor: visitor);
+      },
     ),
+
     GoRoute(
       path: '/Event',
-      builder: (context, state) =>UpcomingEventsPage(),
+      builder: (context, state) => UpcomingEventsPage(),
     ),
-     GoRoute(
+    GoRoute(
       path: '/Registration',
       builder: (context, state) => PaymentScreen(),
     ),

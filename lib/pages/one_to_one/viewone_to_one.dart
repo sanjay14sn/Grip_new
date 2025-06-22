@@ -3,10 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class onetooneviewpage extends StatefulWidget {
-  const onetooneviewpage({super.key});
+  final List<dynamic> oneToOneList;
+
+  const onetooneviewpage({super.key, required this.oneToOneList});
 
   @override
   State<onetooneviewpage> createState() => _ReferralDetailsPageState();
@@ -15,36 +18,9 @@ class onetooneviewpage extends StatefulWidget {
 class _ReferralDetailsPageState extends State<onetooneviewpage> {
   bool isReceivedSelected = false;
 
-  final List<Map<String, String>> OnetoOne = [
-    {
-      'name': 'Suresh Kumar',
-      'date': '10 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Priya Dharshini',
-      'date': '11 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'John Moses',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Radha',
-      'date': '13 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-    {
-      'name': 'Ajay',
-      'date': '14 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<dynamic> oneToOneData = widget.oneToOneList;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -195,16 +171,21 @@ class _ReferralDetailsPageState extends State<onetooneviewpage> {
               // Referral List using ListView.builder
               Expanded(
                 child: ListView.builder(
-                  itemCount: OnetoOne.length,
+                  itemCount: oneToOneData.length,
                   itemBuilder: (context, index) {
-                    final item = OnetoOne[index];
+                    final item = oneToOneData[index];
 
-                    return referralTile(
-                      item['name']!,
-                      item['date']!,
-                      item['image']!,
-                      isReceivedSelected,
-                    );
+                    final name = item['toMember']?['personalDetails']
+                            ?['firstName'] ??
+                        'Unknown';
+                    final rawDate = item['date'];
+                    final date = rawDate != null
+                        ? DateFormat('dd-MM-yyyy')
+                            .format(DateTime.parse(rawDate))
+                        : '';
+                    final image = 'assets/images/profile1.jpg'; // placeholder
+
+                    return referralTile(name, date, image, isReceivedSelected);
                   },
                 ),
               ),

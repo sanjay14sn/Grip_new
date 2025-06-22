@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:dashed_circle/dashed_circle.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/location_provider.dart';
 import 'package:grip/components/Associate_number.dart';
 import 'package:grip/components/member_dropdown.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,6 +27,7 @@ class OneToOneSlipPage extends StatefulWidget {
 class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
   String? selectedPerson;
   String? selectedLocation;
+  String? selectedPersonId;
   String? selectedDate;
   final List<String> personList = ['Person A', 'Person B', 'Person C'];
   final List<String> meetingLocations = [
@@ -110,6 +115,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
 
                       setState(() {
                         selectedPerson = name; // or save UID etc. if needed
+                        selectedPersonId = uid; // <-- store ID instead
                       });
                     },
                   ),
@@ -293,7 +299,60 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                     width: double.infinity,
                     height: 6.5.h,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        if (selectedPersonId == null ||
+                            _pickedImage == null ||
+                            selectedLocation == null) {
+                          ToastUtil.showToast(
+                              "Please complete all required fields.");
+                          return;
+                        }
+
+                        // Map UI selection to backend enum
+                        String mappedLocation = '';
+                        switch (selectedLocation) {
+                          case 'At Your Location':
+                            mappedLocation = 'yourlocation';
+                            break;
+                          case 'At Their Location':
+                            mappedLocation = 'theirlocation';
+                            break;
+                          case 'At A Common Location':
+                            mappedLocation = 'commonlocation';
+                            break;
+                          default:
+                            mappedLocation = 'commonlocation';
+                        }
+
+                        const storage = FlutterSecureStorage();
+                        final userDataString =
+                            await storage.read(key: 'user_data');
+
+                        if (userDataString == null) {
+                          ToastUtil.showToast("User data not found.");
+                          return;
+                        }
+
+                        final userData = jsonDecode(userDataString);
+
+                        final response =
+                            await PublicRoutesApiService.submitOneToOneSlip(
+                          toMember: selectedPersonId!,
+                          whereDidYouMeet: mappedLocation,
+                          address:
+                              context.read<LocationProvider>().fullAddress ??
+                                  '',
+                          date: DateTime.now().toIso8601String(),
+                          imageFile: _pickedImage,
+                        );
+
+                        if (response.isSuccess) {
+                          ToastUtil.showToast('✅ Submitted successfully!');
+                          Navigator.pop(context);
+                        } else {
+                          ToastUtil.showToast('❌ Failed: ${response.message}');
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.zero,
                         shape: RoundedRectangleBorder(

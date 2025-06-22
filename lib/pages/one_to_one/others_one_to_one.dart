@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/backend/gorouter.dart';
 import 'package:sizer/sizer.dart';
 
 class OthersOneToOnesPage extends StatelessWidget {

@@ -1,12 +1,13 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/bottomappbartemp.dart';
 import 'package:grip/pages/homepage/customcard.dart';
 import 'package:grip/pages/homepage/slider.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Timages.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:provider/provider.dart';
@@ -22,12 +23,19 @@ class Homescreen extends StatefulWidget {
 class _HomescreenState extends State<Homescreen> {
   String? _storedToken;
   String? _username;
+  List<dynamic> _visitors = [];
+  bool _isLoading = true;
+  int _visitorCount = 0;
+  List<dynamic> _oneToOneList = [];
+  int _oneToOneCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
     _loadChapterDetails();
+    _loadVisitors();
+    _loadOneToOneList();
   }
 
   void _loadChapterDetails() async {
@@ -73,6 +81,57 @@ class _HomescreenState extends State<Homescreen> {
       }
     } else {
       print('⚠️ No chapter details available.');
+    }
+  }
+
+  Future<void> _loadOneToOneList() async {
+    print('📡 Fetching One-to-One list from API...');
+
+    final response = await PublicRoutesApiService.getOneToOneList();
+
+    if (response.isSuccess && response.data != null) {
+      print('✅ One-to-One list fetched successfully.');
+      print('📦 Total records (from extra): ${response.extra?['total']}');
+      print('📦 Total records (from data.length): ${response.data.length}');
+
+      for (var item in response.data) {
+        print(
+            '👥 From: ${item['fromMember']?['personalDetails']?['firstName']} '
+            'To: ${item['toMember']?['personalDetails']?['firstName']}');
+      }
+
+      setState(() {
+        _oneToOneList = response.data;
+        _oneToOneCount = response.extra?['total'] ?? response.data.length;
+        _isLoading = false;
+      });
+    } else {
+      print('❌ Failed to fetch One-to-One list: ${response.message}');
+      setState(() => _isLoading = false);
+      ToastUtil.showToast('❌ ${response.message}');
+    }
+  }
+
+  Future<void> _loadVisitors() async {
+    print('📡 Fetching visitor list from API...');
+
+    final response = await PublicRoutesApiService.getVisitorsList();
+
+    if (response.isSuccess && response.data != null) {
+      print('✅ Visitor list fetched successfully.');
+      print('📦 Total Visitors from pagination: ${response.extra?['total']}');
+
+      setState(() {
+        _visitors = response.data;
+        _visitorCount = response.extra?['total'] ?? response.data.length;
+        _isLoading = false;
+      });
+    } else {
+      print('❌ Failed to fetch visitors: ${response.message}');
+      ToastUtil.showToast('❌ ${response.message}');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -241,9 +300,16 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "One-to-Ones",
-                      value: "12+",
-                      onTapAddView: () => context.push('/onetoone'),
-                      onTapView: () => context.push('/viewone'),
+                      value: _isLoading ? '0' : '$_oneToOneCount+',
+                      onTapAddView: () async {
+                        final result = await context.push('/onetoone');
+                        if (result == true) {
+                          await _loadOneToOneList();
+                        }
+                      },
+                      onTapView: () {
+                        context.push('/viewone', extra: _oneToOneList);
+                      },
                       imagePath: 'assets/images/testimonials.png',
                     ),
                     SizedBox(height: 16),
@@ -255,11 +321,16 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Visitors",
-                      value: "20+",
-                      onTapAddView: () {
-                        context.push('/visitors');
+                      value: _isLoading ? '0' : '$_visitorCount+',
+                      onTapAddView: () async {
+                        final result = await context.push('/visitors');
+                        if (result == true) {
+                          await _loadVisitors(); // 👈 triggers update
+                        }
                       },
-                      onTapView: () => {context.push('/visitorsview')},
+                      onTapView: () {
+                        context.push('/visitorsview', extra: _visitors);
+                      },
                       imagePath: 'assets/images/visitors.png',
                     ),
                   ],
@@ -268,8 +339,6 @@ class _HomescreenState extends State<Homescreen> {
               ],
             ),
           )),
-
-      // bottomNavigationBar:CurvedBottomNavBar(), // <-- This adds the bottom bar
       bottomNavigationBar: CurvedBottomNavBar(), // <-- This adds the bottom bar
     );
   }

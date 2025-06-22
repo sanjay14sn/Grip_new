@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
-import 'package:grip/utils/constants/Timages.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -19,6 +21,58 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController visitDateController = TextEditingController();
+
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  Future<void> _handleRegister() async {
+    print('📝 Starting registration...');
+
+    if (nameController.text.isEmpty ||
+        companyController.text.isEmpty ||
+        categoryController.text.isEmpty ||
+        mobileController.text.isEmpty ||
+        visitDateController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields (*)')),
+      );
+      return;
+    }
+
+    final requestBody = {
+      "name": nameController.text.trim(),
+      "company": companyController.text.trim(),
+      "category": categoryController.text.trim(),
+      "mobile": mobileController.text.trim(),
+      "email": emailController.text.trim(),
+      "address": addressController.text.trim(),
+      "visitDate": visitDateController.text.trim(),
+    };
+
+    print('📦 Submitting visitor: $requestBody');
+
+    final response = await PublicRoutesApiService.registerVisitor(requestBody);
+
+    if (response.isSuccess) {
+      ToastUtil.showToast(
+          response.message ?? 'Visitor registered successfully');
+
+      // ✅ Clear form
+      nameController.clear();
+      companyController.clear();
+      categoryController.clear();
+      mobileController.clear();
+      emailController.clear();
+      addressController.clear();
+      visitDateController.clear();
+
+      // ✅ Return to previous screen and notify success
+      Navigator.pop(context, true); // 👈 this triggers refresh on home
+    } else {
+      print('❌ Registration failed: ${response.message}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ ${response.message}')),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -88,25 +142,29 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
 
               // Register Button
               Center(
-                child: Container(
-                  width: double.infinity,
-                  height: 6.h,
-                  decoration: BoxDecoration(
-                    gradient: Tcolors.red_button,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Register',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
+                child: GestureDetector(
+                  onTap: _handleRegister,
+                  child: Container(
+                    width: double.infinity,
+                    height: 6.h,
+                    decoration: BoxDecoration(
+                      gradient: Tcolors.red_button,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Register',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
+
               SizedBox(height: 3.h),
             ],
           ),
@@ -165,8 +223,18 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
               borderSide: BorderSide.none,
             ),
           ),
-          onTap: () {
-            // Add date picker here if needed
+          onTap: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime(2020),
+              lastDate: DateTime(2030),
+            );
+            if (picked != null) {
+              final fixedTime =
+                  DateTime(picked.year, picked.month, picked.day, 10, 30);
+              visitDateController.text = fixedTime.toIso8601String();
+            }
           },
         ),
       ),
