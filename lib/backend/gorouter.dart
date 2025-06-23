@@ -61,8 +61,13 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/profilepage',
-      builder: (context, state) => ProfilePage(),
+      builder: (context, state) {
+        final memberData =
+            state.extra as Map<String, dynamic>?; // Allow nullable
+        return ProfilePage(memberData: memberData);
+      },
     ),
+
     GoRoute(
       path: '/addreferalpage',
       builder: (context, state) => ReferralPage(),
@@ -109,8 +114,12 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/thankyouview',
-      builder: (context, state) => Thankyouviewpage(),
+      builder: (context, state) {
+        final data = state.extra as List<dynamic>? ?? [];
+        return Thankyouviewpage(givenNotes: data);
+      },
     ),
+
     GoRoute(
       path: '/referralDetailGiven',
       builder: (context, state) {
@@ -127,9 +136,17 @@ final GoRouter router = GoRouter(
       path: '/Recivedthankyou',
       builder: (context, state) => RecivedthankyouPage(),
     ),
+    // GoRoute(
+    //   path: '/Giventhankyou',
+    //   builder: (context, state) => GiventhankyouPage(),
+    // ),
+
     GoRoute(
       path: '/Giventhankyou',
-      builder: (context, state) => GiventhankyouPage(),
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        return GiventhankyouPage(note: data);
+      },
     ),
     GoRoute(
       path: '/GivenTestimonials',

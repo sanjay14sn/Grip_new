@@ -27,9 +27,10 @@ class OneToOneSlipPage extends StatefulWidget {
 class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
   String? selectedPerson;
   String? selectedLocation;
+  String? fetchedAssociateUid;
   String? selectedPersonId;
   String? selectedDate;
-  final List<String> personList = ['Person A', 'Person B', 'Person C'];
+
   final List<String> meetingLocations = [
     'At Your Location',
     'At Their Location',
@@ -41,6 +42,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
   final TextEditingController AssociatenumberController =
       TextEditingController();
   File? _pickedImage;
+  bool showMyChapter = true;
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -93,31 +95,126 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                   ),
 
                   SizedBox(height: 3.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 0.w), // Horizontal padding
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey.shade300,
+                          ),
+                          child: Row(
+                            children: [
+                              /// MY CHAPTER TAB
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() {
+                                    showMyChapter = true;
+                                    AssociatenumberController.clear();
+                                  }),
+                                  child: Container(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 1.5.h),
+                                    decoration: BoxDecoration(
+                                      gradient: showMyChapter
+                                          ? Tcolors.red_button
+                                          : null,
+                                      color: showMyChapter
+                                          ? null
+                                          : Colors.transparent,
+                                      borderRadius:
+                                          const BorderRadius.horizontal(
+                                        left: Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "MY CHAPTER",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14.sp,
+                                          color: showMyChapter
+                                              ? Colors.white
+                                              : Colors.grey[700],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
 
-                  CustomInputField(
-                    label: 'Enter Associate Mobile Number',
-                    isRequired: false,
-                    controller: AssociatenumberController,
-                    enableContactPicker: true, // 👈 Add this
-                  ),
-                  SizedBox(height: 2.h),
-                  Center(
-                    child: Text('( OR )', style: TTextStyles.Or),
-                  ),
-                  SizedBox(height: 2.h),
-                  // Met With Dropdown
-                  MemberDropdown(
-                    onSelect: (name, uid, chapterId, chapterName) {
-                      print('✅ Name: $name');
-                      print('🆔 UID: $uid');
-                      print('🏷️ Chapter ID: $chapterId');
-                      print('📛 Chapter Name: $chapterName');
+                              /// OTHER CHAPTER TAB
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() {
+                                    showMyChapter = false;
+                                    selectedPerson = null;
+                                    selectedPersonId = null;
+                                  }),
+                                  child: Container(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 1.5.h),
+                                    decoration: BoxDecoration(
+                                      gradient: !showMyChapter
+                                          ? Tcolors.red_button
+                                          : null,
+                                      color: !showMyChapter
+                                          ? null
+                                          : Colors.transparent,
+                                      borderRadius:
+                                          const BorderRadius.horizontal(
+                                        right: Radius.circular(8),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "OTHER CHAPTER",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14.sp,
+                                          color: !showMyChapter
+                                              ? Colors.white
+                                              : Colors.grey[700],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                      setState(() {
-                        selectedPerson = name; // or save UID etc. if needed
-                        selectedPersonId = uid; // <-- store ID instead
-                      });
-                    },
+                        SizedBox(height: 2.h),
+
+                        /// Show input or dropdown based on selection
+                        if (!showMyChapter) ...[
+                          CustomInputField(
+                            label: 'Enter Associate Mobile Number',
+                            isRequired: false,
+                            controller: AssociatenumberController,
+                            enableContactPicker: true,
+                            onUidFetched: (uid) {
+                              setState(() {
+                                fetchedAssociateUid = uid;
+                              });
+                            },
+                          ),
+                        ] else ...[
+                          MemberDropdown(
+                            onSelect: (name, uid, chapterId, chapterName) {
+                              setState(() {
+                                selectedPerson = name;
+                                selectedPersonId = uid;
+                              });
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                   SizedBox(height: 2.h),
 
@@ -300,7 +397,10 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                     height: 6.5.h,
                     child: ElevatedButton(
                       onPressed: () async {
-                        if (selectedPersonId == null ||
+                        final String? toMemberId =
+                            fetchedAssociateUid ?? selectedPersonId;
+
+                        if (toMemberId == null ||
                             _pickedImage == null ||
                             selectedLocation == null) {
                           ToastUtil.showToast(
@@ -337,7 +437,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
 
                         final response =
                             await PublicRoutesApiService.submitOneToOneSlip(
-                          toMember: selectedPersonId!,
+                          toMember: toMemberId,
                           whereDidYouMeet: mappedLocation,
                           address:
                               context.read<LocationProvider>().fullAddress ??
@@ -348,7 +448,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
 
                         if (response.isSuccess) {
                           ToastUtil.showToast('✅ Submitted successfully!');
-                          Navigator.pop(context);
+                          Navigator.pop(context, true); // ✅ Return true
                         } else {
                           ToastUtil.showToast('❌ Failed: ${response.message}');
                         }

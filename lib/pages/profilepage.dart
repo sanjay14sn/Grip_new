@@ -5,23 +5,45 @@ import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  final Map<String, dynamic>? memberData;
+  const ProfilePage({super.key, this.memberData});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    print("🔍 memberData: ${widget.memberData}");
+  }
 
   void _handleLogout(BuildContext context) async {
     const storage = FlutterSecureStorage();
-
-    // 🧹 Clear all secure storage values
     await storage.deleteAll();
-
-    print('🚪 User logged out. Secure storage cleared.');
-
-    // 🔄 Navigate to login screen
     context.go('/login');
   }
 
   @override
   Widget build(BuildContext context) {
+    final data = widget.memberData ?? {};
+    final personal = data['personalDetails'] ?? {};
+    final chapter = data['chapterInfo'] ?? {};
+    final business = data['businessDetails'] ?? {};
+    final contact = data['contactDetails'] ?? {};
+    final address = data['businessAddress'] ?? {};
+
+    final fullName = '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}';
+    final company = personal['companyName'] ?? '-';
+    final mobile = contact['mobileNumber'] ?? '-';
+    final email = contact['email'] ?? '-';
+    final website = contact['website'] ?? '-';
+    final location = '${address['addressLine1'] ?? ''}, ${address['city'] ?? ''}';
+    final chapterName = chapter['chapterId']?['chapterName'] ?? '-';
+   final description = business['businessDescription'] ?? 'No description provided.';
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
@@ -31,21 +53,17 @@ class ProfilePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onTap: () {
-                  Navigator.pop(context); // Go back
-                },
+                onTap: () => Navigator.pop(context),
                 child: Container(
                   padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Color(0xFFE0E2E7),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back),
                 ),
               ),
-
               SizedBox(height: 15),
-              // Top Row with Back and Edit
               Row(
                 children: [
                   SizedBox(width: 3.w),
@@ -55,70 +73,54 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 2.h),
-              // Profile Picture
               Center(
                 child: CircleAvatar(
                   radius: 10.w,
-                  backgroundImage:
-                      const AssetImage('assets/images/profile.png'),
+                  backgroundImage: const AssetImage('assets/images/profile.png'),
                 ),
               ),
               SizedBox(height: 1.5.h),
-              // Name & Role
-              const Center(
+              Center(
                 child: Text(
-                  "Dinesh Kumar",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  fullName,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
-              const Center(
+              Center(
                 child: Text(
-                  "GRIP ARAM",
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+                  chapterName,
+                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ),
               SizedBox(height: 2.h),
               Center(
                 child: GestureDetector(
-                  onTap: () {
-                    context.push('/membershipdetails');
-                  },
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Container(
-                      padding: EdgeInsets.all(1
-                          .w), // Outer padding - controls thickness of gradient border
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF2E8DDB), Color(0xFFE14F4F)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(30),
+                  onTap: () => context.push('/membershipdetails'),
+                  child: Container(
+                    padding: EdgeInsets.all(1.w),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2E8DDB), Color(0xFFE14F4F)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8.w, vertical: 1.2.h),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                        child: Text(
-                          'Membership',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                            foreground: Paint()
-                              ..shader = const LinearGradient(
-                                colors: [Color(0xFF00BFA6), Color(0xFFE14F4F)],
-                              ).createShader(
-                                const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0),
-                              ),
-                          ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.2.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Text(
+                        'Membership',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                          foreground: Paint()
+                            ..shader = const LinearGradient(
+                              colors: [Color(0xFF00BFA6), Color(0xFFE14F4F)],
+                            ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
                         ),
                       ),
                     ),
@@ -128,21 +130,21 @@ class ProfilePage extends StatelessWidget {
               SizedBox(height: 2.h),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Text(
-                  "As An Experienced Interior Designer, I Specialize In Creating Aesthetically Pleasing And Functional Spaces That Reflect The Unique Needs And Preferences Of My Clients.",
-                  textAlign: TextAlign.left,
-                  style: TTextStyles.profiledes,
-                ),
+                child:Text(
+  description,
+  textAlign: TextAlign.left,
+  style: TTextStyles.profiledes,
+),
+
               ),
               SizedBox(height: 2.5.h),
-              // Contact Info
-              infoRow(Icons.business, "Marvel Interiors"),
-              infoRow(Icons.phone, "+91 9655545554"),
-              infoRow(Icons.email, "Grip@Gmail.Com"),
-              infoRow(Icons.language, "www.grip.com"),
-              infoRow(Icons.location_on, "No.25/61,1st Street, Chennai-70."),
-              infoRow(Icons.location_on, "www.linkedin.com/in/grip"),
-              infoRow(Icons.badge, "GRIP"),
+              infoRow(Icons.business, company),
+              infoRow(Icons.phone, mobile),
+              infoRow(Icons.email, email),
+              infoRow(Icons.language, website),
+              infoRow(Icons.location_on, location),
+              infoRow(Icons.link, 'www.linkedin.com/in/grip'),
+              infoRow(Icons.badge, chapterName),
               SizedBox(height: 3.h),
               Align(
                 alignment: Alignment.centerLeft,
@@ -164,19 +166,12 @@ class ProfilePage extends StatelessWidget {
                         ),
                         padding: EdgeInsets.zero,
                       ),
-                      child: const Text(
-                        "Logout",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: const Text("Logout", style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),
               ),
-              SizedBox(
-                height: 2.h,
-              ),
+              SizedBox(height: 2.h),
             ],
           ),
         ),

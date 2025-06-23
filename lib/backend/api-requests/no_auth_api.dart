@@ -493,4 +493,208 @@ class PublicRoutesApiService {
       );
     }
   }
+
+  static Future<ApiResponse> submitThankYouNoteSlip({
+    required String toMember,
+    required num amount, // ✅ Accepts number (int or double)
+    required String comments,
+  }) async {
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+
+      if (token == null || token.isEmpty) {
+        return ApiResponse(
+          statusCode: 401,
+          isSuccess: false,
+          message: 'User not authenticated.',
+          data: null,
+        );
+      }
+
+      final uri = Uri.parse('$endPointbaseUrl/api/mobile/thankyouslips');
+
+      final body = {
+        'toMember': toMember,
+        'amount': amount, // ✅ Sends as number
+        'comments': comments,
+      };
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(body),
+      );
+
+      final statusCode = response.statusCode;
+      final data = jsonDecode(response.body);
+      final isSuccess = statusCode >= 200 && statusCode < 300;
+
+      return ApiResponse(
+        statusCode: statusCode,
+        isSuccess: isSuccess,
+        data: data['data'],
+        message: data['message'] ?? 'Thank You Slip Submitted',
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        message: 'Failed to submit Thank You Note: $e',
+        data: null,
+      );
+    }
+  }
+
+  static Future<ApiResponse> fetchGivenThankYouNotes() async {
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+
+      if (token == null || token.isEmpty) {
+        return ApiResponse(
+          statusCode: 401,
+          isSuccess: false,
+          message: 'Unauthorized',
+          data: null,
+        );
+      }
+
+      final uri =
+          Uri.parse('$endPointbaseUrl/api/mobile/thankyouslips/given/list');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final data = jsonDecode(response.body);
+      final statusCode = response.statusCode;
+      final isSuccess = statusCode >= 200 && statusCode < 300;
+
+      return ApiResponse(
+        statusCode: statusCode,
+        isSuccess: isSuccess,
+        message: data['message'] ?? '',
+        data: data['data'],
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        message: 'Error: $e',
+        data: null,
+      );
+    }
+  }
+
+  static Future<ApiResponse> fetchReceivedThankYouNotes() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated. Please login again.',
+      );
+    }
+
+    final response = await makeRequest(
+      url: '$endPointbaseUrl/api/mobile/thankyouslips/received/list',
+      method: 'GET',
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    // ✅ Extract only the 'data' list from response.data
+    if (response.isSuccess &&
+        response.data != null &&
+        response.data is Map<String, dynamic>) {
+      final list = response.data['data'];
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: true,
+        data: list, // ✅ this is now a List<dynamic>
+        message: response.data['message'] ?? '',
+      );
+    }
+
+    return response;
+  }
+
+  static Future<ApiResponse> searchMemberByMobile(String mobile) async {
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+
+      if (token == null || token.isEmpty) {
+        return ApiResponse(
+          statusCode: 401,
+          isSuccess: false,
+          message: 'Unauthorized',
+          data: null,
+        );
+      }
+
+      final uri =
+          Uri.parse('$endPointbaseUrl/api/mobile/members/list?search=$mobile');
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return _processResponse(response);
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        message: 'Error: $e',
+        data: null,
+      );
+    }
+  }
+
+  static Future<ApiResponse> fetchMemberDetailsById(String memberId) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated. Please login again.',
+      );
+    }
+
+    final response = await makeRequest(
+      url: '$endPointbaseUrl/api/mobile/members/$memberId',
+      method: 'GET',
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.isSuccess &&
+        response.data != null &&
+        response.data is Map<String, dynamic>) {
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: true,
+        data: response.data['data'],
+        message: response.data['message'] ?? '',
+      );
+    }
+
+    return response;
+  }
 }

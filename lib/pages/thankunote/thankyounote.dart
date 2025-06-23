@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:grip/components/Associate_number.dart';
 import 'package:grip/components/member_dropdown.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../backend/api-requests/no_auth_api.dart'
+    show PublicRoutesApiService;
 
 class ThankYouNotePage extends StatefulWidget {
   const ThankYouNotePage({super.key});
@@ -18,6 +22,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
   final List<String> personList = ['Person A', 'Person B', 'Person C'];
   final Color customRed = const Color(0xFFC6221A);
   bool showMyChapter = true;
+  String? selectedPersonIdFromNumber;
 
   // Controllers for API integration
   final TextEditingController associateMobileController =
@@ -34,21 +39,40 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
     super.dispose();
   }
 
-  void submitForm() {
-    // Collect data for API call
-    final formData = {
-      'associateMobile': associateMobileController.text,
-      'thankYouTo': selectedPerson,
-      'amount': amountController.text,
-      'comments': commentsController.text,
-    };
+  void submitForm() async {
+    final toMember =
+        showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
 
-    // TODO: Implement API call using formData
-    print('Submitting form: $formData');
-    // Example:
-    // ApiService.submitThankYouNote(formData).then((response) {
-    //   // Handle response
-    // });
+    final amount = amountController.text.trim();
+    final comments = commentsController.text.trim();
+
+    if (toMember == null || toMember.isEmpty) {
+      ToastUtil.showToast("Please select a member or enter associate number");
+      return;
+    }
+
+    if (amount.isEmpty) {
+      ToastUtil.showToast("Amount is required");
+      return;
+    }
+
+    if (comments.isEmpty) {
+      ToastUtil.showToast("Comments is required");
+      return;
+    }
+
+    final response = await PublicRoutesApiService.submitThankYouNoteSlip(
+      toMember: toMember,
+      amount: double.tryParse(amount) ?? 0,
+      comments: comments,
+    );
+
+    if (response.isSuccess) {
+      ToastUtil.showToast("Thank You Note submitted successfully");
+      Navigator.pop(context, true); // ✅ Return true
+    } else {
+      ToastUtil.showToast("❌ ${response.message}");
+    }
   }
 
   @override
@@ -93,40 +117,13 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                         ),
 
                         SizedBox(height: 1.h),
-                        // CustomInputField(
-                        //   label: 'Enter Associate Mobile Number',
-                        //   isRequired: false,
-                        //   controller: associateMobileController,
-                        //   enableContactPicker: true, // 👈 Add this
-                        // ),
-                        // SizedBox(height: 2.h),
-                        // Center(
-                        //   child: Text('( OR )', style: TTextStyles.Or),
-                        // ),
-                        // SizedBox(height: 2.h),
-                        // // Dropdown with label
-                        // MemberDropdown(
-                        //   onSelect: (name, uid, chapterId, chapterName) {
-                        //     print('✅ Name: $name');
-                        //     print('🆔 UID: $uid');
-                        //     print('🏷️ Chapter ID: $chapterId');
-                        //     print('📛 Chapter Name: $chapterName');
-
-                        //     setState(() {
-                        //       selectedPerson =
-                        //           name; // or save UID etc. if needed
-                        //       selectedPersonId = uid; // <-- store ID instead
-                        //     });
-                        //   },
-                        // ),
-
-                        Row(
-                          children: [
-                            SizedBox(
-                                width:
-                                    3.w), // Left padding for the whole tab set
-                            Expanded(
-                              child: Container(
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 0.w), // Horizontal padding
+                          child: Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   color: Colors.grey.shade300,
@@ -151,7 +148,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                                 ? null
                                                 : Colors.transparent,
                                             borderRadius:
-                                                BorderRadius.horizontal(
+                                                const BorderRadius.horizontal(
                                               left: Radius.circular(8),
                                             ),
                                           ),
@@ -171,7 +168,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                       ),
                                     ),
 
-                                    /// ASSOCIATE NUMBER TAB
+                                    /// OTHER CHAPTER TAB
                                     Expanded(
                                       child: GestureDetector(
                                         onTap: () => setState(() {
@@ -190,7 +187,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                                 ? null
                                                 : Colors.transparent,
                                             borderRadius:
-                                                BorderRadius.horizontal(
+                                                const BorderRadius.horizontal(
                                               right: Radius.circular(8),
                                             ),
                                           ),
@@ -212,32 +209,34 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                   ],
                                 ),
                               ),
-                            ),
-                            SizedBox(width: 3.w), // Optional right padding
-                          ],
+
+                              SizedBox(height: 2.h),
+
+                              /// Show input or dropdown based on selection
+                              if (!showMyChapter) ...[
+                                CustomInputField(
+                                  label: 'Enter Associate Mobile Number',
+                                  isRequired: false,
+                                  controller: associateMobileController,
+                                  enableContactPicker: true,
+                                  onUidFetched: (uid) {
+                                    selectedPersonIdFromNumber = uid;
+                                  },
+                                ),
+                              ] else ...[
+                                MemberDropdown(
+                                  onSelect:
+                                      (name, uid, chapterId, chapterName) {
+                                    setState(() {
+                                      selectedPerson = name;
+                                      selectedPersonId = uid;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
-
-                        SizedBox(height: 2.h),
-
-                        /// Show input or dropdown based on selection
-                        if (!showMyChapter) ...[
-                          CustomInputField(
-                            label: 'Enter Associate Mobile Number',
-                            isRequired: false,
-                            controller: associateMobileController,
-                            enableContactPicker: true,
-                          ),
-                        ] else ...[
-                          MemberDropdown(
-                            onSelect: (name, uid, chapterId, chapterName) {
-                              setState(() {
-                                selectedPerson = name;
-                                selectedPersonId = uid;
-                              });
-                            },
-                          ),
-                        ],
-                        SizedBox(height: 2.h),
 
                         SizedBox(height: 2.h),
 

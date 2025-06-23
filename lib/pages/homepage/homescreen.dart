@@ -33,6 +33,10 @@ class _HomescreenState extends State<Homescreen> {
   bool _isReferralLoading = true;
   int _referralCount = 0;
   List<dynamic> _referralList = [];
+  List<dynamic> _givenNotes = [];
+  bool _isThankYouLoading = true;
+  String? _memberId;
+  Map<String, dynamic>? _memberData; // at top of your state class
 
   @override
   void initState() {
@@ -43,6 +47,8 @@ class _HomescreenState extends State<Homescreen> {
     _loadOneToOneList();
     _loadTestimonials();
     _loadReferralSlips();
+    _loadThankYouNotes();
+    fetchMember();
   }
 
   void _loadChapterDetails() async {
@@ -148,9 +154,18 @@ class _HomescreenState extends State<Homescreen> {
 
     if (userDataJson != null) {
       final userData = jsonDecode(userDataJson);
+      final memberId = userData['id']; // 👈 Member ID
+
       setState(() {
         _username = userData['username']; // e.g., Kumar R
+        // Store memberId to state variable if needed
+        _memberId = memberId;
       });
+
+      print('👤 Username: $_username');
+      print('🆔 Member ID: $memberId');
+    } else {
+      print('❌ No user data found.');
     }
   }
 
@@ -174,33 +189,81 @@ class _HomescreenState extends State<Homescreen> {
 
     setState(() => _isLoading = false);
   }
-Future<void> _loadReferralSlips() async {
-  print("🔄 Loading referral slips...");
 
-  final response = await PublicRoutesApiService.getReferralGivenList();
+  Future<void> _loadReferralSlips() async {
+    print("🔄 Loading referral slips...");
 
-  print("✅ API Response received.");
-  print("➡️ Success: ${response.isSuccess}");
-  print("➡️ Message: ${response.message}");
-  print("➡️ Data: ${response.data}");
+    final response = await PublicRoutesApiService.getReferralGivenList();
 
-  if (mounted) {
-    setState(() {
-      _isReferralLoading = false;
+    print("✅ API Response received.");
+    print("➡️ Success: ${response.isSuccess}");
+    print("➡️ Message: ${response.message}");
+    print("➡️ Data: ${response.data}");
 
-      if (response.isSuccess) {
-        _referralList = response.data ?? [];
-        _referralCount = _referralList.length;
+    if (mounted) {
+      setState(() {
+        _isReferralLoading = false;
 
-        print("📦 Referral list loaded with ${_referralCount} items.");
-      } else {
-        print("❌ Failed to load referrals: ${response.message}");
-        ToastUtil.showToast(response.message);
-      }
-    });
+        if (response.isSuccess) {
+          _referralList = response.data ?? [];
+          _referralCount = _referralList.length;
+
+          print("📦 Referral list loaded with ${_referralCount} items.");
+        } else {
+          print("❌ Failed to load referrals: ${response.message}");
+          ToastUtil.showToast(response.message);
+        }
+      });
+    }
   }
-}
 
+  Future<void> _loadThankYouNotes() async {
+    print('📦 Loading Thank You Notes...');
+
+    final response = await PublicRoutesApiService.fetchGivenThankYouNotes();
+
+    if (response.isSuccess && response.data is List) {
+      final notes = response.data as List<dynamic>;
+      print('✅ Successfully fetched ${notes.length} Thank You Notes');
+
+      for (var i = 0; i < notes.length; i++) {
+        print('📝 Note $i: ${notes[i]}');
+      }
+
+      setState(() {
+        _givenNotes = notes;
+        _isThankYouLoading = false;
+      });
+    } else {
+      print('❌ Failed to fetch Thank You Notes: ${response.message}');
+      setState(() => _isThankYouLoading = false);
+      ToastUtil.showToast("❌ Failed to load Thank You Notes");
+    }
+  }
+
+  void fetchMember() async {
+    const storage = FlutterSecureStorage();
+    final userDataJson = await storage.read(key: 'user_data');
+
+    if (userDataJson != null) {
+      final userData = jsonDecode(userDataJson);
+      final String memberId = userData['id'];
+
+      final response =
+          await PublicRoutesApiService.fetchMemberDetailsById(memberId);
+
+      if (response.isSuccess && response.data != null) {
+        setState(() {
+          _memberData = response.data;
+        });
+
+        print(
+            '✅ Member loaded for profile: ${_memberData!['personalDetails']['firstName']}');
+      } else {
+        ToastUtil.showToast('❌ Failed to load member');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +314,9 @@ Future<void> _loadReferralSlips() async {
 
                     GestureDetector(
                       onTap: () {
-                        context.push('/profilepage');
+                       
+                          context.push('/profilepage', extra: _memberData);
+                        
                       },
                       child: CircleAvatar(
                         backgroundImage:
@@ -259,6 +324,7 @@ Future<void> _loadReferralSlips() async {
                         radius: 25,
                       ),
                     ),
+
                     SizedBox(
                       width: 3.w,
                     ),
@@ -324,12 +390,14 @@ Future<void> _loadReferralSlips() async {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Thank U Notes",
-                      value: "10+",
+                      value:
+                          _isThankYouLoading ? '0' : "${_givenNotes.length}+",
                       onTapAddView: () {
                         context.push('/thankyounote');
                       },
                       onTapView: () {
-                        context.push('/thankyouview');
+                        context.push('/thankyouview',
+                            extra: _givenNotes); // pass data via `extra`
                       },
                       imagePath: 'assets/images/handshake.png',
                     ),

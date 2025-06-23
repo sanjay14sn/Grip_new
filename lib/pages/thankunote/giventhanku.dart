@@ -3,10 +3,21 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class GiventhankyouPage extends StatelessWidget {
-  const GiventhankyouPage({super.key});
+  final Map<String, dynamic> note;
+
+  const GiventhankyouPage({super.key, required this.note});
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Safely access nested fields from note
+    final toFirstName =
+        note['toMember']?['personalDetails']?['firstName'] ?? '';
+    final toLastName = note['toMember']?['personalDetails']?['lastName'] ?? '';
+    final toName = "$toFirstName $toLastName".trim();
+    final toCompany = note['toMember']?['company'] ?? 'No Company';
+    final amount = note['amount']?.toString() ?? '0';
+    final comment = note['comments'] ?? 'No Comments';
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -15,9 +26,8 @@ class GiventhankyouPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back & Label
+              // 🔙 Back Button
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -32,12 +42,14 @@ class GiventhankyouPage extends StatelessWidget {
                   ),
                 ],
               ),
+
+              // 🏷️ Header
               Center(
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFFC6221A),
+                    color: const Color(0xFFC6221A),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
@@ -53,16 +65,14 @@ class GiventhankyouPage extends StatelessWidget {
 
               SizedBox(height: 2.h),
 
-              // Main Content Card
+              // 📄 Card with Details
               SizedBox(
-                height:
-                    67.h, // Approximate height for 643 pixels on a 800px screen
+                height: 67.h,
                 child: Card(
-                  color: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                      borderRadius: BorderRadius.circular(16)),
                   elevation: 4,
+                  color: Colors.white,
                   child: Padding(
                     padding: EdgeInsets.all(4.w),
                     child: Column(
@@ -81,60 +91,48 @@ class GiventhankyouPage extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Pream S', style: TTextStyles.refname),
-                                Text('Marvel Interiors',
+                                Text(toName.isNotEmpty ? toName : 'No Name',
+                                    style: TTextStyles.refname),
+                                Text(toCompany,
                                     style: TTextStyles.Rivenrefsmall),
                               ],
                             ),
                           ],
                         ),
                         SizedBox(height: 2.h),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Amount:', style: TTextStyles.Rivenrefsmall),
-                            SizedBox(height: 1.h),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 1.5.h, horizontal: 4.w),
-                              decoration: BoxDecoration(
-                                color:
-                                    const Color(0xFFF5F6FA), // light background
-                                borderRadius: BorderRadius.circular(2.w),
+                        Text('Amount:', style: TTextStyles.Rivenrefsmall),
+                        SizedBox(height: 1.h),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 1.5.h, horizontal: 4.w),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F6FA),
+                            borderRadius: BorderRadius.circular(2.w),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.currency_rupee,
+                                  color: const Color(0xFFC6221A), size: 20.sp),
+                              SizedBox(width: 1.w),
+                              Text(
+                                amount,
+                                style: TextStyle(
+                                  color: const Color(0xFFC6221A),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20.sp,
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.currency_rupee,
-                                    color: Color(0xFFC6221A),
-                                    size: 20.sp,
-                                  ),
-                                  SizedBox(width: 1.w),
-                                  Text(
-                                    '100000',
-                                    style: TextStyle(
-                                      color: Color(0xFFC6221A),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20.sp,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         SizedBox(height: 2.h),
                         Text('Comments:', style: TTextStyles.Rivenrefsmall),
-                        Text('Kumar  Need Interior Designer For His House Work',
-                            style: TTextStyles.reftext),
+                        Text(comment, style: TTextStyles.reftext),
                       ],
                     ),
                   ),
                 ),
               ),
-
-              // Bottom Icon
-              SizedBox(height: 2.h),
             ],
           ),
         ),

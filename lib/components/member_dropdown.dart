@@ -6,7 +6,8 @@ import 'package:sizer/sizer.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 
 class MemberDropdown extends StatefulWidget {
-  final void Function(String name, String uid, String chapterId, String chapterName)? onSelect;
+  final void Function(
+      String name, String uid, String chapterId, String chapterName)? onSelect;
 
   const MemberDropdown({super.key, this.onSelect});
 
@@ -53,7 +54,7 @@ class _MemberDropdownState extends State<MemberDropdown> {
     ];
 
     return Container(
-      height: 5.h,
+      height: 6.h,
       padding: EdgeInsets.symmetric(horizontal: 4.w),
       decoration: BoxDecoration(
         color: Colors.grey[200],

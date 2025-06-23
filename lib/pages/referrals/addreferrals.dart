@@ -21,6 +21,7 @@ class _ReferralPageState extends State<ReferralPage> {
 
   String? selectedPersonName; // For UI
   String? selectedPersonId; // For API (toMember)
+  String? fetchedAssociateUid;
 
   final TextEditingController associatenumber = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -29,9 +30,8 @@ class _ReferralPageState extends State<ReferralPage> {
   final TextEditingController commentsController = TextEditingController();
 
   void _handleSubmitReferral() async {
-    final String? toMemberId = associatenumber.text.isNotEmpty
-        ? associatenumber.text.trim()
-        : selectedPersonId;
+    final String? toMemberId =
+        showMyChapter ? selectedPersonId : fetchedAssociateUid;
 
     if (toMemberId == null || toMemberId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -66,7 +66,7 @@ class _ReferralPageState extends State<ReferralPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Referral slip submitted successfully')),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true); // 👈 this triggers refresh on home
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response.message)),
@@ -152,13 +152,13 @@ class _ReferralPageState extends State<ReferralPage> {
                           SizedBox(height: 2.h),
 
                           /// Toggle switch between MY CHAPTER and OTHER CHAPTERS
-                          Row(
-                            children: [
-                              SizedBox(
-                                  width: 3
-                                      .w), // Left padding for the whole tab set
-                              Expanded(
-                                child: Container(
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 0.w), // Horizontal padding
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: double.infinity,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     color: Colors.grey.shade300,
@@ -183,7 +183,7 @@ class _ReferralPageState extends State<ReferralPage> {
                                                   ? null
                                                   : Colors.transparent,
                                               borderRadius:
-                                                  BorderRadius.horizontal(
+                                                  const BorderRadius.horizontal(
                                                 left: Radius.circular(8),
                                               ),
                                             ),
@@ -203,7 +203,7 @@ class _ReferralPageState extends State<ReferralPage> {
                                         ),
                                       ),
 
-                                      /// ASSOCIATE NUMBER TAB
+                                      /// OTHER CHAPTER TAB
                                       Expanded(
                                         child: GestureDetector(
                                           onTap: () => setState(() {
@@ -222,7 +222,7 @@ class _ReferralPageState extends State<ReferralPage> {
                                                   ? null
                                                   : Colors.transparent,
                                               borderRadius:
-                                                  BorderRadius.horizontal(
+                                                  const BorderRadius.horizontal(
                                                 right: Radius.circular(8),
                                               ),
                                             ),
@@ -244,32 +244,38 @@ class _ReferralPageState extends State<ReferralPage> {
                                     ],
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 3.w), // Optional right padding
-                            ],
+
+                                SizedBox(height: 2.h),
+
+                                /// Show input or dropdown based on selection
+                                if (!showMyChapter) ...[
+                                  CustomInputField(
+                                    label: 'Enter Associate Mobile Number',
+                                    isRequired: false,
+                                    controller: associatenumber,
+                                    enableContactPicker: true,
+                                    onUidFetched: (uid) {
+                                      setState(() {
+                                        fetchedAssociateUid = uid;
+                                      });
+                                    },
+                                  ),
+                                ] else ...[
+                                  MemberDropdown(
+                                    onSelect:
+                                        (name, uid, chapterId, chapterName) {
+                                      setState(() {
+                                        selectedPersonName = name;
+                                        selectedPersonId = uid;
+                                      });
+                                    },
+                                  ),
+                                ],
+
+                                SizedBox(height: 2.h),
+                              ],
+                            ),
                           ),
-
-                          SizedBox(height: 2.h),
-
-                          /// Show input or dropdown based on selection
-                          if (!showMyChapter) ...[
-                            CustomInputField(
-                              label: 'Enter Associate Mobile Number',
-                              isRequired: false,
-                              controller: associatenumber,
-                              enableContactPicker: true,
-                            ),
-                          ] else ...[
-                            MemberDropdown(
-                              onSelect: (name, uid, chapterId, chapterName) {
-                                setState(() {
-                                  selectedPersonName = name;
-                                  selectedPersonId = uid;
-                                });
-                              },
-                            ),
-                          ],
-                          SizedBox(height: 2.h),
 
                           SizedBox(
                             height: 2.h,

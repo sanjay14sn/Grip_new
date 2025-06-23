@@ -24,10 +24,13 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
   final BorderRadius boxRadius = BorderRadius.circular(12.0);
 
   final TextEditingController commentController = TextEditingController();
-  final TextEditingController associatemobilenumber = TextEditingController();
+  final TextEditingController associateMobileController =
+      TextEditingController();
+  String? selectedPersonIdFromNumber;
   String? selectedPersonId;
   String? selectedPerson;
   List<File> pickedImages = [];
+  bool showMyChapter = true;
 
   Future<void> _pickFiles() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -45,13 +48,16 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
   }
 
   Future<void> _submitTestimonial() async {
-    if (selectedPersonId == null || commentController.text.isEmpty) {
+    final toMember =
+        showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
+
+    if (toMember == null || commentController.text.isEmpty) {
       ToastUtil.showToast("Please select a member and write comments");
       return;
     }
 
     final response = await PublicRoutesApiService.submitTestimonialSlip(
-      toMember: selectedPersonId!,
+      toMember: toMember,
       comments: commentController.text,
       imageFiles: pickedImages,
     );
@@ -93,22 +99,118 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                 ],
               ),
               SizedBox(height: 2.h),
-              CustomInputField(
-                label: 'Enter Associate Mobile Number',
-                isRequired: false,
-                controller: associatemobilenumber,
-                enableContactPicker: true,
-              ),
-              SizedBox(height: 1.h),
-              Center(child: Text('( OR )', style: TTextStyles.Or)),
-              SizedBox(height: 2.h),
-              MemberDropdown(
-                onSelect: (name, uid, chapterId, chapterName) {
-                  setState(() {
-                    selectedPerson = name;
-                    selectedPersonId = uid;
-                  });
-                },
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: 0.w), // Horizontal padding
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey.shade300,
+                      ),
+                      child: Row(
+                        children: [
+                          /// MY CHAPTER TAB
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() {
+                                showMyChapter = true;
+                                associateMobileController.clear();
+                              }),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      showMyChapter ? Tcolors.red_button : null,
+                                  color:
+                                      showMyChapter ? null : Colors.transparent,
+                                  borderRadius: const BorderRadius.horizontal(
+                                    left: Radius.circular(8),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "MY CHAPTER",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14.sp,
+                                      color: showMyChapter
+                                          ? Colors.white
+                                          : Colors.grey[700],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          /// OTHER CHAPTER TAB
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() {
+                                showMyChapter = false;
+                                selectedPerson = null;
+                                selectedPersonId = null;
+                              }),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                                decoration: BoxDecoration(
+                                  gradient: !showMyChapter
+                                      ? Tcolors.red_button
+                                      : null,
+                                  color: !showMyChapter
+                                      ? null
+                                      : Colors.transparent,
+                                  borderRadius: const BorderRadius.horizontal(
+                                    right: Radius.circular(8),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "OTHER CHAPTER",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14.sp,
+                                      color: !showMyChapter
+                                          ? Colors.white
+                                          : Colors.grey[700],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 2.h),
+
+                    /// Show input or dropdown based on selection
+                    if (!showMyChapter) ...[
+                      CustomInputField(
+                        label: 'Enter Associate Mobile Number',
+                        isRequired: false,
+                        controller: associateMobileController,
+                        enableContactPicker: true,
+                        onUidFetched: (uid) {
+                          selectedPersonIdFromNumber = uid;
+                        },
+                      ),
+                    ] else ...[
+                      MemberDropdown(
+                        onSelect: (name, uid, chapterId, chapterName) {
+                          setState(() {
+                            selectedPerson = name;
+                            selectedPersonId = uid;
+                          });
+                        },
+                      ),
+                    ],
+                  ],
+                ),
               ),
               SizedBox(height: 3.h),
               Center(

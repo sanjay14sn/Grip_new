@@ -1,78 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class Thankyouviewpage extends StatefulWidget {
-  const Thankyouviewpage({super.key});
+  final List<dynamic> givenNotes;
+
+  const Thankyouviewpage({super.key, required this.givenNotes});
 
   @override
-  State<Thankyouviewpage> createState() => _ReferralDetailsPageState();
+  State<Thankyouviewpage> createState() => _ThankyouviewpageState();
 }
 
-class _ReferralDetailsPageState extends State<Thankyouviewpage> {
+class _ThankyouviewpageState extends State<Thankyouviewpage> {
   bool isReceivedSelected = false;
+  bool _isLoading = false;
+  List<dynamic> receivedNotes = [];
 
-  final List<Map<String, String>> receivedReferrals = [
-    {
-      'name': 'Paul Mauray',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Dinesh',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'Amaran',
-      'date': '15 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Babu',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Mani',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadReceivedThankYouNotes();
+  }
 
-  final List<Map<String, String>> givenReferrals = [
-    {
-      'name': 'Suresh Kumar',
-      'date': '10 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Priya Dharshini',
-      'date': '11 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'John Moses',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Radha',
-      'date': '13 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-    {
-      'name': 'Ajay',
-      'date': '14 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-  ];
+  Future<void> _loadReceivedThankYouNotes() async {
+    print('🌐 Fetching received thank you notes...');
+    final response = await PublicRoutesApiService.fetchReceivedThankYouNotes();
+    print('📥 API Response: ${response.statusCode} - ${response.message}');
+
+    if (response.isSuccess && response.data != null) {
+      final List<dynamic> list = response.data is List
+          ? response.data
+          : []; // Protect against wrong type
+
+      print('✅ Fetched ${list.length} received notes');
+      for (var note in list) {
+        print(
+          '📝 Note: ${note['_id']} from '
+          '${note['fromMember']?['personalDetails']?['firstName']} '
+          'to ${note['toMember']?['personalDetails']?['firstName']}',
+        );
+      }
+
+      setState(() {
+        receivedNotes = list;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+      print('❌ Failed to fetch received notes: ${response.message}');
+      print('📛 Full response data: ${response.data}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isGiven = !isReceivedSelected;
+    final data = isGiven ? widget.givenNotes : receivedNotes;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -81,15 +69,12 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top bar
+              // Top Bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Back Button
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => Navigator.pop(context),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -99,8 +84,6 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-
-                  // Filter Icon
                   GestureDetector(
                     onTap: () {
                       showGeneralDialog(
@@ -108,7 +91,7 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
                         barrierDismissible: true,
                         barrierLabel: "Dismiss",
                         barrierColor: Colors.transparent,
-                        transitionDuration: Duration(milliseconds: 200),
+                        transitionDuration: const Duration(milliseconds: 200),
                         pageBuilder: (_, __, ___) {
                           return Stack(
                             children: [
@@ -127,14 +110,13 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Color(0xFFE0E2E7),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.filter_alt_outlined,
-                          color: Colors.black),
+                      child: const Icon(Icons.filter_alt_outlined),
                     ),
-                  )
+                  ),
                 ],
               ),
               SizedBox(height: 2.h),
@@ -145,19 +127,18 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
                   Text('Thank U Note Details', style: TTextStyles.ReferralSlip),
                   const SizedBox(width: 8),
                   Image.asset(
-                    'assets/images/handshake.png', // Replace with your actual image path
+                    'assets/images/handshake.png',
                     width: 34,
                     height: 34,
-                  )
+                  ),
                 ],
               ),
               SizedBox(height: 1.5.h),
 
-              // Category toggle
+              // Toggle
               Text('Category:', style: TTextStyles.Category),
               SizedBox(height: 1.h),
               Container(
-                width: double.infinity,
                 height: 40,
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
@@ -165,7 +146,6 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
                 ),
                 child: Row(
                   children: [
-                    // GIVEN button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => isReceivedSelected = false),
@@ -188,8 +168,6 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
                         ),
                       ),
                     ),
-
-                    // RECEIVED button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => isReceivedSelected = true),
@@ -218,20 +196,34 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
 
               SizedBox(height: 2.h),
 
-              // Referral List using ListView.builder
+              // List Section
               Expanded(
-                child: ListView.builder(
-                  itemCount: isReceivedSelected
-                      ? receivedReferrals.length
-                      : givenReferrals.length,
-                  itemBuilder: (context, index) {
-                    final item = isReceivedSelected
-                        ? receivedReferrals[index]
-                        : givenReferrals[index];
-                    return referralTile(item['name']!, item['date']!,
-                        item['image']!, isReceivedSelected);
-                  },
-                ),
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : data.isEmpty
+                        ? const Center(child: Text('No data found.'))
+                        : ListView.builder(
+                            itemCount: data.length,
+                            itemBuilder: (context, index) {
+                              final item = data[index];
+
+                              final name = isReceivedSelected
+                                  ? "${item['fromMember']?['personalDetails']?['firstName'] ?? ''} ${item['fromMember']?['personalDetails']?['lastName'] ?? ''}"
+                                  : "${item['toMember']?['personalDetails']?['firstName'] ?? ''} ${item['toMember']?['personalDetails']?['lastName'] ?? ''}";
+
+                              final date = item['createdAt']
+                                      ?.toString()
+                                      .substring(0, 10) ??
+                                  '';
+
+                              return referralTile(
+                                  name,
+                                  date,
+                                  'assets/images/person.png',
+                                  isReceivedSelected,
+                                  item);
+                            },
+                          ),
               ),
             ],
           ),
@@ -240,15 +232,14 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
     );
   }
 
-  // Tile Widget with different routes based on tab
-  Widget referralTile(
-      String name, String date, String imagePath, bool isReceived) {
+  Widget referralTile(String name, String date, String imagePath,
+      bool isReceived, dynamic item) {
     return GestureDetector(
       onTap: () {
         if (isReceived) {
-          context.push('/Recivedthankyou'); // received route
+          context.push('/Recivedthankyou', extra: item);
         } else {
-          context.push('/Giventhankyou'); // given route
+          context.push('/Giventhankyou', extra: item);
         }
       },
       child: Card(
@@ -265,6 +256,8 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
               CircleAvatar(
                 radius: 20,
                 backgroundImage: AssetImage(imagePath),
+                onBackgroundImageError: (_, __) =>
+                    debugPrint('⚠️ Failed to load image'),
               ),
               SizedBox(width: 3.w),
               Column(
@@ -273,25 +266,17 @@ class _ReferralDetailsPageState extends State<Thankyouviewpage> {
                   Text(
                     name,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+                        fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   Text(
                     date,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
               ),
               const Spacer(),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: Colors.red,
-              ),
+              const Icon(Icons.arrow_forward_ios_rounded,
+                  size: 16, color: Colors.red),
             ],
           ),
         ),
