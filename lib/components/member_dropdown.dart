@@ -53,7 +53,7 @@ class _MemberDropdownState extends State<MemberDropdown> {
     ];
 
     return Container(
-      height: 6.25.h,
+      height: 5.h,
       padding: EdgeInsets.symmetric(horizontal: 4.w),
       decoration: BoxDecoration(
         color: Colors.grey[200],

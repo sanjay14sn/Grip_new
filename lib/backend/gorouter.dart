@@ -81,12 +81,16 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/referralview',
-      builder: (context, state) => ReferralDetailsPage(),
+      builder: (context, state) {
+        final referrals = state.extra as List<dynamic>;
+        return ReferralDetailsPage(referrals: referrals);
+      },
     ),
-    GoRoute(
-      path: '/givenreferral',
-      builder: (context, state) => GivenReferralSlipPage(),
-    ),
+
+    // GoRoute(
+    //   path: '/givenreferral',
+    //   builder: (context, state) => GivenReferralSlipPage(),
+    // ),
     GoRoute(
       path: '/notifications',
       builder: (context, state) => NotificationsScreen(),
@@ -95,9 +99,13 @@ final GoRouter router = GoRouter(
       path: '/addtestimonials',
       builder: (context, state) => TestimonialSlipPage(),
     ),
+
     GoRoute(
-      path: '/testimonialview',
-      builder: (context, state) => Testimonialsviewpage(),
+      path: '/viewtestimonials',
+      builder: (context, state) {
+        final testimonialList = state.extra as List<dynamic>;
+        return Testimonialsviewpage(testimonials: testimonialList);
+      },
     ),
     GoRoute(
       path: '/thankyouview',
@@ -105,8 +113,12 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/referralDetailGiven',
-      builder: (context, state) => GivenReferralSlipPage(),
+      builder: (context, state) {
+        final referral = state.extra as Map<String, dynamic>;
+        return GivenReferralSlipPage(referral: referral);
+      },
     ),
+
     GoRoute(
       path: '/referralDetailRecived',
       builder: (context, state) => ReceivedreferralSlip(),
@@ -121,8 +133,12 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/GivenTestimonials',
-      builder: (context, state) => Giventestimonialspage(),
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        return Giventestimonialspage(data: data);
+      },
     ),
+
     GoRoute(
       path: '/ReceivedTestimonials',
       builder: (context, state) => Recivedtestimonials(),

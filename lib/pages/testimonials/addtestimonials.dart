@@ -4,8 +4,11 @@ import 'package:dashed_circle/dashed_circle.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
+
 import 'package:grip/components/Associate_number.dart';
 import 'package:grip/components/member_dropdown.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -20,12 +23,46 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
   final Color blueUploadColor = const Color(0xFF51A6C5);
   final BorderRadius boxRadius = BorderRadius.circular(12.0);
 
-  final TextEditingController toController = TextEditingController();
   final TextEditingController commentController = TextEditingController();
-
-  String? pickedFilePath;
+  final TextEditingController associatemobilenumber = TextEditingController();
   String? selectedPersonId;
   String? selectedPerson;
+  List<File> pickedImages = [];
+
+  Future<void> _pickFiles() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'doc'],
+    );
+
+    if (result != null) {
+      setState(() {
+        pickedImages =
+            result.paths.whereType<String>().map((e) => File(e)).toList();
+      });
+    }
+  }
+
+  Future<void> _submitTestimonial() async {
+    if (selectedPersonId == null || commentController.text.isEmpty) {
+      ToastUtil.showToast("Please select a member and write comments");
+      return;
+    }
+
+    final response = await PublicRoutesApiService.submitTestimonialSlip(
+      toMember: selectedPersonId!,
+      comments: commentController.text,
+      imageFiles: pickedImages,
+    );
+
+    if (response.isSuccess) {
+      ToastUtil.showToast("✅ Testimonial submitted successfully");
+      Navigator.pop(context, true); // ✅ Return true
+    } else {
+      ToastUtil.showToast("❌ Failed: ${response.message}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +75,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: () => Navigator.pop(context),
                 child: Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -61,24 +96,17 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
               CustomInputField(
                 label: 'Enter Associate Mobile Number',
                 isRequired: false,
-                controller: commentController,
-                enableContactPicker: true, // 👈 Add this
+                controller: associatemobilenumber,
+                enableContactPicker: true,
               ),
               SizedBox(height: 1.h),
-              Center(
-                child: Text('( OR )', style: TTextStyles.Or),
-              ),
+              Center(child: Text('( OR )', style: TTextStyles.Or)),
               SizedBox(height: 2.h),
               MemberDropdown(
                 onSelect: (name, uid, chapterId, chapterName) {
-                  print('✅ Name: $name');
-                  print('🆔 UID: $uid');
-                  print('🏷️ Chapter ID: $chapterId');
-                  print('📛 Chapter Name: $chapterName');
-
                   setState(() {
-                    selectedPerson = name; // or save UID etc. if needed
-                    selectedPersonId = uid; // <-- store ID instead
+                    selectedPerson = name;
+                    selectedPersonId = uid;
                   });
                 },
               ),
@@ -92,123 +120,89 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                       strokeWidth: 1.5,
                       borderType: BorderType.RRect,
                       radius: Radius.circular(12),
-                      child: Container(
-                        width: 90.w,
-                        height: 12.h,
-                        color: blueUploadColor,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: 53,
-                              height: 53,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  DashedCircle(
-                                    dashes: 20,
-                                    gapSize: 3,
-                                    color: Colors.white,
-                                    child: const SizedBox(
-                                      width: 53,
-                                      height: 53,
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 43,
-                                    height: 43,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
+                      child: InkWell(
+                        onTap: _pickFiles,
+                        child: Container(
+                          width: 90.w,
+                          height: 12.h,
+                          color: blueUploadColor,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 53,
+                                height: 53,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    DashedCircle(
+                                      dashes: 20,
+                                      gapSize: 3,
                                       color: Colors.white,
+                                      child: const SizedBox(
+                                        width: 53,
+                                        height: 53,
+                                      ),
                                     ),
-                                    child: Center(
-                                      child: ElevatedButton(
-                                        onPressed: () async {
-                                          FilePickerResult? result =
-                                              await FilePicker.platform
-                                                  .pickFiles(
-                                            type: FileType.custom,
-                                            allowedExtensions: [
-                                              'pdf',
-                                              'doc',
-                                              'docx',
-                                              'jpg',
-                                              'png'
-                                            ],
-                                          );
-                                          if (result != null &&
-                                              result.files.single.path !=
-                                                  null) {
-                                            setState(() {
-                                              pickedFilePath =
-                                                  result.files.single.path;
-                                            });
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          shape: const CircleBorder(),
-                                          padding: const EdgeInsets.all(10),
-                                          backgroundColor: Colors.white,
-                                          elevation: 4,
-                                          shadowColor: Colors.black54,
-                                        ),
-                                        child: const Icon(
+                                    Container(
+                                      width: 43,
+                                      height: 43,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white,
+                                      ),
+                                      child: Center(
+                                        child: Icon(
                                           Icons.add,
                                           size: 24,
                                           color: Color(0xFF50A6C5),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'Upload Documents',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Upload Documents',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    if (pickedFilePath != null) ...[
+                    if (pickedImages.isNotEmpty) ...[
                       SizedBox(height: 1.h),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Uploaded Documents:",
-                            style:
-                                TextStyle(color: Colors.black, fontSize: 14.sp),
-                          ),
-                          SizedBox(height: 0.5.h),
-                          Text(
-                            pickedFilePath!.split('/').last,
+                      Text(
+                        "Uploaded Documents:",
+                        style: TextStyle(color: Colors.black, fontSize: 14.sp),
+                      ),
+                      SizedBox(height: 0.5.h),
+                      ...pickedImages.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        File file = entry.value;
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            file.path.split('/').last,
                             style:
                                 TextStyle(color: Colors.black, fontSize: 12.sp),
                           ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                                size: 15,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  pickedFilePath = null;
-                                });
-                              },
-                            ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                pickedImages.removeAt(index);
+                              });
+                            },
                           ),
-                        ],
-                      )
+                        );
+                      }),
                     ],
                   ],
                 ),
@@ -246,12 +240,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                   ],
                 ),
                 child: TextButton(
-                  onPressed: () {
-                    // Handle form submission
-                    print("To: ${toController.text}");
-                    print("Comments: ${commentController.text}");
-                    print("File: $pickedFilePath");
-                  },
+                  onPressed: _submitTestimonial,
                   child: Text(
                     "Submit",
                     style: TextStyle(color: Colors.white, fontSize: 14.sp),

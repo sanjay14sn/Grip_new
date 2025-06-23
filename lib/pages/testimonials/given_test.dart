@@ -3,10 +3,26 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class Giventestimonialspage extends StatelessWidget {
-  const Giventestimonialspage({super.key});
+  final Map<String, dynamic> data;
+
+  const Giventestimonialspage({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
+    final toMember = data['toMember'];
+    final personalDetails = toMember['personalDetails'];
+    final fullName =
+        "${personalDetails['firstName']} ${personalDetails['lastName']}";
+    final companyName = toMember['companyName'] ?? 'No Company';
+
+    final comment = data['comments'] ?? '';
+    final images = data['images'] as List;
+    final imageName =
+        images.isNotEmpty ? images[0]['originalName'] : 'No Document';
+    final imageUrl = images.isNotEmpty
+        ? 'https://api.grip.oceansoft.online${images[0]['docPath']}'
+        : null;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -15,7 +31,7 @@ class Giventestimonialspage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back & Label
+              // 🔙 Back Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -32,6 +48,8 @@ class Giventestimonialspage extends StatelessWidget {
                   ),
                 ],
               ),
+
+              // 🟥 Page Title
               Center(
                 child: Container(
                   padding:
@@ -53,10 +71,9 @@ class Giventestimonialspage extends StatelessWidget {
 
               SizedBox(height: 2.h),
 
-              // Main Content Card
+              // 🧾 Main Card
               SizedBox(
-                height:
-                    67.h, // Approximate height for 643 pixels on a 800px screen
+                height: 67.h,
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -70,6 +87,8 @@ class Giventestimonialspage extends StatelessWidget {
                       children: [
                         Text("To:", style: TTextStyles.Rivenrefsmall),
                         SizedBox(height: 1.h),
+
+                        // 👤 Member Info
                         Row(
                           children: [
                             const CircleAvatar(
@@ -81,113 +100,124 @@ class Giventestimonialspage extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Pream S', style: TTextStyles.refname),
-                                Text('Marvel Interiors',
+                                Text(fullName, style: TTextStyles.refname),
+                                Text(companyName,
                                     style: TTextStyles.Rivenrefsmall),
                               ],
                             ),
                           ],
                         ),
+
                         SizedBox(height: 2.h),
+
+                        // 📎 Document
                         Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Document:",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Document:",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              height: 25.3.h,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black),
+                                borderRadius: BorderRadius.circular(5),
                               ),
-                              const SizedBox(height: 8),
-                              Container(
-                                height: 25.3.h,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
-                                  child: Column(
-                                    children: [
-                                      // Top 10% white background
-                                      Container(
-                                        height: 2.53.h,
-                                        width: double.infinity,
-                                        color: Colors.white,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 2.w),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            // Left: Filename
-                                            Text(
-                                              '1256481556.jpg',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 13.sp,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: Column(
+                                  children: [
+                                    // 🔼 Top Info Row
+                                    Container(
+                                      height: 2.53.h,
+                                      width: double.infinity,
+                                      color: Colors.white,
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 2.w),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            imageName,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13.sp,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              _buildIconButton('<'),
+                                              SizedBox(width: 1.w),
+                                              _buildIconButton('>'),
+                                              SizedBox(width: 2.w),
+                                              Text(
+                                                'Share',
+                                                style: TextStyle(
+                                                  fontSize: 12.sp,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              SizedBox(width: 2.w),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.download,
+                                                      size: 14.sp,
+                                                      color: Colors.blue),
+                                                  SizedBox(width: 1.w),
+                                                  Text(
+                                                    'Download',
+                                                    style: TextStyle(
+                                                      fontSize: 12.sp,
+                                                      color: Colors.blue,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // 🖼️ Image Area
+                                    Expanded(
+                                      child: imageUrl != null
+                                          ? Image.network(
+                                              imageUrl,
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                            )
+                                          : Container(
+                                              width: double.infinity,
+                                              color: Colors.grey[300],
+                                              child: Center(
+                                                child: Text("No Document"),
                                               ),
                                             ),
-                                            // Right: Controls
-                                            Row(
-                                              children: [
-                                                _buildIconButton('<'),
-                                                SizedBox(width: 1.w),
-                                                _buildIconButton('>'),
-                                                SizedBox(width: 2.w),
-                                                Text(
-                                                  'Share',
-                                                  style: TextStyle(
-                                                    fontSize: 12.sp,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 2.w),
-                                                Row(
-                                                  children: [
-                                                    Icon(Icons.download,
-                                                        size: 14.sp,
-                                                        color: Colors.blue),
-                                                    SizedBox(width: 1.w),
-                                                    Text(
-                                                      'Download',
-                                                      style: TextStyle(
-                                                        fontSize: 12.sp,
-                                                        color: Colors.blue,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      // Bottom 90% grey background
-                                      Expanded(
-                                        child: Container(
-                                          width: double.infinity,
-                                          color: Colors.grey[300],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ]),
+                            ),
+                          ],
+                        ),
+
                         SizedBox(height: 2.h),
+
+                        // 💬 Comments
                         Text('Comments:', style: TTextStyles.Rivenrefsmall),
-                        Text('Kumar  Need Interior Designer For His House Work',
-                            style: TTextStyles.reftext),
+                        Text(comment, style: TTextStyles.reftext),
                       ],
                     ),
                   ),
                 ),
               ),
-
-              // Bottom Icon
-              SizedBox(height: 2.h),
             ],
           ),
         ),
@@ -195,8 +225,7 @@ class Giventestimonialspage extends StatelessWidget {
     );
   }
 
-  // Helper method for buttons
-// Button builder
+  // 🔘 Reusable Nav Buttons (< >)
   Widget _buildIconButton(String label) {
     return Container(
       width: 7.w,

@@ -14,9 +14,10 @@ class ThankYouNotePage extends StatefulWidget {
 
 class _ThankYouNotePageState extends State<ThankYouNotePage> {
   String? selectedPerson;
-  String? selectedPersonId ;
+  String? selectedPersonId;
   final List<String> personList = ['Person A', 'Person B', 'Person C'];
   final Color customRed = const Color(0xFFC6221A);
+  bool showMyChapter = true;
 
   // Controllers for API integration
   final TextEditingController associateMobileController =
@@ -92,32 +93,151 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                         ),
 
                         SizedBox(height: 1.h),
-                        CustomInputField(
-                          label: 'Enter Associate Mobile Number',
-                          isRequired: false,
-                          controller: associateMobileController,
-                          enableContactPicker: true, // 👈 Add this
-                        ),
-                        SizedBox(height: 2.h),
-                        Center(
-                          child: Text('( OR )', style: TTextStyles.Or),
-                        ),
-                        SizedBox(height: 2.h),
-                        // Dropdown with label
-                        MemberDropdown(
-                          onSelect: (name, uid, chapterId, chapterName) {
-                            print('✅ Name: $name');
-                            print('🆔 UID: $uid');
-                            print('🏷️ Chapter ID: $chapterId');
-                            print('📛 Chapter Name: $chapterName');
+                        // CustomInputField(
+                        //   label: 'Enter Associate Mobile Number',
+                        //   isRequired: false,
+                        //   controller: associateMobileController,
+                        //   enableContactPicker: true, // 👈 Add this
+                        // ),
+                        // SizedBox(height: 2.h),
+                        // Center(
+                        //   child: Text('( OR )', style: TTextStyles.Or),
+                        // ),
+                        // SizedBox(height: 2.h),
+                        // // Dropdown with label
+                        // MemberDropdown(
+                        //   onSelect: (name, uid, chapterId, chapterName) {
+                        //     print('✅ Name: $name');
+                        //     print('🆔 UID: $uid');
+                        //     print('🏷️ Chapter ID: $chapterId');
+                        //     print('📛 Chapter Name: $chapterName');
 
-                            setState(() {
-                              selectedPerson =
-                                  name; // or save UID etc. if needed
-                              selectedPersonId = uid; // <-- store ID instead
-                            });
-                          },
+                        //     setState(() {
+                        //       selectedPerson =
+                        //           name; // or save UID etc. if needed
+                        //       selectedPersonId = uid; // <-- store ID instead
+                        //     });
+                        //   },
+                        // ),
+
+                        Row(
+                          children: [
+                            SizedBox(
+                                width:
+                                    3.w), // Left padding for the whole tab set
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.grey.shade300,
+                                ),
+                                child: Row(
+                                  children: [
+                                    /// MY CHAPTER TAB
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () => setState(() {
+                                          showMyChapter = true;
+                                          associateMobileController.clear();
+                                        }),
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 1.5.h),
+                                          decoration: BoxDecoration(
+                                            gradient: showMyChapter
+                                                ? Tcolors.red_button
+                                                : null,
+                                            color: showMyChapter
+                                                ? null
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.horizontal(
+                                              left: Radius.circular(8),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "MY CHAPTER",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14.sp,
+                                                color: showMyChapter
+                                                    ? Colors.white
+                                                    : Colors.grey[700],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    /// ASSOCIATE NUMBER TAB
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () => setState(() {
+                                          showMyChapter = false;
+                                          selectedPerson = null;
+                                          selectedPersonId = null;
+                                        }),
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 1.5.h),
+                                          decoration: BoxDecoration(
+                                            gradient: !showMyChapter
+                                                ? Tcolors.red_button
+                                                : null,
+                                            color: !showMyChapter
+                                                ? null
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.horizontal(
+                                              right: Radius.circular(8),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "OTHER CHAPTER",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14.sp,
+                                                color: !showMyChapter
+                                                    ? Colors.white
+                                                    : Colors.grey[700],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 3.w), // Optional right padding
+                          ],
                         ),
+
+                        SizedBox(height: 2.h),
+
+                        /// Show input or dropdown based on selection
+                        if (!showMyChapter) ...[
+                          CustomInputField(
+                            label: 'Enter Associate Mobile Number',
+                            isRequired: false,
+                            controller: associateMobileController,
+                            enableContactPicker: true,
+                          ),
+                        ] else ...[
+                          MemberDropdown(
+                            onSelect: (name, uid, chapterId, chapterName) {
+                              setState(() {
+                                selectedPerson = name;
+                                selectedPersonId = uid;
+                              });
+                            },
+                          ),
+                        ],
+                        SizedBox(height: 2.h),
 
                         SizedBox(height: 2.h),
 

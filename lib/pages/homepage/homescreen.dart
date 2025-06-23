@@ -28,6 +28,11 @@ class _HomescreenState extends State<Homescreen> {
   int _visitorCount = 0;
   List<dynamic> _oneToOneList = [];
   int _oneToOneCount = 0;
+  int _testimonialCount = 0;
+  List<dynamic> _testimonialList = [];
+  bool _isReferralLoading = true;
+  int _referralCount = 0;
+  List<dynamic> _referralList = [];
 
   @override
   void initState() {
@@ -36,6 +41,8 @@ class _HomescreenState extends State<Homescreen> {
     _loadChapterDetails();
     _loadVisitors();
     _loadOneToOneList();
+    _loadTestimonials();
+    _loadReferralSlips();
   }
 
   void _loadChapterDetails() async {
@@ -147,6 +154,54 @@ class _HomescreenState extends State<Homescreen> {
     }
   }
 
+  Future<void> _loadTestimonials() async {
+    setState(() => _isLoading = true);
+
+    final response = await PublicRoutesApiService.getTestimonialGivenList();
+
+    if (response.isSuccess && response.data != null) {
+      setState(() {
+        _testimonialList = response.data;
+        _testimonialCount = _testimonialList.length;
+      });
+    } else {
+      setState(() {
+        _testimonialList = [];
+        _testimonialCount = 0;
+      });
+      ToastUtil.showToast("❌ ${response.message}");
+    }
+
+    setState(() => _isLoading = false);
+  }
+Future<void> _loadReferralSlips() async {
+  print("🔄 Loading referral slips...");
+
+  final response = await PublicRoutesApiService.getReferralGivenList();
+
+  print("✅ API Response received.");
+  print("➡️ Success: ${response.isSuccess}");
+  print("➡️ Message: ${response.message}");
+  print("➡️ Data: ${response.data}");
+
+  if (mounted) {
+    setState(() {
+      _isReferralLoading = false;
+
+      if (response.isSuccess) {
+        _referralList = response.data ?? [];
+        _referralCount = _referralList.length;
+
+        print("📦 Referral list loaded with ${_referralCount} items.");
+      } else {
+        print("❌ Failed to load referrals: ${response.message}");
+        ToastUtil.showToast(response.message);
+      }
+    });
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -247,11 +302,17 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Total Referral",
-                      value: "95+",
-                      onTapAddView: () {
-                        context.push('/addreferalpage');
+                      value: _isReferralLoading ? '0' : '$_referralCount+',
+                      onTapAddView: () async {
+                        final result = await context.push('/addreferalpage');
+                        if (result == true) {
+                          await _loadReferralSlips(); // Refresh count if new added
+                        }
                       },
-                      onTapView: () => context.push('/referralview'),
+                      onTapView: () {
+                        context.push('/referralview',
+                            extra: _referralList); // 👈 pass data
+                      },
                       imagePath: 'assets/images/referralmain.png',
                     ),
                     SizedBox(height: 16),
@@ -281,12 +342,16 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Testimonials",
-                      value: "8+",
-                      onTapAddView: () {
-                        context.push('/addtestimonials');
+                      value: _isLoading ? '0' : '$_testimonialCount+',
+                      onTapAddView: () async {
+                        final result = await context.push('/addtestimonials');
+                        if (result == true) {
+                          await _loadTestimonials(); // 👈 reload after adding
+                        }
                       },
                       onTapView: () {
-                        context.push('/testimonialview');
+                        context.push('/viewtestimonials',
+                            extra: _testimonialList);
                       },
                       imagePath:
                           'assets/images/fluent_person-feedback-16-filled.png',

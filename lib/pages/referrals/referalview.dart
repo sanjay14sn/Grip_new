@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
-import 'package:go_router/go_router.dart';
 
 class ReferralDetailsPage extends StatefulWidget {
-  const ReferralDetailsPage({super.key});
+  final List<dynamic> referrals;
+
+  const ReferralDetailsPage({super.key, required this.referrals});
 
   @override
   State<ReferralDetailsPage> createState() => _ReferralDetailsPageState();
@@ -14,62 +16,13 @@ class ReferralDetailsPage extends StatefulWidget {
 
 class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
   bool isReceivedSelected = false;
+  late List<dynamic> givenReferrals;
 
-  final List<Map<String, String>> receivedReferrals = [
-    {
-      'name': 'Paul Mauray',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Dinesh',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'Amaran',
-      'date': '15 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Babu',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Mani',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-  ];
-
-  final List<Map<String, String>> givenReferrals = [
-    {
-      'name': 'Suresh Kumar',
-      'date': '10 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Priya Dharshini',
-      'date': '11 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'John Moses',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Radha',
-      'date': '13 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-    {
-      'name': 'Ajay',
-      'date': '14 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    givenReferrals = widget.referrals;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,15 +34,12 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top bar
+              // 🔙 Top Bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Back Button
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => context.pop(),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -99,8 +49,6 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-
-                  // Filter Icon
                   GestureDetector(
                     onTap: () {
                       showGeneralDialog(
@@ -108,7 +56,7 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                         barrierDismissible: true,
                         barrierLabel: "Dismiss",
                         barrierColor: Colors.transparent,
-                        transitionDuration: Duration(milliseconds: 200),
+                        transitionDuration: const Duration(milliseconds: 200),
                         pageBuilder: (_, __, ___) {
                           return Stack(
                             children: [
@@ -127,31 +75,31 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Color(0xFFE0E2E7),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.filter_alt_outlined,
-                          color: Colors.black),
+                      child: const Icon(Icons.filter_alt_outlined),
                     ),
                   )
                 ],
               ),
               SizedBox(height: 2.h),
 
-              // Title
+              // 🏷️ Title
               Row(
                 children: [
-                  Text('Referrals Details', style: TTextStyles.ReferralSlip),
+                  Text('Referral Details', style: TTextStyles.ReferralSlip),
                   const SizedBox(width: 8),
                   const Icon(Icons.people),
                 ],
               ),
               SizedBox(height: 1.5.h),
 
-              // Category toggle
               Text('Category:', style: TTextStyles.Category),
               SizedBox(height: 1.h),
+
+              // 🔘 Toggle
               Container(
                 width: double.infinity,
                 height: 40,
@@ -161,7 +109,6 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                 ),
                 child: Row(
                   children: [
-                    // GIVEN button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => isReceivedSelected = false),
@@ -184,8 +131,6 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                         ),
                       ),
                     ),
-
-                    // RECEIVED button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => isReceivedSelected = true),
@@ -211,24 +156,45 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                   ],
                 ),
               ),
-
               SizedBox(height: 2.h),
 
-              // Referral List using ListView.builder
+              // 📝 Referral List
               Expanded(
-                child: ListView.builder(
-                  itemCount: isReceivedSelected
-                      ? receivedReferrals.length
-                      : givenReferrals.length,
-                  itemBuilder: (context, index) {
-                    final item = isReceivedSelected
-                        ? receivedReferrals[index]
-                        : givenReferrals[index];
-                    return referralTile(item['name']!, item['date']!,
-                        item['image']!, isReceivedSelected);
-                  },
-                ),
-              ),
+                child: isReceivedSelected
+                    ? const Center(child: Text("No received referrals"))
+                    : ListView.builder(
+                        itemCount: givenReferrals.length,
+                        itemBuilder: (context, index) {
+                          final item = givenReferrals[index];
+                          final detail = item['referalDetail'] ?? {};
+                          final name = detail['name'] ?? 'No Name';
+
+                          final date =
+                              item['createdAt']?.toString().substring(0, 10) ??
+                                  '';
+
+                          final toMemberDetails =
+                              item['toMember']?['personalDetails'] ?? {};
+                          final toFirstName =
+                              toMemberDetails['firstName'] ?? '';
+                          final toLastName = toMemberDetails['lastName'] ?? '';
+                          final toFullName = "$toFirstName $toLastName".trim();
+
+                          final image = 'assets/images/profile_placeholder.png';
+
+                          // 👇 Replace `name` with the actual member name if needed
+                          return referralTile(
+                            item,
+                            toFullName.isNotEmpty
+                                ? toFullName
+                                : name, // fallback to referral detail name
+                            date,
+                            image,
+                            isReceivedSelected,
+                          );
+                        },
+                      ),
+              )
             ],
           ),
         ),
@@ -236,15 +202,20 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
     );
   }
 
-  // Tile Widget with different routes based on tab
+  // 🔗 Tile
   Widget referralTile(
-      String name, String date, String imagePath, bool isReceived) {
+    Map<String, dynamic> referral,
+    String name,
+    String date,
+    String imagePath,
+    bool isReceived,
+  ) {
     return GestureDetector(
       onTap: () {
         if (isReceived) {
-          context.push('/referralDetailRecived'); // received route
+          context.push('/referralDetailRecived');
         } else {
-          context.push('/referralDetailGiven'); // given route
+          context.push('/referralDetailGiven', extra: referral);
         }
       },
       child: Card(

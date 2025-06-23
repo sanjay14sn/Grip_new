@@ -278,4 +278,219 @@ class PublicRoutesApiService {
       );
     }
   }
+
+  static Future<ApiResponse> submitReferralSlip({
+    required String toMember,
+    required String referalStatus,
+    required Map<String, dynamic> referalDetail,
+  }) async {
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+
+      if (token == null || token.isEmpty) {
+        return ApiResponse(
+          statusCode: 401,
+          isSuccess: false,
+          data: null,
+          message: 'User not authenticated.',
+        );
+      }
+
+      final uri = Uri.parse('$endPointbaseUrl/api/mobile/referralslip/');
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'toMember': toMember,
+          'referalStatus': referalStatus,
+          'referalDetail': referalDetail,
+        }),
+      );
+
+      final statusCode = response.statusCode;
+      final responseData = jsonDecode(response.body);
+      final isSuccess = statusCode >= 200 && statusCode < 300;
+
+      return ApiResponse(
+        statusCode: statusCode,
+        isSuccess: isSuccess,
+        data: responseData['data'],
+        message: responseData['message'] ?? 'Referral slip submitted.',
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error submitting referral: $e',
+      );
+    }
+  }
+
+  static Future<ApiResponse> submitTestimonialSlip({
+    required String toMember,
+    required String comments,
+    required List<File> imageFiles,
+  }) async {
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+
+      if (token == null || token.isEmpty) {
+        return ApiResponse(
+          statusCode: 401,
+          isSuccess: false,
+          data: null,
+          message: 'User not authenticated.',
+        );
+      }
+
+      final uri = Uri.parse('$endPointbaseUrl/api/mobile/testimonialslips');
+      final request = http.MultipartRequest('POST', uri);
+      request.headers['Authorization'] = 'Bearer $token';
+
+      request.fields['toMember'] = toMember;
+      request.fields['comments'] = comments;
+
+      for (int i = 0; i < imageFiles.length; i++) {
+        File image = imageFiles[i];
+        request.files.add(await http.MultipartFile.fromPath(
+          'images',
+          image.path,
+          filename: image.path.split('/').last,
+        ));
+      }
+
+      final streamedResponse = await request.send();
+      final responseString = await streamedResponse.stream.bytesToString();
+      final responseData = jsonDecode(responseString);
+
+      return ApiResponse(
+        statusCode: streamedResponse.statusCode,
+        isSuccess: streamedResponse.statusCode >= 200 &&
+            streamedResponse.statusCode < 300,
+        data: responseData['data'],
+        message: responseData['message'] ?? 'Testimonial submitted',
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        message: 'Error submitting testimonial: $e',
+        data: null,
+      );
+    }
+  }
+
+  static Future<ApiResponse> getTestimonialGivenList() async {
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+
+      final uri =
+          Uri.parse('$endPointbaseUrl/api/mobile/testimonialslips/given/list');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      final statusCode = response.statusCode;
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final bool isSuccess = statusCode >= 200 && statusCode < 300;
+
+      return ApiResponse(
+        statusCode: statusCode,
+        isSuccess: isSuccess,
+        data: responseData['data'],
+        message: responseData['message'] ?? '',
+        extra: {
+          'total': responseData['pagination']?['total'] ?? 0,
+        },
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error fetching testimonials: $e',
+      );
+    }
+  }
+
+  static Future<ApiResponse> getTestimonialReceivedList() async {
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+
+      final uri = Uri.parse(
+          '$endPointbaseUrl/api/mobile/testimonialslips/received/list');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      final statusCode = response.statusCode;
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final bool isSuccess = statusCode >= 200 && statusCode < 300;
+
+      return ApiResponse(
+        statusCode: statusCode,
+        isSuccess: isSuccess,
+        data: responseData['data'],
+        message: responseData['message'] ?? '',
+        extra: {
+          'total': responseData['pagination']?['total'] ?? 0,
+        },
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error fetching received testimonials: $e',
+      );
+    }
+  }
+
+// Inside PublicRoutesApiService
+
+  static Future<ApiResponse> getReferralGivenList() async {
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
+
+      final response = await http.get(
+        Uri.parse('$endPointbaseUrl/api/mobile/referralslip/given/list'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      final json = jsonDecode(response.body);
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.statusCode == 200,
+        data: json['data'],
+        message: json['message'],
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        message: '❌ Error fetching referral list: $e',
+        data: null,
+      );
+    }
+  }
 }

@@ -33,7 +33,7 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-    // ✅ Load .env file
+  // ✅ Load .env file
   await dotenv.load();
   print("🌐 Loaded API_BASE_URL: ${dotenv.env['API_BASE_URL']}");
   await Firebase.initializeApp();
@@ -180,7 +180,7 @@ class _MyAppState extends State<MyApp> {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => LocationProvider()),
-            ChangeNotifierProvider(create: (_) =>ChapterProvider()),
+            ChangeNotifierProvider(create: (_) => ChapterProvider()),
             // Add other providers here if needed
           ],
           child: MaterialApp.router(

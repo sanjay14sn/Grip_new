@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:grip/backend/api-requests/no_auth_api.dart' show PublicRoutesApiService;
+import 'package:grip/backend/api-requests/no_auth_api.dart'
+    show PublicRoutesApiService;
 
 class ChapterProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -15,7 +16,8 @@ class ChapterProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final response = await PublicRoutesApiService.fetchChapterDetailsById(chapterId);
+    final response =
+        await PublicRoutesApiService.fetchChapterDetailsById(chapterId);
 
     if (response.isSuccess && response.data != null) {
       try {

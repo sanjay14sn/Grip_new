@@ -52,26 +52,30 @@ class CustomInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 2.h),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          hintText: isRequired ? "$label" : label,
-          hintStyle: TTextStyles.visitorsdetails,
-          filled: true,
-          fillColor: Colors.grey[200],
-          contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+      child: SizedBox(
+        height: 5.h, // Fixed height for the input field
+        child: TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          maxLines: 1, // Ensure single line for fixed height
+          decoration: InputDecoration(
+            hintText: isRequired ? "$label" : label,
+            hintStyle: TTextStyles.visitorsdetails,
+            filled: true,
+            fillColor: Colors.grey[200],
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            suffixIcon: enableContactPicker
+                ? IconButton(
+                    icon: Icon(Icons.contacts, color: Colors.black, size: 22),
+                    onPressed: () => _pickContact(context),
+                  )
+                : null,
           ),
-          suffixIcon: enableContactPicker
-              ? IconButton(
-                  icon: Icon(Icons.contacts, color: Colors.black, size: 22),
-                  onPressed: () => _pickContact(context),
-                )
-              : null,
         ),
       ),
     );
