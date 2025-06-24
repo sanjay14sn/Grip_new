@@ -367,7 +367,8 @@ class PublicRoutesApiService {
         if (length > 5 * 1024 * 1024) continue; // Skip >5MB files
 
         // Infer MIME type
-        final mimeType = lookupMimeType(image.path) ?? 'application/octet-stream';
+        final mimeType =
+            lookupMimeType(image.path) ?? 'application/octet-stream';
         final mimeSplit = mimeType.split('/');
 
         request.files.add(await http.MultipartFile.fromPath(
@@ -379,7 +380,8 @@ class PublicRoutesApiService {
       }
 
       // 🔄 Send and read response
-      final streamedResponse = await request.send().timeout(Duration(seconds: 60));
+      final streamedResponse =
+          await request.send().timeout(Duration(seconds: 60));
       final responseString = await streamedResponse.stream.bytesToString();
       final responseData = jsonDecode(responseString);
 
@@ -399,6 +401,7 @@ class PublicRoutesApiService {
       );
     }
   }
+
   static Future<ApiResponse> getTestimonialGivenList() async {
     try {
       const storage = FlutterSecureStorage();

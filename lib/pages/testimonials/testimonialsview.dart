@@ -4,6 +4,7 @@ import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -206,9 +207,19 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
 
                           final name =
                               "${person?['personalDetails']?['firstName'] ?? ''} ${person?['personalDetails']?['lastName'] ?? ''}";
-                          final date =
-                              item['createdAt']?.toString().substring(0, 10) ??
-                                  '';
+                          final rawDate = item['createdAt'];
+                          DateTime? parsedDate;
+                          try {
+                            parsedDate = rawDate != null
+                                ? DateTime.parse(rawDate)
+                                : null;
+                          } catch (e) {
+                            parsedDate = null;
+                          }
+
+                          final date = parsedDate != null
+                              ? DateFormat('dd-MM-yy').format(parsedDate)
+                              : '';
 
                           final images = item['images'] as List;
                           final imageUrl = images.isNotEmpty
@@ -244,7 +255,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
     return GestureDetector(
       onTap: () {
         if (isReceived) {
-          context.push('/ReceivedTestimonials', extra: item);
+          context.push('/Recivedtestimonial', extra: item);
         } else {
           context.push('/GivenTestimonials', extra: item);
         }

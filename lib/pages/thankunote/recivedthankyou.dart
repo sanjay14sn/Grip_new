@@ -3,10 +3,19 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class RecivedthankyouPage extends StatelessWidget {
-  const RecivedthankyouPage({super.key});
+  final Map<String, dynamic> data;
+
+  const RecivedthankyouPage({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
+    final from = data['fromMember']?['personalDetails'];
+    final name = "${from?['firstName'] ?? ''} ${from?['lastName'] ?? ''}";
+    final company = from?['companyName'] ?? 'Company Name';
+
+    final amount = data['amount']?.toString() ?? '0';
+    final comments = data['comments'] ?? 'No comments provided';
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -50,13 +59,11 @@ class RecivedthankyouPage extends StatelessWidget {
                   ),
                 ),
               ),
-
               SizedBox(height: 2.h),
 
               // Main Content Card
               SizedBox(
-                height:
-                    67.h, // Approximate height for 643 pixels on a 800px screen
+                height: 67.h,
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -81,9 +88,8 @@ class RecivedthankyouPage extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Pream S', style: TTextStyles.refname),
-                                Text('Marvel Interiors',
-                                    style: TTextStyles.Rivenrefsmall),
+                                Text(name, style: TTextStyles.refname),
+                                Text(company, style: TTextStyles.Rivenrefsmall),
                               ],
                             ),
                           ],
@@ -98,8 +104,7 @@ class RecivedthankyouPage extends StatelessWidget {
                               padding: EdgeInsets.symmetric(
                                   vertical: 1.5.h, horizontal: 4.w),
                               decoration: BoxDecoration(
-                                color:
-                                    const Color(0xFFF5F6FA), // light background
+                                color: const Color(0xFFF5F6FA),
                                 borderRadius: BorderRadius.circular(2.w),
                               ),
                               child: Row(
@@ -111,7 +116,7 @@ class RecivedthankyouPage extends StatelessWidget {
                                   ),
                                   SizedBox(width: 1.w),
                                   Text(
-                                    '100000',
+                                    amount,
                                     style: TextStyle(
                                       color: Color(0xFFC6221A),
                                       fontWeight: FontWeight.bold,
@@ -125,16 +130,12 @@ class RecivedthankyouPage extends StatelessWidget {
                         ),
                         SizedBox(height: 2.h),
                         Text('Comments:', style: TTextStyles.Rivenrefsmall),
-                        Text('Kumar  Need Interior Designer For His House Work',
-                            style: TTextStyles.reftext),
+                        Text(comments, style: TTextStyles.reftext),
                       ],
                     ),
                   ),
                 ),
               ),
-
-              // Bottom Icon
-              SizedBox(height: 2.h),
             ],
           ),
         ),

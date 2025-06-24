@@ -1,11 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/Tab_button.dart';
 import 'package:grip/pages/chapter_detailes/detailedmember.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
-import 'package:grip/pages/chapter_detailes/dummy.dart';
 import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/other_chapter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
@@ -24,32 +25,71 @@ class _MyChapterPageState extends State<MyChapterPage> {
   bool isMyChapterSelected = true;
 
   List<DetailedMember> _detailedMembers = [];
+  List<DetailedMember> _filteredMembers = [];
+
   bool _isLoading = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchAllMemberDetails();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredMembers = _detailedMembers.where((member) {
+        final name = member.name.toLowerCase();
+        final company = member.company.toLowerCase();
+        return name.contains(query) || company.contains(query);
+      }).toList();
+    });
   }
 
   Future<void> _fetchAllMemberDetails() async {
     setState(() => _isLoading = true);
     _detailedMembers.clear();
 
+    const storage = FlutterSecureStorage();
+    final userDataString = await storage.read(key: 'user_data');
+
+    String? currentUserId;
+    if (userDataString != null) {
+      final userData = jsonDecode(userDataString);
+      currentUserId = userData['id'];
+    }
+
     final chapterProvider =
         Provider.of<ChapterProvider>(context, listen: false);
-    for (var member in chapterProvider.members) {
+    final members = chapterProvider.members;
+
+    for (final member in members) {
+      if (member.id == currentUserId) {
+        debugPrint("🙅 Skipping current user: $currentUserId");
+        continue; // Skip current user
+      }
+
       final response =
           await PublicRoutesApiService.fetchMemberDetailsById(member.id);
+
       if (response.isSuccess && response.data != null) {
         final detailed = DetailedMember.fromJson(response.data);
         _detailedMembers.add(detailed);
-      } else {
-        debugPrint('❌ Failed for memberId ${member.id}: ${response.message}');
       }
     }
 
-    setState(() => _isLoading = false);
+    setState(() {
+      _filteredMembers = _detailedMembers;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -120,7 +160,6 @@ class _MyChapterPageState extends State<MyChapterPage> {
               ),
               SizedBox(height: 2.h),
 
-              // Content
               isMyChapterSelected
                   ? _buildMyChapterView()
                   : const ChapterSelector(),
@@ -132,9 +171,13 @@ class _MyChapterPageState extends State<MyChapterPage> {
   }
 
   Widget _buildMyChapterView() {
+    final chapterProvider =
+        Provider.of<ChapterProvider>(context, listen: false);
+    final memberCount = chapterProvider.members.length;
+
     return _isLoading
         ? GridView.builder(
-            itemCount: 9, // show 9 shimmer cards while loading
+            itemCount: memberCount,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: EdgeInsets.symmetric(vertical: 1.h),
@@ -186,20 +229,39 @@ class _MyChapterPageState extends State<MyChapterPage> {
             children: [
               // Search Bar
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 3.w),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade200,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.search, color: Tcolors.title_color),
                     SizedBox(width: 2.w),
-                    const Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Search",
-                          border: InputBorder.none,
+                    Expanded(
+                      child: Container(
+                        height: 4.h,
+                        alignment: Alignment.center,
+                        child: TextField(
+                          controller: _searchController,
+                          textAlignVertical:
+                              TextAlignVertical.center, // 👈 Center the text
+                          decoration: const InputDecoration(
+                            hintText: "Search by name or company",
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding:
+                                EdgeInsets.zero, // 👈 Remove extra padding
+                          ),
+                          style: TextStyle(fontSize: 15.7.sp),
                         ),
                       ),
                     ),
@@ -234,7 +296,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
 
               // Member Grid
               GridView.builder(
-                itemCount: _detailedMembers.length,
+                itemCount: _filteredMembers.length,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.symmetric(vertical: 1.h),
@@ -245,16 +307,18 @@ class _MyChapterPageState extends State<MyChapterPage> {
                   childAspectRatio: 0.85,
                 ),
                 itemBuilder: (context, index) {
-                  final detailed = _detailedMembers[index];
-
-                  // Convert to MemberModel
+                  final detailed = _filteredMembers[index];
                   final memberModel = MemberModel(
                     name: detailed.name,
                     company: detailed.company,
                     phone: detailed.mobile,
-                    role: '', // or pass actual role
+                    role: null,
+                    website: detailed.website,
+                    chapterName: detailed.chapterName,
+                    businessDescription: detailed.description,
+                    email: detailed.email,
+                    address: detailed.address,
                   );
-
                   return MemberCard(member: memberModel);
                 },
               ),

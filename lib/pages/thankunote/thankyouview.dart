@@ -4,6 +4,7 @@ import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class Thankyouviewpage extends StatefulWidget {
@@ -211,14 +212,15 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
                                   ? "${item['fromMember']?['personalDetails']?['firstName'] ?? ''} ${item['fromMember']?['personalDetails']?['lastName'] ?? ''}"
                                   : "${item['toMember']?['personalDetails']?['firstName'] ?? ''} ${item['toMember']?['personalDetails']?['lastName'] ?? ''}";
 
-                              final date = item['createdAt']
-                                      ?.toString()
-                                      .substring(0, 10) ??
-                                  '';
+                              final rawDate = item['createdAt'];
+                              final formattedDate = rawDate != null
+                                  ? DateFormat('dd-MM-yy')
+                                      .format(DateTime.parse(rawDate))
+                                  : '';
 
                               return referralTile(
                                   name,
-                                  date,
+                                  formattedDate,
                                   'assets/images/person.png',
                                   isReceivedSelected,
                                   item);

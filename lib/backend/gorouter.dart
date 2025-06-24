@@ -5,11 +5,13 @@ import 'package:grip/components/failure_attandance.dart';
 import 'package:grip/networkerror.dart';
 import 'package:grip/pages/Eventpage.dart';
 import 'package:grip/pages/chapter_detailes/chapterdetails.dart';
+import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/pages/chapter_detailes/mychapter/member_info.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/otherchaptersproile.dart';
 import 'package:grip/pages/mainsplashscreen.dart';
 import 'package:grip/pages/meeting.dart';
 import 'package:grip/pages/navigator_key.dart';
+import 'package:grip/pages/one_to_one/given_onetoone.dart';
 import 'package:grip/pages/one_to_one/others_one_to_one.dart';
 import 'package:grip/pages/one_to_one/recived_one_to_one.dart';
 import 'package:grip/pages/one_to_one/viewone_to_one.dart';
@@ -91,11 +93,6 @@ final GoRouter router = GoRouter(
         return ReferralDetailsPage(referrals: referrals);
       },
     ),
-
-    // GoRoute(
-    //   path: '/givenreferral',
-    //   builder: (context, state) => GivenReferralSlipPage(),
-    // ),
     GoRoute(
       path: '/notifications',
       builder: (context, state) => NotificationsScreen(),
@@ -140,10 +137,11 @@ final GoRouter router = GoRouter(
 
     GoRoute(
       path: '/Recivedthankyou',
-      builder: (context, state) => RecivedthankyouPage(),
+      builder: (context, state) {
+        final item = state.extra as Map<String, dynamic>;
+        return RecivedthankyouPage(data: item);
+      },
     ),
- 
-
     GoRoute(
       path: '/Giventhankyou',
       builder: (context, state) {
@@ -160,9 +158,21 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
-      path: '/ReceivedTestimonials',
-      builder: (context, state) => Recivedtestimonials(),
+      path: '/Recivedtestimonial',
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        return Recivedtestimonialspage(data: data);
+      },
     ),
+
+    GoRoute(
+      path: '/Givenonetoonepage',
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        return Givenonetoonepage(data: data);
+      },
+    ),
+
     GoRoute(
       path: '/ChapterDetails',
       builder: (context, state) => MyChapterPage(),
@@ -185,8 +195,13 @@ final GoRouter router = GoRouter(
 
     GoRoute(
       path: '/Chaptermember',
-      builder: (context, state) => chapterdetails(),
+      name: 'chapterDetails',
+      builder: (context, state) {
+        final member = state.extra as MemberModel;
+        return ChapterDetails(member: member);
+      },
     ),
+
     GoRoute(
       path: '/ViewOthers',
       builder: (context, state) => MemberListPage(),
@@ -215,10 +230,15 @@ final GoRouter router = GoRouter(
       path: '/membershipdetails',
       builder: (context, state) => MembershipDetailsPage(),
     ),
+
     GoRoute(
       path: '/Otherschapter',
-      builder: (context, state) => OtherChapterPage(),
+      builder: (context, state) {
+        final chapter = state.extra as ChapterDetail;
+        return OtherChapterPage(chapter: chapter);
+      },
     ),
+
     GoRoute(
       path: '/visitorsview',
       builder: (context, state) {

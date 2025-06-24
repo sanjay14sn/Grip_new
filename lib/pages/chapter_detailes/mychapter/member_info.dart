@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
-class chapterdetails extends StatelessWidget {
-  const chapterdetails({super.key});
+class ChapterDetails extends StatelessWidget {
+  final MemberModel member;
+
+  const ChapterDetails({super.key, required this.member});
 
   @override
   Widget build(BuildContext context) {
@@ -15,22 +18,21 @@ class chapterdetails extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Back button
               GestureDetector(
-                onTap: () {
-                  Navigator.pop(context); // Go back
-                },
+                onTap: () => Navigator.pop(context),
                 child: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
                     color: Color(0xFFE0E2E7),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back),
                 ),
               ),
-
               SizedBox(height: 15),
-              // Top Row with Back and Edit
+
+              // Header
               Row(
                 children: [
                   SizedBox(width: 3.w),
@@ -38,50 +40,54 @@ class chapterdetails extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 1.5.h),
-              // Profile Picture
+
+              // Profile Image
               Center(
                 child: CircleAvatar(
                   radius: 10.w,
-                  backgroundImage:
-                      const AssetImage('assets/images/profile.png'),
+                  backgroundImage: const AssetImage('assets/images/profile.png'),
                 ),
               ),
               SizedBox(height: 1.5.h),
+
               // Name & Role
-              const Center(
+              Center(
                 child: Text(
-                  "Dinesh Kumar",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  member.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
-              const Center(
+              Center(
                 child: Text(
-                  "GRIP ARAM",
-                  style: TextStyle(
+                  // member.chapterName,
+                  "Member",
+                  style: const TextStyle(
                     color: Colors.red,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
               ),
+
               SizedBox(height: 2.h),
+
+              // Description
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Text(
-                  "As An Experienced Interior Designer, I Specialize In Creating Aesthetically Pleasing And Functional Spaces That Reflect The Unique Needs And Preferences Of My Clients.",
+                  member.businessDescription ?? "No Description",
                   textAlign: TextAlign.left,
                   style: TTextStyles.profiledes,
                 ),
               ),
               SizedBox(height: 2.5.h),
+
               // Contact Info
-              infoRow(Icons.business, "Marvel Interiors"),
-              infoRow(Icons.phone, "+91 9655545554"),
-              infoRow(Icons.email, "Grip@Gmail.Com"),
-              infoRow(Icons.language, "www.grip.com"),
-              infoRow(Icons.location_on, "No.25/61,1st Street, Chennai-70."),
-              infoRow(Icons.location_on, "www.linkedin.com/in/grip"),
-              infoRow(Icons.badge, "GRIP"),
+              infoRow(Icons.business, member.company),
+              infoRow(Icons.phone, member.phone),
+              infoRow(Icons.email, member.email ?? 'N/A'),
+              infoRow(Icons.language, member.website ?? 'N/A'),
+              infoRow(Icons.location_on, member.address ?? 'N/A'),
               SizedBox(height: 3.h),
             ],
           ),

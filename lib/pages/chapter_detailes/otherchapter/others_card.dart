@@ -12,7 +12,7 @@ class othersMemberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isRoleCard = member.role.isNotEmpty;
+   // final isRoleCard = member.role.isNotEmpty;
 
     return Material(
       child: InkWell(
@@ -54,7 +54,7 @@ class othersMemberCard extends StatelessWidget {
                       Text(member.company,
                           textAlign: TextAlign.center,
                           style: TTextStyles.membercard),
-                      if (!isRoleCard && member.phone != null)
+                      if ( member.phone != null)
                         Padding(
                           padding: EdgeInsets.only(top: 0.8.h),
                           child: Text(
@@ -66,21 +66,21 @@ class othersMemberCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isRoleCard)
-                Container(
-                  width: double.infinity,
-                  height: 3.h,
-                  decoration: const BoxDecoration(
-                    color: Tcolors.smalll_button,
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(10),
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(member.role,
-                      textAlign: TextAlign.center,
-                      style: TTextStyles.chapterrole),
-                ),
+              // if (isRoleCard)
+              //   Container(
+              //     width: double.infinity,
+              //     height: 3.h,
+              //     decoration: const BoxDecoration(
+              //       color: Tcolors.smalll_button,
+              //       borderRadius: BorderRadius.vertical(
+              //         bottom: Radius.circular(10),
+              //       ),
+              //     ),
+              //     alignment: Alignment.center,
+              //     child: Text(member.role,
+              //         textAlign: TextAlign.center,
+              //         style: TTextStyles.chapterrole),
+              //   ),
             ],
           ),
         ),

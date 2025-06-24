@@ -23,6 +23,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>(); // ✅ Form key
 
   @override
+  void initState() {
+    super.initState();
+
+    // Close keyboard after entering 10 digits
+    usernameController.addListener(() {
+      if (usernameController.text.length == 10) {
+        FocusScope.of(context).unfocus();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();
@@ -120,11 +132,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 50),
                         _InputBox(
                           controller: usernameController,
-                          hinttext: 'User Name',
+                          hinttext: 'Mobile Number',
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter mobile number';
+                            }
+                            if (value.length != 10) {
+                              return 'Mobile number must be 10 digits';
+                            }
+                            return null;
+                          },
+                          keyboardType: TextInputType.number,
+                          maxLength: 10,
                         ),
                         _InputBox(
                           controller: passwordController,
-                          hinttext: 'Password',
+                          hinttext: 'PIN',
                           obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -176,12 +199,16 @@ class _InputBox extends StatelessWidget {
   final String hinttext;
   final String? Function(String?)? validator;
   final bool obscureText;
+  final TextInputType? keyboardType;
+  final int? maxLength;
 
   const _InputBox({
     required this.controller,
     required this.hinttext,
     this.validator,
     this.obscureText = false,
+    this.keyboardType,
+    this.maxLength,
   });
 
   @override
@@ -191,8 +218,11 @@ class _InputBox extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
-        validator: validator, // ✅ attach validator
+        validator: validator,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
         decoration: InputDecoration(
+          counterText: "", // hides character counter
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(

@@ -27,24 +27,24 @@ class DetailedMember {
     final business = json['businessDetails'] ?? {};
     final addressData = json['businessAddress'] ?? {};
     final chapterInfo = json['chapterInfo'] ?? {};
+    final chapterId = chapterInfo['chapterId'] ?? {};
 
     return DetailedMember(
-      id: json['_id'] ?? '',
-      name:
-          "${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}".trim(),
-      company: personal['companyName'] ?? '',
-      mobile: contact['mobileNumber'] ?? '',
-      description: business['businessDescription'] ?? '',
-      email: contact['email'] ?? '',
-      website: contact['website'] ?? '',
+      id: json['_id']?.toString() ?? '',
+      name: "${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}".trim(),
+      company: personal['companyName']?.toString() ?? '',
+      mobile: contact['mobileNumber']?.toString() ?? '',
+      description: business['businessDescription']?.toString() ?? '',
+      email: contact['email']?.toString() ?? '',
+      website: contact['website']?.toString() ?? '',
       address: [
         addressData['addressLine1'],
         addressData['addressLine2'],
         addressData['city'],
         addressData['state'],
         addressData['postalCode'],
-      ].whereType<String>().join(', '),
-      chapterName: chapterInfo['chapterId']?['chapterName'] ?? '',
+      ].whereType<String>().map((e) => e.trim()).where((e) => e.isNotEmpty).join(', '),
+      chapterName: chapterId['chapterName']?.toString() ?? '',
     );
   }
 }

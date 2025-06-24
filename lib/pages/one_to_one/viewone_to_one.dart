@@ -185,7 +185,8 @@ class _ReferralDetailsPageState extends State<onetooneviewpage> {
                         : '';
                     final image = 'assets/images/profile1.jpg'; // placeholder
 
-                    return referralTile(name, date, image, isReceivedSelected);
+                    return referralTile(
+                        item, name, date, image, isReceivedSelected);
                   },
                 ),
               ),
@@ -196,15 +197,19 @@ class _ReferralDetailsPageState extends State<onetooneviewpage> {
     );
   }
 
-  // Tile Widget with different routes based on tab
   Widget referralTile(
-      String name, String date, String imagePath, bool isReceived) {
+    Map<String, dynamic> item,
+    String name,
+    String date,
+    String imagePath,
+    bool isReceivedSelected,
+  ) {
     return GestureDetector(
       onTap: () {
-        if (isReceived) {
-          context.push('/ViewOthers'); // received route
+        if (isReceivedSelected) {
+          context.push('/ViewOthers');
         } else {
-          context.push('/GivenTestimonials'); // given route
+          context.push('/Givenonetoonepage', extra: item);
         }
       },
       child: Card(

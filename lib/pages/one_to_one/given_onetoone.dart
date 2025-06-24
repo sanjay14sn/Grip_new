@@ -4,35 +4,36 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sizer/sizer.dart';
 
-class Recivedtestimonialspage extends StatefulWidget {
+class Givenonetoonepage extends StatefulWidget {
   final Map<String, dynamic> data;
 
-  const Recivedtestimonialspage({super.key, required this.data});
+  const Givenonetoonepage({super.key, required this.data});
 
   @override
-  State<Recivedtestimonialspage> createState() =>
-      _RecivedtestimonialspageState();
+  State<Givenonetoonepage> createState() => _Givenonetoonepage();
 }
 
-class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
+class _Givenonetoonepage extends State<Givenonetoonepage> {
   int currentImageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    final fromMember = widget.data['fromMember'] as Map<String, dynamic>? ?? {};
+    final toMember = widget.data['toMember'] as Map<String, dynamic>? ?? {};
     final personalDetails =
-        fromMember['personalDetails'] as Map<String, dynamic>? ?? {};
+        toMember['personalDetails'] as Map<String, dynamic>? ?? {};
     final fullName =
         "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
             .trim();
-    final companyName = fromMember['companyName'] ?? 'No Company';
+    final companyName = toMember['companyName'] ?? 'No Company';
     final comment = widget.data['comments'] ?? '';
 
     final images = widget.data['images'] as List? ?? [];
     final hasImages = images.isNotEmpty;
 
     final currentImage = hasImages ? images[currentImageIndex] : null;
-    final imageName = currentImage?['originalName'] ?? currentImage?['docName'] ?? 'No Document';
+    final imageName = currentImage?['originalName'] ??
+        currentImage?['docName'] ??
+        'No Document';
     final docPath = currentImage?['docPath'] ?? '';
     final docName = currentImage?['docName'] ?? '';
 
@@ -48,7 +49,7 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔙 Back & Title
+              /// 🔙 Back & Title
               Row(
                 children: [
                   GestureDetector(
@@ -65,14 +66,14 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                   Expanded(
                     child: Center(
                       child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 4.w, vertical: 1.h),
                         decoration: BoxDecoration(
                           color: const Color(0xFFC6221A),
                           borderRadius: BorderRadius.circular(2.w),
                         ),
                         child: Text(
-                          'RECEIVED TESTIMONIAL SLIP',
+                          'GIVEN ONE TO ONE SLIP',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -87,7 +88,7 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
               ),
               SizedBox(height: 2.h),
 
-              // 🧾 Card
+              /// 🧾 Card
               SizedBox(
                 height: 67.h,
                 child: Card(
@@ -103,7 +104,7 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                         Text("From:", style: TTextStyles.Rivenrefsmall),
                         SizedBox(height: 1.h),
 
-                        // 👤 Profile
+                        /// 👤 Profile
                         Row(
                           children: [
                             CircleAvatar(
@@ -129,12 +130,13 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                         SizedBox(height: 2.h),
 
                         const Text(
-                          "Document:",
+                          "Image:",
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
 
+                        /// 📄 Document Viewer
                         Container(
                           height: 25.3.h,
                           decoration: BoxDecoration(
@@ -145,10 +147,11 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                             borderRadius: BorderRadius.circular(5),
                             child: Column(
                               children: [
-                                // Header Row
+                                /// Header Row
                                 Container(
                                   height: 2.5.h,
-                                  padding: EdgeInsets.symmetric(horizontal: 2.w),
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 2.w),
                                   color: Colors.white,
                                   child: Row(
                                     mainAxisAlignment:
@@ -200,7 +203,7 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                                   ),
                                 ),
 
-                                // 🖼️ Image Viewer
+                                /// 🖼️ Image Area
                                 Expanded(
                                   child: imageUrl != null
                                       ? CachedNetworkImage(
@@ -211,18 +214,16 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                                               const Center(
                                             child: CircularProgressIndicator(),
                                           ),
-                                          errorWidget: (context, url, error) {
-                                            return const Center(
-                                              child:
-                                                  Text("❌ Image load failed"),
-                                            );
-                                          },
+                                          errorWidget: (context, url, error) =>
+                                              const Center(
+                                            child: Text("❌ Image load failed"),
+                                          ),
                                         )
                                       : Container(
                                           color: Colors.grey[300],
                                           width: double.infinity,
                                           alignment: Alignment.center,
-                                          child: const Text("No Document"),
+                                          child: const Text("No Image"),
                                         ),
                                 ),
                               ],
@@ -231,6 +232,7 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                         ),
                         SizedBox(height: 2.h),
 
+                        /// 💬 Comments
                         Text('Comments:', style: TTextStyles.Rivenrefsmall),
                         Text(comment, style: TTextStyles.reftext),
                       ],
