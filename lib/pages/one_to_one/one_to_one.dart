@@ -399,12 +399,17 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                       onPressed: () async {
                         final String? toMemberId =
                             fetchedAssociateUid ?? selectedPersonId;
+                        print('👤 Selected toMemberId: $toMemberId');
 
                         if (toMemberId == null ||
                             _pickedImage == null ||
                             selectedLocation == null) {
+                          print('⚠️ Missing one or more required fields:');
+                          print('   toMemberId: $toMemberId');
+                          print('   _pickedImage: $_pickedImage');
+                          print('   selectedLocation: $selectedLocation');
                           ToastUtil.showToast(
-                              "Please complete all required fields.");
+                              context, "Please complete all required fields.");
                           return;
                         }
 
@@ -423,17 +428,29 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                           default:
                             mappedLocation = 'commonlocation';
                         }
+                        print(
+                            '📍 Selected location: $selectedLocation → $mappedLocation');
 
                         const storage = FlutterSecureStorage();
                         final userDataString =
                             await storage.read(key: 'user_data');
 
                         if (userDataString == null) {
-                          ToastUtil.showToast("User data not found.");
+                          print('❌ Secure storage: user_data not found');
+                          ToastUtil.showToast(context, "User data not found.");
                           return;
                         }
 
                         final userData = jsonDecode(userDataString);
+                        print('🔐 User data loaded: $userData');
+
+                        print('📤 Submitting 1-to-1 slip with:');
+                        print('   toMember: $toMemberId');
+                        print('   whereDidYouMeet: $mappedLocation');
+                        print(
+                            '   address: ${context.read<LocationProvider>().fullAddress}');
+                        print('   date: ${DateTime.now().toIso8601String()}');
+                        print('   imageFile: $_pickedImage');
 
                         final response =
                             await PublicRoutesApiService.submitOneToOneSlip(
@@ -446,11 +463,19 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                           imageFile: _pickedImage,
                         );
 
+                        print('📡 API Response:');
+                        print('   statusCode: ${response.statusCode}');
+                        print('   success: ${response.isSuccess}');
+                        print('   message: ${response.message}');
+                        print('   data: ${response.data}');
+
                         if (response.isSuccess) {
-                          ToastUtil.showToast('✅ Submitted successfully!');
+                          ToastUtil.showToast(
+                              context, '✅ Submitted successfully!');
                           Navigator.pop(context, true); // ✅ Return true
                         } else {
-                          ToastUtil.showToast('❌ Failed: ${response.message}');
+                          ToastUtil.showToast(
+                              context, '❌ Failed: ${response.message}');
                         }
                       },
                       style: ElevatedButton.styleFrom(

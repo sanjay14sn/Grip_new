@@ -35,14 +35,17 @@ class _ProfilePageState extends State<ProfilePage> {
     final contact = data['contactDetails'] ?? {};
     final address = data['businessAddress'] ?? {};
 
-    final fullName = '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}';
+    final fullName =
+        '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}';
     final company = personal['companyName'] ?? '-';
     final mobile = contact['mobileNumber'] ?? '-';
     final email = contact['email'] ?? '-';
     final website = contact['website'] ?? '-';
-    final location = '${address['addressLine1'] ?? ''}, ${address['city'] ?? ''}';
+    final location =
+        '${address['addressLine1'] ?? ''}, ${address['city'] ?? ''}';
     final chapterName = chapter['chapterId']?['chapterName'] ?? '-';
-   final description = business['businessDescription'] ?? 'No description provided.';
+    final description =
+        business['businessDescription'] ?? 'No description provided.';
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -76,20 +79,25 @@ class _ProfilePageState extends State<ProfilePage> {
               Center(
                 child: CircleAvatar(
                   radius: 10.w,
-                  backgroundImage: const AssetImage('assets/images/profile.png'),
+                  backgroundImage:
+                      const AssetImage('assets/images/profile.png'),
                 ),
               ),
               SizedBox(height: 1.5.h),
               Center(
                 child: Text(
                   fullName,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
               Center(
                 child: Text(
                   chapterName,
-                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                  style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12),
                 ),
               ),
               SizedBox(height: 2.h),
@@ -107,7 +115,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 1.2.h),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8.w, vertical: 1.2.h),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(28),
@@ -120,7 +129,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           foreground: Paint()
                             ..shader = const LinearGradient(
                               colors: [Color(0xFF00BFA6), Color(0xFFE14F4F)],
-                            ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                            ).createShader(
+                                const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
                         ),
                       ),
                     ),
@@ -130,12 +140,11 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(height: 2.h),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child:Text(
-  description,
-  textAlign: TextAlign.left,
-  style: TTextStyles.profiledes,
-),
-
+                child: Text(
+                  description,
+                  textAlign: TextAlign.left,
+                  style: TTextStyles.profiledes,
+                ),
               ),
               SizedBox(height: 2.5.h),
               infoRow(Icons.business, company),
@@ -166,7 +175,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         padding: EdgeInsets.zero,
                       ),
-                      child: const Text("Logout", style: TextStyle(color: Colors.white)),
+                      child: const Text("Logout",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

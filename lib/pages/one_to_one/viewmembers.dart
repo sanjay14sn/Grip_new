@@ -59,27 +59,46 @@ class _MemberListPageState extends State<MemberListPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  Center(
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFC83837),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        "OTHERS ONE TO ONES",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0E2E7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.arrow_back),
                         ),
                       ),
-                    ),
+                      Expanded(
+                        child: Center(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 5.w, vertical: 1.h),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFC83837),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              "OTHERS ONE TO ONES",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Dummy space to balance the row (same width as back button)
+                      SizedBox(
+                          width:
+                              48), // or use IconButton(icon: Icon(null)) if needed
+                    ],
                   ),
                   SizedBox(height: 2.h),
                   Container(

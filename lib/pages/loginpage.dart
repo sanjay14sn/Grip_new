@@ -66,13 +66,13 @@ class _LoginScreenState extends State<LoginScreen> {
         await storage.write(key: 'user_data', value: jsonEncode(userJson));
 
         // ✅ Show success toast
-        ToastUtil.showToast('✅ Login successful!');
+        ToastUtil.showToast(context,'✅ Login successful!');
 
         // ✅ Navigate to homepage
         context.go('/homepage');
       } else {
         final message = response.data?['message'] ?? response.message;
-        ToastUtil.showToast(' Login failed. Message: $message');
+        ToastUtil.showToast(context,' Login failed. Message: $message');
       }
     }
   }

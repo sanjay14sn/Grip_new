@@ -121,7 +121,7 @@ class _HomescreenState extends State<Homescreen> {
     } else {
       print('❌ Failed to fetch One-to-One list: ${response.message}');
       setState(() => _isLoading = false);
-      ToastUtil.showToast('❌ ${response.message}');
+      ToastUtil.showToast(context,'❌ ${response.message}');
     }
   }
 
@@ -141,7 +141,7 @@ class _HomescreenState extends State<Homescreen> {
       });
     } else {
       print('❌ Failed to fetch visitors: ${response.message}');
-      ToastUtil.showToast('❌ ${response.message}');
+      ToastUtil.showToast(context,'❌ ${response.message}');
       setState(() {
         _isLoading = false;
       });
@@ -184,7 +184,7 @@ class _HomescreenState extends State<Homescreen> {
         _testimonialList = [];
         _testimonialCount = 0;
       });
-      ToastUtil.showToast("❌ ${response.message}");
+      ToastUtil.showToast(context,"❌ ${response.message}");
     }
 
     setState(() => _isLoading = false);
@@ -211,7 +211,7 @@ class _HomescreenState extends State<Homescreen> {
           print("📦 Referral list loaded with ${_referralCount} items.");
         } else {
           print("❌ Failed to load referrals: ${response.message}");
-          ToastUtil.showToast(response.message);
+          ToastUtil.showToast(context,response.message);
         }
       });
     }
@@ -237,7 +237,7 @@ class _HomescreenState extends State<Homescreen> {
     } else {
       print('❌ Failed to fetch Thank You Notes: ${response.message}');
       setState(() => _isThankYouLoading = false);
-      ToastUtil.showToast("❌ Failed to load Thank You Notes");
+      ToastUtil.showToast(context,"❌ Failed to load Thank You Notes");
     }
   }
 
@@ -260,7 +260,7 @@ class _HomescreenState extends State<Homescreen> {
         print(
             '✅ Member loaded for profile: ${_memberData!['personalDetails']['firstName']}');
       } else {
-        ToastUtil.showToast('❌ Failed to load member');
+        ToastUtil.showToast(context,'❌ Failed to load member');
       }
     }
   }

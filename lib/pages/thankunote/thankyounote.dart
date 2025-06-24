@@ -47,17 +47,18 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
     final comments = commentsController.text.trim();
 
     if (toMember == null || toMember.isEmpty) {
-      ToastUtil.showToast("Please select a member or enter associate number");
+      ToastUtil.showToast(
+          context, "Please select a member or enter associate number");
       return;
     }
 
     if (amount.isEmpty) {
-      ToastUtil.showToast("Amount is required");
+      ToastUtil.showToast(context, "Amount is required");
       return;
     }
 
     if (comments.isEmpty) {
-      ToastUtil.showToast("Comments is required");
+      ToastUtil.showToast(context, "Comments is required");
       return;
     }
 
@@ -68,10 +69,10 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
     );
 
     if (response.isSuccess) {
-      ToastUtil.showToast("Thank You Note submitted successfully");
-      Navigator.pop(context, true); // ✅ Return true
+      ToastUtil.showToast(context, "Thank You Note submitted successfully");
+      Navigator.pop(context, true); // 👈 this triggers refresh on home
     } else {
-      ToastUtil.showToast("❌ ${response.message}");
+      ToastUtil.showToast(context, "❌ ${response.message}");
     }
   }
 
