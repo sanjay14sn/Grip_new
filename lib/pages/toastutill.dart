@@ -59,3 +59,6 @@ class ToastUtil {
     });
   }
 }
+class UrlService {
+  static const String IMAGE_BASE_URL = " https://api.grip.oceansoft.online/api/public";
+}

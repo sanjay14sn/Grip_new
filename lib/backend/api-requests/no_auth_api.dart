@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 /// ✅ Safe fallback if env not configured
 final String endPointbaseUrl = dotenv.env['API_BASE_URL'] ??
@@ -357,15 +359,27 @@ class PublicRoutesApiService {
       request.fields['comments'] = comments;
 
       for (int i = 0; i < imageFiles.length; i++) {
-        File image = imageFiles[i];
+        final image = imageFiles[i];
+
+        // Validation
+        if (!image.existsSync()) continue;
+        final length = image.lengthSync();
+        if (length > 5 * 1024 * 1024) continue; // Skip >5MB files
+
+        // Infer MIME type
+        final mimeType = lookupMimeType(image.path) ?? 'application/octet-stream';
+        final mimeSplit = mimeType.split('/');
+
         request.files.add(await http.MultipartFile.fromPath(
           'images',
           image.path,
           filename: image.path.split('/').last,
+          contentType: MediaType(mimeSplit[0], mimeSplit[1]),
         ));
       }
 
-      final streamedResponse = await request.send();
+      // 🔄 Send and read response
+      final streamedResponse = await request.send().timeout(Duration(seconds: 60));
       final responseString = await streamedResponse.stream.bytesToString();
       final responseData = jsonDecode(responseString);
 
@@ -385,7 +399,6 @@ class PublicRoutesApiService {
       );
     }
   }
-
   static Future<ApiResponse> getTestimonialGivenList() async {
     try {
       const storage = FlutterSecureStorage();
@@ -691,6 +704,62 @@ class PublicRoutesApiService {
         statusCode: response.statusCode,
         isSuccess: true,
         data: response.data['data'],
+        message: response.data['message'] ?? '',
+      );
+    }
+
+    return response;
+  }
+
+  static Future<ApiResponse> fetchReceivedReferralSlips() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated. Please login again.',
+      );
+    }
+
+    final response = await makeRequest(
+      url: '$endPointbaseUrl/api/mobile/referralslip/received/list',
+      method: 'GET',
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.isSuccess &&
+        response.data != null &&
+        response.data is Map<String, dynamic>) {
+      final list = response.data['data'];
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: true,
+        data: list, // ✅ This is now List<dynamic>
+        message: response.data['message'] ?? '',
+      );
+    }
+
+    return response;
+  }
+
+  static Future<ApiResponse> fetchChapterList() async {
+    final response = await makeRequest(
+      url: '$endPointbaseUrl/api/mobile/chapters/list',
+      method: 'GET',
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.isSuccess &&
+        response.data != null &&
+        response.data is Map<String, dynamic>) {
+      final List<dynamic> list = response.data['data'];
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: true,
+        data: list, // List of chapters
         message: response.data['message'] ?? '',
       );
     }

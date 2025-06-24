@@ -56,522 +56,530 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Sizer(builder: (context, orientation, deviceType) {
-      return Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Padding(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
+        return SingleChildScrollView(
             padding: EdgeInsets.all(4.w),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_back),
-                    ),
-                  ),
-                  // Header Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment
-                        .center, // Centers the children horizontally
-                    children: [
-                      Image.asset(
-                        'assets/images/testimonials.png',
-                        height: 29.sp,
-                        width: 29.sp,
-                      ),
-                      SizedBox(width: 2.w),
-                      Text('One-To-Ones Slip', style: TTextStyles.ReferralSlip),
-                    ],
-                  ),
-
-                  SizedBox(height: 3.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 0.w), // Horizontal padding
-                    child: Column(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey.shade300,
-                          ),
-                          child: Row(
-                            children: [
-                              /// MY CHAPTER TAB
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => setState(() {
-                                    showMyChapter = true;
-                                    AssociatenumberController.clear();
-                                  }),
-                                  child: Container(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 1.5.h),
-                                    decoration: BoxDecoration(
-                                      gradient: showMyChapter
-                                          ? Tcolors.red_button
-                                          : null,
-                                      color: showMyChapter
-                                          ? null
-                                          : Colors.transparent,
-                                      borderRadius:
-                                          const BorderRadius.horizontal(
-                                        left: Radius.circular(8),
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "MY CHAPTER",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14.sp,
-                                          color: showMyChapter
-                                              ? Colors.white
-                                              : Colors.grey[700],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              /// OTHER CHAPTER TAB
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => setState(() {
-                                    showMyChapter = false;
-                                    selectedPerson = null;
-                                    selectedPersonId = null;
-                                  }),
-                                  child: Container(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 1.5.h),
-                                    decoration: BoxDecoration(
-                                      gradient: !showMyChapter
-                                          ? Tcolors.red_button
-                                          : null,
-                                      color: !showMyChapter
-                                          ? null
-                                          : Colors.transparent,
-                                      borderRadius:
-                                          const BorderRadius.horizontal(
-                                        right: Radius.circular(8),
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "OTHER CHAPTER",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14.sp,
-                                          color: !showMyChapter
-                                              ? Colors.white
-                                              : Colors.grey[700],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0E2E7),
+                          shape: BoxShape.circle,
                         ),
-
-                        SizedBox(height: 2.h),
-
-                        /// Show input or dropdown based on selection
-                        if (!showMyChapter) ...[
-                          CustomInputField(
-                            label: 'Enter Associate Mobile Number',
-                            isRequired: false,
-                            controller: AssociatenumberController,
-                            enableContactPicker: true,
-                            onUidFetched: (uid) {
-                              setState(() {
-                                fetchedAssociateUid = uid;
-                              });
-                            },
-                          ),
-                        ] else ...[
-                          MemberDropdown(
-                            onSelect: (name, uid, chapterId, chapterName) {
-                              setState(() {
-                                selectedPerson = name;
-                                selectedPersonId = uid;
-                              });
-                            },
-                          ),
-                        ],
+                        child: const Icon(Icons.arrow_back),
+                      ),
+                    ),
+                    // Header Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .center, // Centers the children horizontally
+                      children: [
+                        Image.asset(
+                          'assets/images/testimonials.png',
+                          height: 29.sp,
+                          width: 29.sp,
+                        ),
+                        SizedBox(width: 2.w),
+                        Text('One-To-Ones Slip',
+                            style: TTextStyles.ReferralSlip),
                       ],
                     ),
-                  ),
-                  SizedBox(height: 2.h),
 
-                  // Where Did You Meet?
-                  _simpleDropdown(
-                    value: selectedLocation,
-                    items: meetingLocations,
-                    onChanged: (value) {
-                      setState(() => selectedLocation = value);
-                    },
-                  ),
-
-                  SizedBox(height: 2.h),
-
-                  // Date Picker
-                  _datePickerField(),
-
-                  SizedBox(height: 2.h),
-
-                  Stack(
-                    children: [
-                      // Autofill Address Field (at bottom)
-                      Container(
-                        margin: EdgeInsets.only(top: 22),
-                        height: 85,
-                        width: double.infinity,
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.symmetric(horizontal: 4.w),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(2.w),
-                        ),
-                        child: Consumer<LocationProvider>(
-                          builder: (context, locationProvider, child) {
-                            if (locationProvider.isFetching) {
-                              return const CircularProgressIndicator();
-                            } else if (locationProvider.fullAddress != null) {
-                              return Text(locationProvider.fullAddress!);
-                            } else {
-                              return const Text("Autofill");
-                            }
-                          },
-                        ),
-                      ),
-
-                      // Positioned Button (overlapping top-center)
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: SizedBox(
-                            width: 260,
-                            height: 44,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                context
-                                    .read<LocationProvider>()
-                                    .fetchLocation();
-                              },
-                              icon: const Icon(
-                                Icons.location_on_outlined,
-                                color: Colors.white,
-                              ),
-                              label: Text(
-                                "Fetch Live Location",
-                                style: TTextStyles.livelocation,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF50A6C5),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+                    SizedBox(height: 3.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 0.w), // Horizontal padding
+                      child: Column(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey.shade300,
                             ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 2.h),
-
-                  Center(
-                    child: Column(
-                      children: [
-                        DottedBorder(
-                          color: Color(0xFF50A6C5),
-                          dashPattern: [6, 3],
-                          strokeWidth: 1.5,
-                          child: Container(
-                            width: 351,
-                            height: 94,
-                            color: Color(0xFF50A6C5),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Row(
                               children: [
-                                SizedBox(
-                                  width: 53,
-                                  height: 53,
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      DashedCircle(
-                                        dashes: 20,
-                                        gapSize: 3,
-                                        color: Colors.white,
-                                        child: const SizedBox(
-                                          width: 53,
-                                          height: 53,
+                                /// MY CHAPTER TAB
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(() {
+                                      showMyChapter = true;
+                                      AssociatenumberController.clear();
+                                    }),
+                                    child: Container(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 1.5.h),
+                                      decoration: BoxDecoration(
+                                        gradient: showMyChapter
+                                            ? Tcolors.red_button
+                                            : null,
+                                        color: showMyChapter
+                                            ? null
+                                            : Colors.transparent,
+                                        borderRadius:
+                                            const BorderRadius.horizontal(
+                                          left: Radius.circular(8),
                                         ),
                                       ),
-                                      Container(
-                                        width: 43,
-                                        height: 43,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.white,
-                                        ),
-                                        child: Center(
-                                          child: ElevatedButton(
-                                            onPressed: _pickImage,
-                                            style: ElevatedButton.styleFrom(
-                                              shape: const CircleBorder(),
-                                              padding: const EdgeInsets.all(10),
-                                              backgroundColor: Colors.white,
-                                              elevation: 4,
-                                              shadowColor: Colors.black54,
-                                            ),
-                                            child: const Icon(
-                                              Icons.add,
-                                              size: 24,
-                                              color: Color(0xFF50A6C5),
-                                            ),
+                                      child: Center(
+                                        child: Text(
+                                          "MY CHAPTER",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14.sp,
+                                            color: showMyChapter
+                                                ? Colors.white
+                                                : Colors.grey[700],
                                           ),
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 6),
-                                const Text(
-                                  'Take Photo',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+
+                                /// OTHER CHAPTER TAB
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(() {
+                                      showMyChapter = false;
+                                      selectedPerson = null;
+                                      selectedPersonId = null;
+                                    }),
+                                    child: Container(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 1.5.h),
+                                      decoration: BoxDecoration(
+                                        gradient: !showMyChapter
+                                            ? Tcolors.red_button
+                                            : null,
+                                        color: !showMyChapter
+                                            ? null
+                                            : Colors.transparent,
+                                        borderRadius:
+                                            const BorderRadius.horizontal(
+                                          right: Radius.circular(8),
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "OTHER CHAPTER",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14.sp,
+                                            color: !showMyChapter
+                                                ? Colors.white
+                                                : Colors.grey[700],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
+
+                          SizedBox(height: 2.h),
+
+                          /// Show input or dropdown based on selection
+                          if (!showMyChapter) ...[
+                            CustomInputField(
+                              label: 'Enter Associate Mobile Number',
+                              isRequired: false,
+                              controller: AssociatenumberController,
+                              enableContactPicker: true,
+                              onUidFetched: (uid) {
+                                setState(() {
+                                  fetchedAssociateUid = uid;
+                                });
+                              },
+                            ),
+                          ] else ...[
+                            MemberDropdown(
+                              onSelect: (name, uid, chapterId, chapterName) {
+                                setState(() {
+                                  selectedPerson = name;
+                                  selectedPersonId = uid;
+                                });
+                              },
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+
+                    // Where Did You Meet?
+                    _simpleDropdown(
+                      value: selectedLocation,
+                      items: meetingLocations,
+                      onChanged: (value) {
+                        setState(() => selectedLocation = value);
+                      },
+                    ),
+
+                    SizedBox(height: 2.h),
+
+                    // Date Picker
+                    _datePickerField(),
+
+                    SizedBox(height: 2.h),
+
+                    Stack(
+                      children: [
+                        // Autofill Address Field (at bottom)
+                        Container(
+                          margin: EdgeInsets.only(top: 22),
+                          height: 85,
+                          width: double.infinity,
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(2.w),
+                          ),
+                          child: Consumer<LocationProvider>(
+                            builder: (context, locationProvider, child) {
+                              if (locationProvider.isFetching) {
+                                return const CircularProgressIndicator();
+                              } else if (locationProvider.fullAddress != null) {
+                                return Text(locationProvider.fullAddress!);
+                              } else {
+                                return const Text("Autofill");
+                              }
+                            },
+                          ),
                         ),
-                        DottedBorder(
-                          color: Color(0xFF50A6C5),
-                          dashPattern: [6, 6],
-                          strokeWidth: 1.5,
-                          child: Container(
-                            width: 351,
-                            height: 80,
-                            child: Center(
-                              child: _pickedImage != null
-                                  ? Image.file(_pickedImage!,
-                                      width: 70, height: 70, fit: BoxFit.cover)
-                                  : const Text(
-                                      'No image selected',
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
+
+                        // Positioned Button (overlapping top-center)
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: SizedBox(
+                              width: 260,
+                              height: 44,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  context
+                                      .read<LocationProvider>()
+                                      .fetchLocation();
+                                },
+                                icon: const Icon(
+                                  Icons.location_on_outlined,
+                                  color: Colors.white,
+                                ),
+                                label: Text(
+                                  "Fetch Live Location",
+                                  style: TTextStyles.livelocation,
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF50A6C5),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: 2.h),
 
-                  // Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 6.5.h,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final String? toMemberId =
-                            fetchedAssociateUid ?? selectedPersonId;
-                        print('👤 Selected toMemberId: $toMemberId');
+                    SizedBox(height: 2.h),
 
-                        if (toMemberId == null ||
-                            _pickedImage == null ||
-                            selectedLocation == null) {
-                          print('⚠️ Missing one or more required fields:');
-                          print('   toMemberId: $toMemberId');
-                          print('   _pickedImage: $_pickedImage');
-                          print('   selectedLocation: $selectedLocation');
-                          ToastUtil.showToast(
-                              context, "Please complete all required fields.");
-                          return;
-                        }
-
-                        // Map UI selection to backend enum
-                        String mappedLocation = '';
-                        switch (selectedLocation) {
-                          case 'At Your Location':
-                            mappedLocation = 'yourlocation';
-                            break;
-                          case 'At Their Location':
-                            mappedLocation = 'theirlocation';
-                            break;
-                          case 'At A Common Location':
-                            mappedLocation = 'commonlocation';
-                            break;
-                          default:
-                            mappedLocation = 'commonlocation';
-                        }
-                        print(
-                            '📍 Selected location: $selectedLocation → $mappedLocation');
-
-                        const storage = FlutterSecureStorage();
-                        final userDataString =
-                            await storage.read(key: 'user_data');
-
-                        if (userDataString == null) {
-                          print('❌ Secure storage: user_data not found');
-                          ToastUtil.showToast(context, "User data not found.");
-                          return;
-                        }
-
-                        final userData = jsonDecode(userDataString);
-                        print('🔐 User data loaded: $userData');
-
-                        print('📤 Submitting 1-to-1 slip with:');
-                        print('   toMember: $toMemberId');
-                        print('   whereDidYouMeet: $mappedLocation');
-                        print(
-                            '   address: ${context.read<LocationProvider>().fullAddress}');
-                        print('   date: ${DateTime.now().toIso8601String()}');
-                        print('   imageFile: $_pickedImage');
-
-                        final response =
-                            await PublicRoutesApiService.submitOneToOneSlip(
-                          toMember: toMemberId,
-                          whereDidYouMeet: mappedLocation,
-                          address:
-                              context.read<LocationProvider>().fullAddress ??
-                                  '',
-                          date: DateTime.now().toIso8601String(),
-                          imageFile: _pickedImage,
-                        );
-
-                        print('📡 API Response:');
-                        print('   statusCode: ${response.statusCode}');
-                        print('   success: ${response.isSuccess}');
-                        print('   message: ${response.message}');
-                        print('   data: ${response.data}');
-
-                        if (response.isSuccess) {
-                          ToastUtil.showToast(
-                              context, '✅ Submitted successfully!');
-                          Navigator.pop(context, true); // ✅ Return true
-                        } else {
-                          ToastUtil.showToast(
-                              context, '❌ Failed: ${response.message}');
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(2.w),
-                        ),
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
+                    Center(
+                      child: Column(
+                        children: [
+                          DottedBorder(
+                            color: Color(0xFF50A6C5),
+                            dashPattern: [6, 3],
+                            strokeWidth: 1.5,
+                            child: Container(
+                              width: 351,
+                              height: 94,
+                              color: Color(0xFF50A6C5),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 53,
+                                    height: 53,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        DashedCircle(
+                                          dashes: 20,
+                                          gapSize: 3,
+                                          color: Colors.white,
+                                          child: const SizedBox(
+                                            width: 53,
+                                            height: 53,
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 43,
+                                          height: 43,
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.white,
+                                          ),
+                                          child: Center(
+                                            child: ElevatedButton(
+                                              onPressed: _pickImage,
+                                              style: ElevatedButton.styleFrom(
+                                                shape: const CircleBorder(),
+                                                padding:
+                                                    const EdgeInsets.all(10),
+                                                backgroundColor: Colors.white,
+                                                elevation: 4,
+                                                shadowColor: Colors.black54,
+                                              ),
+                                              child: const Icon(
+                                                Icons.add,
+                                                size: 24,
+                                                color: Color(0xFF50A6C5),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'Take Photo',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          DottedBorder(
+                            color: Color(0xFF50A6C5),
+                            dashPattern: [6, 6],
+                            strokeWidth: 1.5,
+                            child: Container(
+                              width: 351,
+                              height: 80,
+                              child: Center(
+                                child: _pickedImage != null
+                                    ? Image.file(_pickedImage!,
+                                        width: 70,
+                                        height: 70,
+                                        fit: BoxFit.cover)
+                                    : const Text(
+                                        'No image selected',
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          gradient: Tcolors.red_button,
-                          borderRadius: BorderRadius.circular(2.w),
+                    ),
+                    SizedBox(height: 2.h),
+
+                    // Submit Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 6.5.h,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final String? toMemberId =
+                              fetchedAssociateUid ?? selectedPersonId;
+                          print('👤 Selected toMemberId: $toMemberId');
+
+                          if (toMemberId == null ||
+                              _pickedImage == null ||
+                              selectedLocation == null) {
+                            print('⚠️ Missing one or more required fields:');
+                            print('   toMemberId: $toMemberId');
+                            print('   _pickedImage: $_pickedImage');
+                            print('   selectedLocation: $selectedLocation');
+                            ToastUtil.showToast(context,
+                                "Please complete all required fields.");
+                            return;
+                          }
+
+                          // Map UI selection to backend enum
+                          String mappedLocation = '';
+                          switch (selectedLocation) {
+                            case 'At Your Location':
+                              mappedLocation = 'yourlocation';
+                              break;
+                            case 'At Their Location':
+                              mappedLocation = 'theirlocation';
+                              break;
+                            case 'At A Common Location':
+                              mappedLocation = 'commonlocation';
+                              break;
+                            default:
+                              mappedLocation = 'commonlocation';
+                          }
+                          print(
+                              '📍 Selected location: $selectedLocation → $mappedLocation');
+
+                          const storage = FlutterSecureStorage();
+                          final userDataString =
+                              await storage.read(key: 'user_data');
+
+                          if (userDataString == null) {
+                            print('❌ Secure storage: user_data not found');
+                            ToastUtil.showToast(
+                                context, "User data not found.");
+                            return;
+                          }
+
+                          final userData = jsonDecode(userDataString);
+                          print('🔐 User data loaded: $userData');
+
+                          print('📤 Submitting 1-to-1 slip with:');
+                          print('   toMember: $toMemberId');
+                          print('   whereDidYouMeet: $mappedLocation');
+                          print(
+                              '   address: ${context.read<LocationProvider>().fullAddress}');
+                          print('   date: ${DateTime.now().toIso8601String()}');
+                          print('   imageFile: $_pickedImage');
+
+                          final response =
+                              await PublicRoutesApiService.submitOneToOneSlip(
+                            toMember: toMemberId,
+                            whereDidYouMeet: mappedLocation,
+                            address:
+                                context.read<LocationProvider>().fullAddress ??
+                                    '',
+                            date: DateTime.now().toIso8601String(),
+                            imageFile: _pickedImage,
+                          );
+
+                          print('📡 API Response:');
+                          print('   statusCode: ${response.statusCode}');
+                          print('   success: ${response.isSuccess}');
+                          print('   message: ${response.message}');
+                          print('   data: ${response.data}');
+
+                          if (response.isSuccess) {
+                            ToastUtil.showToast(
+                                context, '✅ Submitted successfully!');
+                            Navigator.pop(context, true); // ✅ Return true
+                          } else {
+                            ToastUtil.showToast(
+                                context, '❌ Failed: ${response.message}');
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(2.w),
+                          ),
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
                         ),
-                        child: Center(
-                          child: Text("Submit", style: TTextStyles.Submit),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: Tcolors.red_button,
+                            borderRadius: BorderRadius.circular(2.w),
+                          ),
+                          child: Center(
+                            child: Text("Submit", style: TTextStyles.Submit),
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  SizedBox(height: 2.h),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  Widget _simpleDropdown({
-    required String? value,
-    required List<String> items,
-    required Function(String?) onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: 6.5.h,
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(2.w),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: value,
-              hint: const Text("Where Did You Meet"),
-              items: items.map((e) {
-                return DropdownMenuItem<String>(
-                  value: e,
-                  child: Text(e),
-                );
-              }).toList(),
-              onChanged: onChanged,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _datePickerField() {
-    final String todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 1.h),
-        Container(
-          height: 6.5.h,
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(2.w),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                todayDate,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  color: Colors.black,
+                    SizedBox(height: 2.h),
+                  ],
                 ),
               ),
-              const Icon(Icons.calendar_today, color: Colors.grey),
-            ],
-          ),
-        ),
-      ],
+            ));
+      })),
     );
   }
+}
+
+Widget _simpleDropdown({
+  required String? value,
+  required List<String> items,
+  required Function(String?) onChanged,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        height: 6.5.h,
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(2.w),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            dropdownColor: Colors.white,
+            isExpanded: true,
+            value: value,
+            hint: const Text("Where Did You Meet"),
+            items: items.map((e) {
+              return DropdownMenuItem<String>(
+                value: e,
+                child: Text(e),
+              );
+            }).toList(),
+            onChanged: onChanged,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _datePickerField() {
+  final String todayDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SizedBox(height: 1.h),
+      Container(
+        height: 6.5.h,
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(2.w),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              todayDate,
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Colors.black,
+              ),
+            ),
+            const Icon(Icons.calendar_today, color: Colors.grey),
+          ],
+        ),
+      ),
+    ],
+  );
 }

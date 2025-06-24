@@ -63,6 +63,11 @@ dependencies:
   jwt_decoder: ^2.0.1
   geolocator: ^14.0.1
   flutter_contacts: ^1.1.6
+  liquid_pull_to_refresh: ^3.0.1
+  cached_network_image: ^3.4.1
+  shimmer: ^3.0.0
+  mime: ^2.0.0
+  http_parser: ^4.1.2
   
 
 dev_dependencies:

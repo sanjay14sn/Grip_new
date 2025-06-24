@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -17,11 +19,30 @@ class ReferralDetailsPage extends StatefulWidget {
 class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
   bool isReceivedSelected = false;
   late List<dynamic> givenReferrals;
+  List<dynamic> receivedReferrals = [];
+  bool isLoadingReceived = false;
 
   @override
   void initState() {
     super.initState();
     givenReferrals = widget.referrals;
+    loadReceivedReferrals();
+  }
+
+  Future<void> loadReceivedReferrals() async {
+    setState(() => isLoadingReceived = true);
+
+    final response = await PublicRoutesApiService.fetchReceivedReferralSlips();
+
+    if (response.isSuccess && response.data is List) {
+      setState(() {
+        receivedReferrals = response.data;
+      });
+    } else {
+      ToastUtil.showToast(context, response.message);
+    }
+
+    setState(() => isLoadingReceived = false);
   }
 
   @override
@@ -34,7 +55,6 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔙 Top Bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -48,6 +68,13 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                       ),
                       child: const Icon(Icons.arrow_back),
                     ),
+                  ),
+                  Row(
+                    children: [
+                      Text('Referral Details', style: TTextStyles.ReferralSlip),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.people),
+                    ],
                   ),
                   GestureDetector(
                     onTap: () {
@@ -85,21 +112,8 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                 ],
               ),
               SizedBox(height: 2.h),
-
-              // 🏷️ Title
-              Row(
-                children: [
-                  Text('Referral Details', style: TTextStyles.ReferralSlip),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.people),
-                ],
-              ),
-              SizedBox(height: 1.5.h),
-
               Text('Category:', style: TTextStyles.Category),
               SizedBox(height: 1.h),
-
-              // 🔘 Toggle
               Container(
                 width: double.infinity,
                 height: 40,
@@ -157,44 +171,66 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                 ),
               ),
               SizedBox(height: 2.h),
-
-              // 📝 Referral List
               Expanded(
                 child: isReceivedSelected
-                    ? const Center(child: Text("No received referrals"))
-                    : ListView.builder(
-                        itemCount: givenReferrals.length,
-                        itemBuilder: (context, index) {
-                          final item = givenReferrals[index];
-                          final detail = item['referalDetail'] ?? {};
-                          final name = detail['name'] ?? 'No Name';
-
-                          final date =
-                              item['createdAt']?.toString().substring(0, 10) ??
+                    ? isLoadingReceived
+                        ? const Center(child: CircularProgressIndicator())
+                        : receivedReferrals.isEmpty
+                            ? const Center(
+                                child: Text("No received referrals"),
+                              )
+                            : ListView.builder(
+                                itemCount: receivedReferrals.length,
+                                itemBuilder: (context, index) {
+                                  final item = receivedReferrals[index];
+                                  final detail = item['referalDetail'] ?? {};
+                                  final name = detail['name'] ?? 'No Name';
+                                  final date = item['createdAt']
+                                          ?.toString()
+                                          .substring(0, 10) ??
+                                      '';
+                                  final fromDetails = item['fromMember']
+                                          ?['personalDetails'] ??
+                                      {};
+                                  final fromName =
+                                      "${fromDetails['firstName'] ?? ''} ${fromDetails['lastName'] ?? ''}"
+                                          .trim();
+                                  return referralTile(
+                                    item,
+                                    fromName.isNotEmpty ? fromName : name,
+                                    date,
+                                    'assets/images/profile_placeholder.png',
+                                    true,
+                                  );
+                                },
+                              )
+                    : givenReferrals.isEmpty
+                        ? const Center(child: Text("No given referrals"))
+                        : ListView.builder(
+                            itemCount: givenReferrals.length,
+                            itemBuilder: (context, index) {
+                              final item = givenReferrals[index];
+                              final detail = item['referalDetail'] ?? {};
+                              final name = detail['name'] ?? 'No Name';
+                              final date = item['createdAt']
+                                      ?.toString()
+                                      .substring(0, 10) ??
                                   '';
-
-                          final toMemberDetails =
-                              item['toMember']?['personalDetails'] ?? {};
-                          final toFirstName =
-                              toMemberDetails['firstName'] ?? '';
-                          final toLastName = toMemberDetails['lastName'] ?? '';
-                          final toFullName = "$toFirstName $toLastName".trim();
-
-                          final image = 'assets/images/profile_placeholder.png';
-
-                          // 👇 Replace `name` with the actual member name if needed
-                          return referralTile(
-                            item,
-                            toFullName.isNotEmpty
-                                ? toFullName
-                                : name, // fallback to referral detail name
-                            date,
-                            image,
-                            isReceivedSelected,
-                          );
-                        },
-                      ),
-              )
+                              final toDetails =
+                                  item['toMember']?['personalDetails'] ?? {};
+                              final toName =
+                                  "${toDetails['firstName'] ?? ''} ${toDetails['lastName'] ?? ''}"
+                                      .trim();
+                              return referralTile(
+                                item,
+                                toName.isNotEmpty ? toName : name,
+                                date,
+                                'assets/images/profile_placeholder.png',
+                                false,
+                              );
+                            },
+                          ),
+              ),
             ],
           ),
         ),
@@ -202,7 +238,6 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
     );
   }
 
-  // 🔗 Tile
   Widget referralTile(
     Map<String, dynamic> referral,
     String name,
@@ -213,7 +248,7 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
     return GestureDetector(
       onTap: () {
         if (isReceived) {
-          context.push('/referralDetailRecived');
+          context.push('/referralDetailReceived', extra: referral);
         } else {
           context.push('/referralDetailGiven', extra: referral);
         }

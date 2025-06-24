@@ -128,18 +128,21 @@ final GoRouter router = GoRouter(
       },
     ),
 
+    // Inside your GoRouter routes list:
     GoRoute(
-      path: '/referralDetailRecived',
-      builder: (context, state) => ReceivedreferralSlip(),
+      path: '/referralDetailReceived',
+      name: 'referralDetailReceived',
+      builder: (context, state) {
+        final referral = state.extra as Map<String, dynamic>;
+        return ReceivedreferralSlip(referral: referral);
+      },
     ),
+
     GoRoute(
       path: '/Recivedthankyou',
       builder: (context, state) => RecivedthankyouPage(),
     ),
-    // GoRoute(
-    //   path: '/Giventhankyou',
-    //   builder: (context, state) => GiventhankyouPage(),
-    // ),
+ 
 
     GoRoute(
       path: '/Giventhankyou',
@@ -216,11 +219,6 @@ final GoRouter router = GoRouter(
       path: '/Otherschapter',
       builder: (context, state) => OtherChapterPage(),
     ),
-    // GoRoute(
-    //   path: '/visitorsview',
-    //   builder: (context, state) => VisitorsViewpage(),
-    // ),
-
     GoRoute(
       path: '/visitorsview',
       builder: (context, state) {
@@ -228,11 +226,6 @@ final GoRouter router = GoRouter(
         return VisitorsViewpage(visitors: visitors);
       },
     ),
-
-    // GoRoute(
-    //   path: '/visiteddetails',
-    //   builder: (context, state) => VisitorDetailsScreen(),
-    // ),
 
     GoRoute(
       path: '/visiteddetails',

@@ -13,19 +13,31 @@ class ChapterProvider extends ChangeNotifier {
   ChapterDetails? get chapterDetails => _chapterDetails;
 
   Future<void> fetchChapterDetails(String chapterId) async {
+    print('🔄 Fetching chapter details for chapterId: $chapterId');
     _isLoading = true;
     notifyListeners();
 
     final response =
         await PublicRoutesApiService.fetchChapterDetailsById(chapterId);
 
+    print('📥 API Response: ${response.isSuccess}, message: ${response.message}');
     if (response.isSuccess && response.data != null) {
       try {
         final data = response.data['data'];
+        print('📦 Chapter data: $data');
+
         _chapterDetails = ChapterDetails.fromJson(data);
+        print('✅ Parsed ChapterDetails: ${_chapterDetails!.chapterName}');
 
         final membersJson = data['members'] ?? [];
-        _members = membersJson.map<Member>((e) => Member.fromJson(e)).toList();
+        print('👥 Members raw JSON: $membersJson');
+
+        _members = membersJson.map<Member>((e) {
+          print('🧾 Parsing Member: $e');
+          return Member.fromJson(e);
+        }).toList();
+
+        print('✅ Parsed ${_members.length} members');
       } catch (e) {
         print('❌ Parsing error: $e');
         _members = [];
@@ -54,6 +66,7 @@ class Member {
   });
 
   factory Member.fromJson(Map<String, dynamic> json) {
+    print('🧩 Member JSON: $json');
     return Member(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
@@ -89,6 +102,7 @@ class ChapterDetails {
   });
 
   factory ChapterDetails.fromJson(Map<String, dynamic> json) {
+    print('📥 ChapterDetails JSON: $json');
     return ChapterDetails(
       id: json['_id'] ?? '',
       chapterName: json['chapterName'] ?? '',

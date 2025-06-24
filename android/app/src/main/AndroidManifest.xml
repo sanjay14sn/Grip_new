@@ -1,26 +1,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- ✅ Permissions for FCM and Internet -->
+    <!-- ✅ Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-
+    
+    <!-- ❌ Removed: MANAGE_EXTERNAL_STORAGE (Only needed for full storage control apps) -->
+    <!-- <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" /> -->
 
     <application
-        android:label="grip"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:label="grip"
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true"> <!-- ✅ Back press support -->
 
-        <!-- ✅ FileProvider -->
+        <!-- ✅ File Provider for sharing files -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -41,7 +42,7 @@
             </intent-filter>
         </service>
 
-        <!-- ✅ Main Activity with Portrait Lock -->
+        <!-- ✅ Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -51,7 +52,7 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait"> <!-- 🔒 Portrait lock -->
+            android:screenOrientation="portrait"> <!-- 🔒 Lock portrait -->
 
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
@@ -69,7 +70,7 @@
             android:value="2" />
     </application>
 
-    <!-- ✅ Query support for text processing -->
+    <!-- ✅ Support for text input queries -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />

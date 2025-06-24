@@ -3,10 +3,22 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class ReceivedreferralSlip extends StatelessWidget {
-  const ReceivedreferralSlip({super.key});
+  final Map<String, dynamic> referral;
+
+  const ReceivedreferralSlip({super.key, required this.referral});
 
   @override
   Widget build(BuildContext context) {
+    final referalDetail = referral['referalDetail'] ?? {};
+    final status = referral['referalStatus'] ?? '';
+    final name = referalDetail['name'] ?? '';
+    final mobile = referalDetail['mobileNumber'] ?? '';
+    final address = referalDetail['address'] ?? '';
+    final category = referalDetail['category'] ?? '';
+    final comments = referalDetail['comments'] ?? '';
+    final from = referral['fromMember']?['personalDetails'] ?? {};
+    final fromName = '${from['firstName'] ?? ''} ${from['lastName'] ?? ''}';
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -15,7 +27,7 @@ class ReceivedreferralSlip extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back & Label
+              /// Back button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -32,12 +44,14 @@ class ReceivedreferralSlip extends StatelessWidget {
                   ),
                 ],
               ),
+
+              /// Header
               Center(
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFFC6221A),
+                    color: const Color(0xFFC6221A),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
@@ -53,15 +67,13 @@ class ReceivedreferralSlip extends StatelessWidget {
 
               SizedBox(height: 2.h),
 
-              // Main Content Card
+              /// Main Content
               SizedBox(
-                height:
-                    67.h, // Approximate height for 643 pixels on a 800px screen
+                height: 67.h,
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                      borderRadius: BorderRadius.circular(16)),
                   elevation: 4,
                   child: Padding(
                     padding: EdgeInsets.all(4.w),
@@ -81,9 +93,11 @@ class ReceivedreferralSlip extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Krithick S', style: TTextStyles.refname),
-                                Text('Marvel Interiors',
-                                    style: TTextStyles.Rivenrefsmall),
+                                Text(
+                                  name,
+                                  style: TTextStyles.refname,
+                                ),
+                                Text('-', style: TTextStyles.Rivenrefsmall),
                               ],
                             ),
                           ],
@@ -91,8 +105,7 @@ class ReceivedreferralSlip extends StatelessWidget {
                         SizedBox(height: 2.h),
                         Text('Referral Status:',
                             style: TTextStyles.Rivenrefsmall),
-                        Text('Told Them You Would Call',
-                            style: TTextStyles.reftext),
+                        Text(status, style: TTextStyles.reftext),
                         SizedBox(height: 2.h),
                         Text('Contact Details:',
                             style: TTextStyles.Rivenrefsmall),
@@ -109,16 +122,13 @@ class ReceivedreferralSlip extends StatelessWidget {
                                 child: Text.rich(
                                   TextSpan(
                                     children: [
-                                      const TextSpan(text: 'Kumar.C\n'),
+                                      TextSpan(text: '$name\n'),
                                       const WidgetSpan(
-                                        child: Icon(
-                                          Icons.call,
-                                          size: 16,
-                                          color: Color(0xFFC6221A),
-                                        ),
+                                        child: Icon(Icons.call,
+                                            size: 16, color: Color(0xFFC6221A)),
                                       ),
                                       TextSpan(
-                                          text: ' 8112262656',
+                                          text: ' $mobile',
                                           style: TTextStyles.Refcontact),
                                     ],
                                   ),
@@ -139,25 +149,21 @@ class ReceivedreferralSlip extends StatelessWidget {
                               const Icon(Icons.location_on,
                                   color: Color(0xFFC6221A), size: 16),
                               const SizedBox(width: 5),
-                              Text('Anna Nagar', style: TTextStyles.Refcontact),
+                              Text(address, style: TTextStyles.Refcontact),
                             ],
                           ),
                         ),
                         SizedBox(height: 2.h),
                         Text('Category:', style: TTextStyles.Rivenrefsmall),
-                        Text('Interiors', style: TTextStyles.reftext),
+                        Text(category, style: TTextStyles.reftext),
                         SizedBox(height: 2.h),
                         Text('Comments:', style: TTextStyles.Rivenrefsmall),
-                        Text('Kumar  Need Interior Designer For His House Work',
-                            style: TTextStyles.reftext),
+                        Text(comments, style: TTextStyles.reftext),
                       ],
                     ),
                   ),
                 ),
               ),
-
-              // Bottom Icon
-              SizedBox(height: 2.h),
             ],
           ),
         ),

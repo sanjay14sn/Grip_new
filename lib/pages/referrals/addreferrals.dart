@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/Associate_number.dart';
 import 'package:grip/components/member_dropdown.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -34,18 +35,20 @@ class _ReferralPageState extends State<ReferralPage> {
         showMyChapter ? selectedPersonId : fetchedAssociateUid;
 
     if (toMemberId == null || toMemberId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please select a member or enter associate number"),
-        ),
-      );
+      ToastUtil.showToast(
+          context, "Please select a member or enter associate number");
       return;
     }
 
-    String status = '';
-    if (toldThemYouWouldCall) status = 'told them you would call';
-    if (givenYourCard) {
-      status = status.isEmpty ? 'given your card' : '$status & given your card';
+    String status = toldThemYouWouldCall
+        ? 'told them you would call'
+        : givenYourCard
+            ? 'given your card'
+            : '';
+
+    if (status.isEmpty) {
+      ToastUtil.showToast(context, "Please select referral status");
+      return;
     }
 
     final referalDetail = {
@@ -63,14 +66,10 @@ class _ReferralPageState extends State<ReferralPage> {
     );
 
     if (response.isSuccess) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Referral slip submitted successfully')),
-      );
-      Navigator.pop(context, true); // 👈 this triggers refresh on home
+      ToastUtil.showToast(context, "Referral slip submitted successfully");
+      Navigator.pop(context, true); // 👈 triggers refresh on home
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.message)),
-      );
+      ToastUtil.showToast(context, "❌ ${response.message}");
     }
   }
 
@@ -283,13 +282,13 @@ class _ReferralPageState extends State<ReferralPage> {
                           Text("Referral Status:",
                               style: TTextStyles.profiledetails),
                           Divider(color: const Color(0x80C0C0C0), thickness: 1),
+
                           Theme(
                             data: Theme.of(context).copyWith(
                               unselectedWidgetColor: Color(0xFFC83837),
                               checkboxTheme: CheckboxThemeData(
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
+                                    borderRadius: BorderRadius.circular(2)),
                                 side: BorderSide(
                                     color: Color(0xFFC83837), width: 2),
                                 visualDensity: VisualDensity.compact,
@@ -305,6 +304,9 @@ class _ReferralPageState extends State<ReferralPage> {
                                   onChanged: (val) {
                                     setState(() {
                                       toldThemYouWouldCall = val!;
+                                      if (val)
+                                        givenYourCard =
+                                            false; // ensure only one is selected
                                     });
                                   },
                                   title: const Text("Told Them You Would Call"),
@@ -320,6 +322,9 @@ class _ReferralPageState extends State<ReferralPage> {
                                   onChanged: (val) {
                                     setState(() {
                                       givenYourCard = val!;
+                                      if (val)
+                                        toldThemYouWouldCall =
+                                            false; // ensure only one is selected
                                     });
                                   },
                                   title: const Text("Given Your Card"),
@@ -332,6 +337,7 @@ class _ReferralPageState extends State<ReferralPage> {
                               ],
                             ),
                           ),
+
                           SizedBox(height: 1.h),
                           buildInputField("Name*", true,
                               controller: nameController),

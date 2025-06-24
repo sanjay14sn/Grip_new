@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
-import 'package:grip/pages/chapter_detailes/dummy.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/others_card.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:sizer/sizer.dart';
@@ -75,7 +74,7 @@ class _MyChapterPageState extends State<OtherChapterPage> {
                     ],
                   ),
                   SizedBox(height: 2.h),
-                  _buildMyChapterView(),
+                  //     _buildMyChapterView(),
                   SizedBox(height: 20.h),
                 ],
               ),
@@ -261,36 +260,36 @@ class _MyChapterPageState extends State<OtherChapterPage> {
     );
   }
 
-  Widget _buildMyChapterView() {
-    final List<Map<String, dynamic>> sections = [
-      {"title": "HEAD TABLE MEMBERS", "members": headMembers},
-      {"title": "CORE COMMITTEE MEMBERS", "members": coreCommitteeMembers},
-      {"title": "ALL MEMBERS", "members": allMembers},
-    ];
+  // Widget _buildMyChapterView() {
+  //   final List<Map<String, dynamic>> sections = [
+  //     {"title": "HEAD TABLE MEMBERS", "members": headMembers},
+  //     {"title": "CORE COMMITTEE MEMBERS", "members": coreCommitteeMembers},
+  //     {"title": "ALL MEMBERS", "members": allMembers},
+  //   ];
 
-    return Column(
-      children: [
-        _searchBar(),
-        SizedBox(height: 2.h),
-        ListView.builder(
-          itemCount: sections.length,
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            final section = sections[index];
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SectionHeader(title: section["title"]),
-                MemberGrid(members: section["members"]),
-                SizedBox(height: 2.h),
-              ],
-            );
-          },
-        ),
-      ],
-    );
-  }
+  //   return Column(
+  //     children: [
+  //       _searchBar(),
+  //       SizedBox(height: 2.h),
+  //       ListView.builder(
+  //         itemCount: sections.length,
+  //         shrinkWrap: true,
+  //         physics: NeverScrollableScrollPhysics(),
+  //         itemBuilder: (context, index) {
+  //           final section = sections[index];
+  //           return Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               SectionHeader(title: section["title"]),
+  //               MemberGrid(members: section["members"]),
+  //               SizedBox(height: 2.h),
+  //             ],
+  //           );
+  //         },
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _searchBar() {
     return Container(

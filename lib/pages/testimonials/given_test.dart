@@ -1,27 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:grip/utils/theme/Textheme.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:sizer/sizer.dart';
+import 'package:grip/utils/theme/Textheme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
-class Giventestimonialspage extends StatelessWidget {
+class Giventestimonialspage extends StatefulWidget {
   final Map<String, dynamic> data;
 
   const Giventestimonialspage({super.key, required this.data});
 
   @override
-  Widget build(BuildContext context) {
-    final toMember = data['toMember'];
-    final personalDetails = toMember['personalDetails'];
-    final fullName =
-        "${personalDetails['firstName']} ${personalDetails['lastName']}";
-    final companyName = toMember['companyName'] ?? 'No Company';
+  State<Giventestimonialspage> createState() => _GiventestimonialspageState();
+}
 
-    final comment = data['comments'] ?? '';
-    final images = data['images'] as List;
-    final imageName =
-        images.isNotEmpty ? images[0]['originalName'] : 'No Document';
-    final imageUrl = images.isNotEmpty
-        ? 'https://api.grip.oceansoft.online${images[0]['docPath']}'
+class _GiventestimonialspageState extends State<Giventestimonialspage> {
+  int currentImageIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final toMember = widget.data['toMember'] as Map<String, dynamic>? ?? {};
+    final personalDetails =
+        toMember['personalDetails'] as Map<String, dynamic>? ?? {};
+    final fullName =
+        "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
+            .trim();
+    final companyName = toMember['companyName'] ?? 'No Company';
+    final comment = widget.data['comments'] ?? '';
+
+    final images = widget.data['images'] as List? ?? [];
+    final hasImages = images.isNotEmpty;
+
+    final currentImage = hasImages ? images[currentImageIndex] : null;
+    final imageName = currentImage?['originalName'] ??
+        currentImage?['docName'] ??
+        'No Document';
+    final docPath = currentImage?['docPath'] ?? '';
+    final docName = currentImage?['docName'] ?? '';
+
+    // Debug print statements
+    print('📦 Image Debug Info:');
+    print('🔹 docPath: $docPath');
+    print('🔹 docName: $docName');
+
+    final imageUrl = (hasImages && docPath.isNotEmpty && docName.isNotEmpty)
+        ? "${UrlService.IMAGE_BASE_URL}/$docPath/$docName"
         : null;
+
+    print('🖼️ Final imageUrl: $imageUrl');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -31,51 +56,49 @@ class Giventestimonialspage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔙 Back Button
+              // 🔙 Back & Title
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(2.w),
                       decoration: const BoxDecoration(
                         color: Color(0xFFE0E2E7),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.arrow_back),
+                      child: Icon(Icons.arrow_back, size: 7.w),
                     ),
                   ),
+                  Expanded(
+                    child: Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 4.w, vertical: 1.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFC6221A),
+                          borderRadius: BorderRadius.circular(2.w),
+                        ),
+                        child: Text(
+                          'GIVEN TESTIMONIAL SLIP',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15.sp,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
                 ],
               ),
-
-              // 🟥 Page Title
-              Center(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFC6221A),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'GIVEN TESTIMONIAL SLIP',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-
               SizedBox(height: 2.h),
 
-              // 🧾 Main Card
+              // 🧾 Card
               SizedBox(
                 height: 67.h,
                 child: Card(
-                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -88,129 +111,136 @@ class Giventestimonialspage extends StatelessWidget {
                         Text("To:", style: TTextStyles.Rivenrefsmall),
                         SizedBox(height: 1.h),
 
-                        // 👤 Member Info
+                        // 👤 Profile
                         Row(
                           children: [
-                            const CircleAvatar(
+                            CircleAvatar(
                               radius: 24,
-                              backgroundImage:
-                                  AssetImage('assets/images/person.png'),
+                              backgroundColor: Colors.grey[200],
+                              child: Icon(Icons.person,
+                                  size: 24, color: Colors.grey[500]),
                             ),
                             SizedBox(width: 3.w),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(fullName, style: TTextStyles.refname),
+                                Text(
+                                  fullName.isNotEmpty ? fullName : 'No Name',
+                                  style: TTextStyles.refname,
+                                ),
                                 Text(companyName,
                                     style: TTextStyles.Rivenrefsmall),
                               ],
                             ),
                           ],
                         ),
-
                         SizedBox(height: 2.h),
 
-                        // 📎 Document
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Document:",
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              height: 25.3.h,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(5),
-                                child: Column(
-                                  children: [
-                                    // 🔼 Top Info Row
-                                    Container(
-                                      height: 2.53.h,
-                                      width: double.infinity,
-                                      color: Colors.white,
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 2.w),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            imageName,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 13.sp,
-                                            ),
+                        const Text(
+                          "Document:",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+
+                        Container(
+                          height: 25.3.h,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Column(
+                              children: [
+                                // Header Row
+                                Container(
+                                  height: 2.5.h,
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 2.w),
+                                  color: Colors.white,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          imageName,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13.sp,
                                           ),
-                                          Row(
-                                            children: [
-                                              _buildIconButton('<'),
-                                              SizedBox(width: 1.w),
-                                              _buildIconButton('>'),
-                                              SizedBox(width: 2.w),
-                                              Text(
-                                                'Share',
-                                                style: TextStyle(
-                                                  fontSize: 12.sp,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              SizedBox(width: 2.w),
-                                              Row(
-                                                children: [
-                                                  Icon(Icons.download,
-                                                      size: 14.sp,
-                                                      color: Colors.blue),
-                                                  SizedBox(width: 1.w),
-                                                  Text(
-                                                    'Download',
-                                                    style: TextStyle(
-                                                      fontSize: 12.sp,
-                                                      color: Colors.blue,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          if (hasImages &&
+                                              currentImageIndex > 0)
+                                            GestureDetector(
+                                              onTap: () => setState(
+                                                  () => currentImageIndex--),
+                                              child: _buildIconButton('<'),
+                                            ),
+                                          SizedBox(width: 1.w),
+                                          if (hasImages &&
+                                              currentImageIndex <
+                                                  images.length - 1)
+                                            GestureDetector(
+                                              onTap: () => setState(
+                                                  () => currentImageIndex++),
+                                              child: _buildIconButton('>'),
+                                            ),
+                                          SizedBox(width: 2.w),
+                                          Icon(Icons.download,
+                                              size: 14.sp, color: Colors.blue),
+                                          SizedBox(width: 1.w),
+                                          Text(
+                                            'Download',
+                                            style: TextStyle(
+                                              fontSize: 12.sp,
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
                                         ],
                                       ),
-                                    ),
-
-                                    // 🖼️ Image Area
-                                    Expanded(
-                                      child: imageUrl != null
-                                          ? Image.network(
-                                              imageUrl,
-                                              fit: BoxFit.cover,
-                                              width: double.infinity,
-                                            )
-                                          : Container(
-                                              width: double.infinity,
-                                              color: Colors.grey[300],
-                                              child: Center(
-                                                child: Text("No Document"),
-                                              ),
-                                            ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
 
+                                // 🖼️ Image Viewer
+                                Expanded(
+                                  child: imageUrl != null
+                                      ? CachedNetworkImage(
+                                          imageUrl: imageUrl,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          placeholder: (context, url) =>
+                                              const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                          errorWidget: (context, url, error) {
+                                            print("❌ Image load error: $error");
+                                            return const Center(
+                                              child:
+                                                  Text("❌ Image load failed"),
+                                            );
+                                          },
+                                        )
+                                      : Container(
+                                          color: Colors.grey[300],
+                                          width: double.infinity,
+                                          alignment: Alignment.center,
+                                          child: const Text("No Document"),
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 2.h),
 
-                        // 💬 Comments
                         Text('Comments:', style: TTextStyles.Rivenrefsmall),
                         Text(comment, style: TTextStyles.reftext),
                       ],
@@ -225,11 +255,10 @@ class Giventestimonialspage extends StatelessWidget {
     );
   }
 
-  // 🔘 Reusable Nav Buttons (< >)
   Widget _buildIconButton(String label) {
     return Container(
       width: 7.w,
-      height: 2.h,
+      height: 2.5.h,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.blue,
@@ -237,10 +266,7 @@ class Giventestimonialspage extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 12.sp,
-        ),
+        style: TextStyle(color: Colors.white, fontSize: 12.sp),
       ),
     );
   }

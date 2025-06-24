@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/Tab_button.dart';
-import 'package:grip/components/bottomappbar.dart';
+import 'package:grip/pages/chapter_detailes/detailedmember.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
-import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
 import 'package:grip/pages/chapter_detailes/dummy.dart';
+import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/other_chapter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class MyChapterPage extends StatefulWidget {
@@ -17,7 +21,36 @@ class MyChapterPage extends StatefulWidget {
 }
 
 class _MyChapterPageState extends State<MyChapterPage> {
-  bool showMyChapter = true;
+  bool isMyChapterSelected = true;
+
+  List<DetailedMember> _detailedMembers = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllMemberDetails();
+  }
+
+  Future<void> _fetchAllMemberDetails() async {
+    setState(() => _isLoading = true);
+    _detailedMembers.clear();
+
+    final chapterProvider =
+        Provider.of<ChapterProvider>(context, listen: false);
+    for (var member in chapterProvider.members) {
+      final response =
+          await PublicRoutesApiService.fetchMemberDetailsById(member.id);
+      if (response.isSuccess && response.data != null) {
+        final detailed = DetailedMember.fromJson(response.data);
+        _detailedMembers.add(detailed);
+      } else {
+        debugPrint('❌ Failed for memberId ${member.id}: ${response.message}');
+      }
+    }
+
+    setState(() => _isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,43 +62,39 @@ class _MyChapterPageState extends State<MyChapterPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_back),
-                    ),
+              // Back Button
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0E2E7),
+                    shape: BoxShape.circle,
                   ),
-                ],
+                  child: const Icon(Icons.arrow_back),
+                ),
               ),
               SizedBox(height: 2.h),
+
+              // Tab Switch
               Row(
                 children: [
                   SizedBox(width: 3.w),
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.circular(8), // outer border radius
-                        color: Colors
-                            .grey.shade300, // background for unselected tabs
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey.shade300,
                       ),
                       child: Row(
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: () => setState(() => showMyChapter = true),
+                              onTap: () =>
+                                  setState(() => isMyChapterSelected = true),
                               child: TabButton(
                                 title: "MY CHAPTER",
-                                isSelected: showMyChapter,
+                                isSelected: isMyChapterSelected,
                                 leftRadius: true,
                                 rightRadius: false,
                               ),
@@ -74,10 +103,10 @@ class _MyChapterPageState extends State<MyChapterPage> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () =>
-                                  setState(() => showMyChapter = false),
+                                  setState(() => isMyChapterSelected = false),
                               child: TabButton(
                                 title: "OTHER CHAPTERS",
-                                isSelected: !showMyChapter,
+                                isSelected: !isMyChapterSelected,
                                 leftRadius: false,
                                 rightRadius: true,
                               ),
@@ -90,133 +119,147 @@ class _MyChapterPageState extends State<MyChapterPage> {
                 ],
               ),
               SizedBox(height: 2.h),
-              showMyChapter ? _buildMyChapterView() : const ChapterSelector(),
+
+              // Content
+              isMyChapterSelected
+                  ? _buildMyChapterView()
+                  : const ChapterSelector(),
             ],
           ),
         ),
       ),
-      //  bottomNavigationBar: CurvedBottomNavBarhome(), // <-- This adds the bottom bar
     );
   }
 
   Widget _buildMyChapterView() {
-    final List<Map<String, dynamic>> sections = [
-      {
-        "title": "HEAD TABLE MEMBERS",
-        "members": headMembers,
-      },
-      {
-        "title": "CORE COMMITTEE MEMBERS",
-        "members": coreCommitteeMembers,
-      },
-      {
-        "title": "ALL MEMBERS",
-        "members": allMembers,
-      },
-    ];
-
-    return Column(
-      children: [
-        _searchBar(),
-        SizedBox(height: 2.h),
-        ListView.builder(
-          itemCount: sections.length,
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            final section = sections[index];
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SectionHeader(title: section["title"]),
-                MemberGrid(members: section["members"]),
-                SizedBox(height: 2.h),
-              ],
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _searchBar() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 3.w),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade400),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.search,
-            color: Tcolors.title_color,
-          ),
-          SizedBox(width: 2.w),
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "Search",
-                border: InputBorder.none,
+    return _isLoading
+        ? GridView.builder(
+            itemCount: 9, // show 9 shimmer cards while loading
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(vertical: 1.h),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 3.w,
+              mainAxisSpacing: 3.w,
+              childAspectRatio: 0.85,
+            ),
+            itemBuilder: (_, __) => Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 10.w,
+                      height: 6.h,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    SizedBox(height: 0.8.h),
+                    Container(
+                      width: 8.w,
+                      height: 1.5.h,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(height: 0.5.h),
+                    Container(
+                      width: 10.w,
+                      height: 1.3.h,
+                      color: Colors.grey,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Search Bar
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 3.w),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.search, color: Tcolors.title_color),
+                    SizedBox(width: 2.w),
+                    const Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: "Search",
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 2.h),
 
-class SectionHeader extends StatelessWidget {
-  final String title;
-  const SectionHeader({required this.title});
+              // Section Header
+              Container(
+                width: 73.w,
+                height: 3.3.h,
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                alignment: Alignment.centerLeft,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF2C2B2B),
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  "ALL MEMBERS",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.sp,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(height: 1.h),
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 73.w,
-      height: 3.3.h,
-      decoration: BoxDecoration(
-        color: const Color(0xFF2C2B2B), // Rich dark gray
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(10),
-          bottomRight: Radius.circular(10),
-        ),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.w600,
-          fontSize: 12.sp,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-}
+              // Member Grid
+              GridView.builder(
+                itemCount: _detailedMembers.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(vertical: 1.h),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 3.w,
+                  mainAxisSpacing: 3.w,
+                  childAspectRatio: 0.85,
+                ),
+                itemBuilder: (context, index) {
+                  final detailed = _detailedMembers[index];
 
-class MemberGrid extends StatelessWidget {
-  final List<MemberModel> members;
-  const MemberGrid({required this.members});
+                  // Convert to MemberModel
+                  final memberModel = MemberModel(
+                    name: detailed.name,
+                    company: detailed.company,
+                    phone: detailed.mobile,
+                    role: '', // or pass actual role
+                  );
 
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      itemCount: members.length,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(vertical: 1.h),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, // Adjust the number of columns as needed
-        crossAxisSpacing: 3.w,
-        mainAxisSpacing: 3.w,
-        childAspectRatio: 0.85, // Adjust the aspect ratio as needed
-      ),
-      itemBuilder: (context, index) {
-        return MemberCard(member: members[index]);
-      },
-    );
+                  return MemberCard(member: memberModel);
+                },
+              ),
+              SizedBox(height: 2.h),
+            ],
+          );
   }
 }

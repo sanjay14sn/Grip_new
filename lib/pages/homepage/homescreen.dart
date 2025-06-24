@@ -121,7 +121,7 @@ class _HomescreenState extends State<Homescreen> {
     } else {
       print('❌ Failed to fetch One-to-One list: ${response.message}');
       setState(() => _isLoading = false);
-      ToastUtil.showToast(context,'❌ ${response.message}');
+      ToastUtil.showToast(context, '❌ ${response.message}');
     }
   }
 
@@ -141,7 +141,7 @@ class _HomescreenState extends State<Homescreen> {
       });
     } else {
       print('❌ Failed to fetch visitors: ${response.message}');
-      ToastUtil.showToast(context,'❌ ${response.message}');
+      ToastUtil.showToast(context, '❌ ${response.message}');
       setState(() {
         _isLoading = false;
       });
@@ -170,24 +170,42 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Future<void> _loadTestimonials() async {
-    setState(() => _isLoading = true);
+    try {
+      setState(() => _isLoading = true);
 
-    final response = await PublicRoutesApiService.getTestimonialGivenList();
+      final response = await PublicRoutesApiService.getTestimonialGivenList();
 
-    if (response.isSuccess && response.data != null) {
-      setState(() {
-        _testimonialList = response.data;
-        _testimonialCount = _testimonialList.length;
-      });
-    } else {
+      if (response.isSuccess && response.data != null) {
+        final data = response.data;
+
+        if (data is List) {
+          setState(() {
+            _testimonialList = data;
+            _testimonialCount = data.length;
+          });
+        } else {
+          setState(() {
+            _testimonialList = [];
+            _testimonialCount = 0;
+          });
+          ToastUtil.showToast(context, "⚠️ Unexpected data format.");
+        }
+      } else {
+        setState(() {
+          _testimonialList = [];
+          _testimonialCount = 0;
+        });
+        ToastUtil.showToast(context, "❌ ${response.message}");
+      }
+    } catch (e) {
       setState(() {
         _testimonialList = [];
         _testimonialCount = 0;
       });
-      ToastUtil.showToast(context,"❌ ${response.message}");
+      ToastUtil.showToast(context, "🚨 Error loading testimonials: $e");
+    } finally {
+      setState(() => _isLoading = false);
     }
-
-    setState(() => _isLoading = false);
   }
 
   Future<void> _loadReferralSlips() async {
@@ -211,7 +229,7 @@ class _HomescreenState extends State<Homescreen> {
           print("📦 Referral list loaded with ${_referralCount} items.");
         } else {
           print("❌ Failed to load referrals: ${response.message}");
-          ToastUtil.showToast(context,response.message);
+          ToastUtil.showToast(context, response.message);
         }
       });
     }
@@ -237,7 +255,7 @@ class _HomescreenState extends State<Homescreen> {
     } else {
       print('❌ Failed to fetch Thank You Notes: ${response.message}');
       setState(() => _isThankYouLoading = false);
-      ToastUtil.showToast(context,"❌ Failed to load Thank You Notes");
+      ToastUtil.showToast(context, "❌ Failed to load Thank You Notes");
     }
   }
 
@@ -260,7 +278,7 @@ class _HomescreenState extends State<Homescreen> {
         print(
             '✅ Member loaded for profile: ${_memberData!['personalDetails']['firstName']}');
       } else {
-        ToastUtil.showToast(context,'❌ Failed to load member');
+        ToastUtil.showToast(context, '❌ Failed to load member');
       }
     }
   }
@@ -314,9 +332,7 @@ class _HomescreenState extends State<Homescreen> {
 
                     GestureDetector(
                       onTap: () {
-                       
-                          context.push('/profilepage', extra: _memberData);
-                        
+                        context.push('/profilepage', extra: _memberData);
                       },
                       child: CircleAvatar(
                         backgroundImage:

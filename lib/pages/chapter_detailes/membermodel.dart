@@ -1,10 +1,13 @@
 class MemberModel {
   final String name;
   final String company;
-  final String role;
   final String? phone;
-  final bool isHighlighted;
+  final String role;
 
-  MemberModel(this.name, this.company, this.role,
-      {this.phone, this.isHighlighted = false});
+  MemberModel({
+    required this.name,
+    required this.company,
+    this.phone,
+    required this.role,
+  });
 }

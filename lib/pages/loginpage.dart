@@ -37,42 +37,49 @@ class _LoginScreenState extends State<LoginScreen> {
       final mobileNumber = usernameController.text.trim();
       final pin = passwordController.text;
 
-      print('🔐 Attempting login with username: $pin');
+      print('🔐 Attempting login with username: $mobileNumber');
 
-      final response = await PublicRoutesApi.Login(
-        mobileNumber: mobileNumber,
-        pin: pin,
-      );
+      try {
+        final response = await PublicRoutesApi.Login(
+          mobileNumber: mobileNumber,
+          pin: pin,
+        );
 
-      print('📡 API Response Status: ${response.statusCode}');
+        print('📡 API Response Status: ${response.statusCode}');
 
-      final responseDataString = response.data.toString();
-      final truncatedResponse = responseDataString.length > 500
-          ? '${responseDataString.substring(0, 500)}... [truncated]'
-          : responseDataString;
-      print('📡 API Response Body: $truncatedResponse');
+        final responseDataString = response.data.toString();
+        final truncatedResponse = responseDataString.length > 500
+            ? '${responseDataString.substring(0, 500)}... [truncated]'
+            : responseDataString;
+        print('📡 API Response Body: $truncatedResponse');
 
-      if (response.isSuccess && response.data['success'] == true) {
-        final token = response.data['token'];
-        final userJson = response.data['member'];
+        if (response.isSuccess && response.data['success'] == true) {
+          final token = response.data['token'];
+          final userJson = response.data['member'];
 
-        print('✅ Login successful.');
-        print('🔑 Token: ${token.toString().substring(0, 30)}... [truncated]');
-        print('👤 User Info: $userJson');
+          print('✅ Login successful.');
+          print(
+              '🔑 Token: ${token.toString().substring(0, 30)}... [truncated]');
+          print('👤 User Info: $userJson');
 
-        // ✅ Store token and user data in secure storage
-        const storage = FlutterSecureStorage();
-        await storage.write(key: 'auth_token', value: token);
-        await storage.write(key: 'user_data', value: jsonEncode(userJson));
+          // ✅ Store token and user data in secure storage
+          const storage = FlutterSecureStorage();
+          await storage.write(key: 'auth_token', value: token);
+          await storage.write(key: 'user_data', value: jsonEncode(userJson));
 
-        // ✅ Show success toast
-        ToastUtil.showToast(context,'✅ Login successful!');
+          // ✅ Show success toast
+          ToastUtil.showToast(context, '✅ Login successful!');
 
-        // ✅ Navigate to homepage
-        context.go('/homepage');
-      } else {
-        final message = response.data?['message'] ?? response.message;
-        ToastUtil.showToast(context,' Login failed. Message: $message');
+          // ✅ Navigate to homepage
+          context.go('/homepage');
+        } else {
+          final message = response.data?['message'] ?? response.message;
+          ToastUtil.showToast(context, 'Login failed. Message: $message');
+        }
+      } catch (e) {
+        print('❌ Login error: $e');
+        ToastUtil.showToast(
+            context, 'An unexpected error occurred. Please try again.');
       }
     }
   }
