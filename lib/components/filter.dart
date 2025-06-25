@@ -1,23 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:grip/components/filter_options.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class FilterDialog extends StatefulWidget {
+  final FilterOptions initialFilter;
+  final bool showCategory; // Control whether to show "Given/Received"
+
+  const FilterDialog({
+    super.key,
+    required this.initialFilter,
+    this.showCategory = true,
+  });
+
   @override
   _FilterDialogState createState() => _FilterDialogState();
 }
 
 class _FilterDialogState extends State<FilterDialog> {
-  DateTime? startDate = DateTime(2024, 11, 11);
-  DateTime? endDate = DateTime(2024, 11, 20);
-  String selectedCategory = 'Given';
+  late DateTime? startDate;
+  late DateTime? endDate;
+  late String selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    startDate = widget.initialFilter.startDate;
+    endDate = widget.initialFilter.endDate;
+    selectedCategory = widget.initialFilter.category;
+  }
 
   Future<void> pickDate(BuildContext context, bool isStart) async {
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStart ? startDate! : endDate!,
+      initialDate:
+          isStart ? (startDate ?? DateTime.now()) : (endDate ?? DateTime.now()),
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
     );
@@ -31,6 +50,28 @@ class _FilterDialogState extends State<FilterDialog> {
         }
       });
     }
+  }
+
+  void applyFilter() {
+    Navigator.pop(
+      context,
+      FilterOptions(
+        startDate: startDate,
+        endDate: endDate,
+        category: selectedCategory,
+      ),
+    );
+  }
+
+  void resetFilter() {
+    Navigator.pop(
+      context,
+      FilterOptions(
+        startDate: null,
+        endDate: null,
+        category: 'Given', // or keep it empty string '' if needed
+      ),
+    );
   }
 
   @override
@@ -48,113 +89,69 @@ class _FilterDialogState extends State<FilterDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          /// Header
           Row(
             children: [
               Text("Add Filters", style: TTextStyles.addfilters),
-              Spacer(),
+              const Spacer(),
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    startDate = null;
-                    endDate = null;
-                    selectedCategory = 'Given';
-                  });
-                },
+                onTap: resetFilter, // now applies immediately
                 child: Text("Reset", style: TTextStyles.Reset),
               ),
             ],
           ),
-          SizedBox(height: 10),
+
+          SizedBox(height: 1.5.h),
+
+          /// Date label
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              "date:",
-              style: TTextStyles.filterdate,
-            ),
+            child: Text("Date:", style: TTextStyles.filterdate),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 1.h),
+
+          /// Date pickers
           Row(
             children: [
               Expanded(
                 child: GestureDetector(
                   onTap: () => pickDate(context, true),
-                  child: Card(
-                    color: Colors.white,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    margin: EdgeInsets.zero,
-                    child: Container(
-                      height: 45,
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        startDate != null
-                            ? DateFormat('dd MMM yyyy')
-                                .format(startDate!)
-                                .toUpperCase()
-                            : 'START DATE',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: _buildDateCard(startDate, "START DATE"),
                 ),
               ),
-              SizedBox(width: 10),
-              Text(
-                "-",
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
+              const Text("-",
+                  style: TextStyle(fontSize: 18, color: Colors.grey)),
+              const SizedBox(width: 10),
               Expanded(
                 child: GestureDetector(
                   onTap: () => pickDate(context, false),
-                  child: Card(
-                    color: Colors.white,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    margin: EdgeInsets.zero,
-                    child: Container(
-                      height: 45,
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        endDate != null
-                            ? DateFormat('dd MMM yyyy')
-                                .format(endDate!)
-                                .toUpperCase()
-                            : 'END DATE',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: _buildDateCard(endDate, "END DATE"),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 20),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text("Category:", style: TTextStyles.filterdate),
-          ),
-          SizedBox(height: 10),
-          Row(
-            children: [
-              buildRadioOption("Given"),
-              SizedBox(width: 10),
-              buildRadioOption("Received"),
-            ],
-          ),
-          SizedBox(height: 20),
+
+          SizedBox(height: 2.h),
+
+          /// Category (conditionally shown)
+          if (widget.showCategory) ...[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Category:", style: TTextStyles.filterdate),
+            ),
+            SizedBox(height: 1.h),
+            Row(
+              children: [
+                buildRadioOption("Given"),
+                const SizedBox(width: 10),
+                buildRadioOption("Received"),
+              ],
+            ),
+            SizedBox(height: 2.h),
+          ],
+
+          /// Apply Button
           Align(
             alignment: Alignment.centerLeft,
             child: Container(
@@ -165,10 +162,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 borderRadius: BorderRadius.circular(30),
               ),
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Apply filter logic
-                },
+                onPressed: applyFilter,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
@@ -177,7 +171,7 @@ class _FilterDialogState extends State<FilterDialog> {
                   ),
                   padding: EdgeInsets.zero,
                 ),
-                child: Text(
+                child: const Text(
                   "APPLY",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -193,22 +187,40 @@ class _FilterDialogState extends State<FilterDialog> {
     );
   }
 
-  Widget buildRadioOption(String value) {
-    bool selected = selectedCategory == value;
+  /// Builds the date card
+  Widget _buildDateCard(DateTime? date, String label) {
+    return Card(
+      color: Colors.white,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      margin: EdgeInsets.zero,
+      child: Container(
+        height: 45,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 12),
+        child: Text(
+          date != null
+              ? DateFormat('dd MMM yyyy').format(date).toUpperCase()
+              : label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+      ),
+    );
+  }
 
+  /// Builds the radio option for category
+  Widget buildRadioOption(String value) {
+    final selected = selectedCategory == value;
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            selectedCategory = value;
-          });
-        },
+        onTap: () => setState(() => selectedCategory = value),
         child: Card(
           color: selected ? Colors.white : Colors.grey[200],
           elevation: selected ? 4 : 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           margin: EdgeInsets.zero,
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 2.w),

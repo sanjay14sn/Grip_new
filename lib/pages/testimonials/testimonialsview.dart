@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
+import 'package:grip/components/filter_options.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:intl/intl.dart';
@@ -21,12 +22,19 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
   bool isReceivedSelected = false;
   late List<dynamic> givenReferrals;
   List<dynamic> receivedReferrals = [];
+
+  List<dynamic> filteredGivenReferrals = [];
+  List<dynamic> filteredReceivedReferrals = [];
+
   bool isLoading = true;
+
+  FilterOptions filter = FilterOptions();
 
   @override
   void initState() {
     super.initState();
     givenReferrals = widget.testimonials;
+    filteredGivenReferrals = List.from(givenReferrals);
     _loadReceivedTestimonials();
   }
 
@@ -36,13 +44,68 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
     if (response.isSuccess && mounted) {
       setState(() {
         receivedReferrals = response.data ?? [];
+        filteredReceivedReferrals = List.from(receivedReferrals);
       });
+    }
+  }
+
+  void applyFilters() {
+    if (filter.category == 'Given') {
+      setState(() {
+        filteredGivenReferrals = givenReferrals.where((item) {
+          final dateStr = item['createdAt']?.toString();
+          final date = DateTime.tryParse(dateStr ?? '');
+          return date != null && filter.isWithinRange(date);
+        }).toList();
+      });
+    } else {
+      setState(() {
+        filteredReceivedReferrals = receivedReferrals.where((item) {
+          final dateStr = item['createdAt']?.toString();
+          final date = DateTime.tryParse(dateStr ?? '');
+          return date != null && filter.isWithinRange(date);
+        }).toList();
+      });
+    }
+  }
+
+  Future<void> openFilterDialog() async {
+    final result = await showGeneralDialog<FilterOptions>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Dismiss",
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (_, __, ___) {
+        return Stack(
+          children: [
+            Positioned(
+              top: 60,
+              right: 16,
+              child: Material(
+                color: Colors.transparent,
+                child: FilterDialog(initialFilter: filter),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        filter = result;
+        isReceivedSelected = result.category == 'Received';
+      });
+      applyFilters();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final activeList = isReceivedSelected ? receivedReferrals : givenReferrals;
+    final activeList = isReceivedSelected
+        ? filteredReceivedReferrals
+        : filteredGivenReferrals;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -68,29 +131,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      showGeneralDialog(
-                        context: context,
-                        barrierDismissible: true,
-                        barrierLabel: "Dismiss",
-                        barrierColor: Colors.transparent,
-                        transitionDuration: const Duration(milliseconds: 200),
-                        pageBuilder: (_, __, ___) {
-                          return Stack(
-                            children: [
-                              Positioned(
-                                top: 60,
-                                right: 16,
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: FilterDialog(),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
+                    onTap: openFilterDialog,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -99,7 +140,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
                       ),
                       child: const Icon(Icons.filter_alt_outlined),
                     ),
-                  )
+                  ),
                 ],
               ),
 
@@ -107,7 +148,8 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
 
               Row(
                 children: [
-                  Text('Testimonials Details', style: TTextStyles.ReferralSlip),
+                  Text('Testimonials Details',
+                      style: TTextStyles.ReferralSlip),
                   const SizedBox(width: 8),
                   Image.asset(
                     'assets/images/fluent_person-feedback-16-filled.png',
@@ -134,7 +176,11 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => isReceivedSelected = false),
+                        onTap: () => setState(() {
+                          isReceivedSelected = false;
+                          filter.category = 'Given';
+                          applyFilters();
+                        }),
                         child: Container(
                           decoration: BoxDecoration(
                             gradient:
@@ -156,7 +202,11 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
                     ),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => isReceivedSelected = true),
+                        onTap: () => setState(() {
+                          isReceivedSelected = true;
+                          filter.category = 'Received';
+                          applyFilters();
+                        }),
                         child: Container(
                           decoration: BoxDecoration(
                             gradient:

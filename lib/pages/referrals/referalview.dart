@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
+import 'package:grip/components/filter_options.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
@@ -18,14 +19,19 @@ class ReferralDetailsPage extends StatefulWidget {
 
 class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
   bool isReceivedSelected = false;
+  late List<dynamic> originalGivenReferrals;
   late List<dynamic> givenReferrals;
   List<dynamic> receivedReferrals = [];
+  List<dynamic> originalReceivedReferrals = [];
   bool isLoadingReceived = false;
+
+  FilterOptions filter = FilterOptions();
 
   @override
   void initState() {
     super.initState();
-    givenReferrals = widget.referrals;
+    originalGivenReferrals = widget.referrals;
+    givenReferrals = List.from(originalGivenReferrals);
     loadReceivedReferrals();
   }
 
@@ -36,13 +42,66 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
 
     if (response.isSuccess && response.data is List) {
       setState(() {
-        receivedReferrals = response.data;
+        originalReceivedReferrals = response.data;
+        receivedReferrals = List.from(originalReceivedReferrals);
       });
     } else {
       ToastUtil.showToast(context, response.message);
     }
 
     setState(() => isLoadingReceived = false);
+  }
+
+  void applyFilters() {
+    if (filter.category == 'Given') {
+      setState(() {
+        givenReferrals = originalGivenReferrals.where((item) {
+          final dateStr = item['createdAt']?.toString();
+          final date = DateTime.tryParse(dateStr ?? '');
+          return date != null && filter.isWithinRange(date);
+        }).toList();
+      });
+    } else {
+      setState(() {
+        receivedReferrals = originalReceivedReferrals.where((item) {
+          final dateStr = item['createdAt']?.toString();
+          final date = DateTime.tryParse(dateStr ?? '');
+          return date != null && filter.isWithinRange(date);
+        }).toList();
+      });
+    }
+  }
+
+  Future<void> openFilterDialog() async {
+    final result = await showGeneralDialog<FilterOptions>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Dismiss",
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (_, __, ___) {
+        return Stack(
+          children: [
+            Positioned(
+              top: 60,
+              right: 16,
+              child: Material(
+                color: Colors.transparent,
+                child: FilterDialog(initialFilter: filter),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        filter = result;
+        isReceivedSelected = result.category == 'Received';
+      });
+      applyFilters();
+    }
   }
 
   @override
@@ -77,29 +136,7 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                     ],
                   ),
                   GestureDetector(
-                    onTap: () {
-                      showGeneralDialog(
-                        context: context,
-                        barrierDismissible: true,
-                        barrierLabel: "Dismiss",
-                        barrierColor: Colors.transparent,
-                        transitionDuration: const Duration(milliseconds: 200),
-                        pageBuilder: (_, __, ___) {
-                          return Stack(
-                            children: [
-                              Positioned(
-                                top: 60,
-                                right: 16,
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: FilterDialog(),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
+                    onTap: openFilterDialog,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -125,7 +162,11 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => isReceivedSelected = false),
+                        onTap: () => setState(() {
+                          isReceivedSelected = false;
+                          filter.category = 'Given';
+                          applyFilters();
+                        }),
                         child: Container(
                           decoration: BoxDecoration(
                             gradient:
@@ -147,7 +188,11 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                     ),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => isReceivedSelected = true),
+                        onTap: () => setState(() {
+                          isReceivedSelected = true;
+                          filter.category = 'Received';
+                          applyFilters();
+                        }),
                         child: Container(
                           decoration: BoxDecoration(
                             gradient:

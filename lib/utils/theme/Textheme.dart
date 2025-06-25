@@ -122,8 +122,8 @@ class TTextStyles {
   );
 
   static final TextStyle Reset = GoogleFonts.roboto(
-    color: Color(0xFF1E8DD2), // Changed from 0xFF989898
-    fontSize: 15.sp,
+    color: Color(0xFFC83837), // Changed from 0xFF989898
+    fontSize: 17.sp,
     fontWeight: FontWeight.w700,
   );
 

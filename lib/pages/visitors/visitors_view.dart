@@ -1,13 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/components/filter.dart';
+import 'package:grip/components/filter_options.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
+import 'package:intl/intl.dart';
 
-class VisitorsViewpage extends StatelessWidget {
+class VisitorsViewpage extends StatefulWidget {
   final List<dynamic> visitors;
 
   const VisitorsViewpage({super.key, required this.visitors});
+
+  @override
+  State<VisitorsViewpage> createState() => _VisitorsViewpageState();
+}
+
+class _VisitorsViewpageState extends State<VisitorsViewpage> {
+  List<dynamic> filteredVisitors = [];
+  FilterOptions filter = FilterOptions();
+
+  @override
+  void initState() {
+    super.initState();
+    filteredVisitors = List.from(widget.visitors);
+  }
+
+  void applyFilters() {
+    setState(() {
+      filteredVisitors = widget.visitors.where((item) {
+        final dateStr = item['visitDate']?.toString();
+        final date = DateTime.tryParse(dateStr ?? '');
+        return date != null && filter.isWithinRange(date);
+      }).toList();
+    });
+  }
+
+  Future<void> openFilterDialog() async {
+    final result = await showGeneralDialog<FilterOptions>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Dismiss",
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (_, __, ___) {
+        return Stack(
+          children: [
+            Positioned(
+              top: 60,
+              right: 16,
+              child: Material(
+                color: Colors.transparent,
+                child: FilterDialog(
+                  initialFilter: filter,
+                  showCategory: false, // ✅ hides Given/Received section
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        filter = result;
+      });
+      applyFilters();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,31 +94,10 @@ class VisitorsViewpage extends StatelessWidget {
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-                  Text('Visitors Invited by Me', style: TTextStyles.Editprofile),
+                  Text('Visitors Invited by Me',
+                      style: TTextStyles.Editprofile),
                   GestureDetector(
-                    onTap: () {
-                      showGeneralDialog(
-                        context: context,
-                        barrierDismissible: true,
-                        barrierLabel: "Dismiss",
-                        barrierColor: Colors.transparent,
-                        transitionDuration: const Duration(milliseconds: 200),
-                        pageBuilder: (_, __, ___) {
-                          return Stack(
-                            children: [
-                              Positioned(
-                                top: 60,
-                                right: 16,
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: FilterDialog(),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
+                    onTap: openFilterDialog,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -91,16 +130,19 @@ class VisitorsViewpage extends StatelessWidget {
 
               // 📋 Visitor List
               Expanded(
-                child: visitors.isEmpty
+                child: filteredVisitors.isEmpty
                     ? const Center(child: Text('No visitors found.'))
                     : ListView.builder(
-                        itemCount: visitors.length,
+                        itemCount: filteredVisitors.length,
                         itemBuilder: (context, index) {
-                          final visitor = visitors[index];
+                          final visitor = filteredVisitors[index];
                           final name = visitor['name'] ?? 'Unknown';
-                          final visitDate = visitor['visitDate'] ?? '';
-                          final formattedDate =
-                              visitDate.toString().substring(0, 10);
+                          final dateStr = visitor['visitDate']?.toString();
+                          final formattedDate = dateStr != null
+                              ? DateFormat('dd-MM-yyyy').format(
+                                  DateTime.tryParse(dateStr) ??
+                                      DateTime.now())
+                              : '';
 
                           return referralTile(
                             context,
@@ -119,7 +161,6 @@ class VisitorsViewpage extends StatelessWidget {
     );
   }
 
-  /// ✅ Fix: Pass `visitor` as an argument
   Widget referralTile(BuildContext context, Map<String, dynamic> visitor,
       String name, String date, String imagePath) {
     return GestureDetector(
