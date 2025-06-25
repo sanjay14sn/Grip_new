@@ -1,21 +1,18 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
-import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
-import 'package:grip/pages/chapter_detailes/mychapter/member_info.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/others_card.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
-import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
 
 class OtherChapterPage extends StatefulWidget {
   final String chapterId;
+  final String chapterName;
 
-  const OtherChapterPage({super.key, required this.chapterId});
+  const OtherChapterPage(
+      {super.key, required this.chapterId, required this.chapterName});
 
   @override
   State<OtherChapterPage> createState() => _OtherChapterPageState();
@@ -46,35 +43,36 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
   }
 
   Future<void> fetchMembers() async {
-    print('🔄 Fetching members for chapter ID: ${widget.chapterId}');
-
     final response =
         await PublicRoutesApiService.fetchMembersByChapter(widget.chapterId);
 
-    print('📥 API Response Status: ${response.statusCode}');
-    print('✅ Success: ${response.isSuccess}');
-    print('📦 Raw Data: ${response.data}');
+    // 🔍 Print full response for debugging
+    //print('FetchMembers Response: ${response.toJson()}');
 
     if (response.isSuccess && response.data != null) {
       try {
         final List<othersMemberModel> members = (response.data as List)
             .map((e) => othersMemberModel.fromJson(e))
             .toList();
+
+        // 🔍 Optional: Print the parsed member count
+        print('Parsed Members Count: ${members.length}');
+
         setState(() {
           allMembers = members;
           filteredMembers = members;
           isLoading = false;
         });
       } catch (e) {
-        print('❌ Error while parsing member list: $e');
         setState(() => isLoading = false);
+        print('Error parsing members: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error parsing member list: $e')),
         );
       }
     } else {
-      print('❌ API call failed or no data');
       setState(() => isLoading = false);
+      print('Fetch failed: ${response.message}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response.message ?? 'Failed to load members')),
       );
@@ -136,22 +134,6 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
     );
   }
 
-  Widget _circleIcon(IconData icon) {
-    return Container(
-      height: 35,
-      width: 35,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white,
-        border: Border.all(color: Colors.red, width: 2),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Icon(icon, color: Colors.red),
-    );
-  }
-
   Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -191,115 +173,189 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: EdgeInsets.all(3.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => context.pop(),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFE0E2E7),
-                            shape: BoxShape.circle,
+      body: SizedBox.expand(
+        child: Stack(
+          children: [
+            SafeArea(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                padding: EdgeInsets.fromLTRB(3.w, 3.w, 3.w, 15.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// Header
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => context.pop(),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFE0E2E7),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.arrow_back),
                           ),
-                          child: const Icon(Icons.arrow_back),
                         ),
-                      ),
-                      SizedBox(width: 10.h),
-                      Text(
-                        "Other Chapter Members",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: Tcolors.title_color,
+                        SizedBox(width: 5.w),
+                        Text(
+                          widget.chapterName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18.sp,
+                            color: Tcolors.title_color,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 2.h),
-
-                  // Search
-                  _buildSearchBar(),
-                  SizedBox(height: 2.h),
-
-                  // Members
-                  Text(
-                    "ALL MEMBERS",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12.sp,
-                      color: Colors.black87,
+                      ],
                     ),
-                  ),
-                  SizedBox(height: 1.h),
+                    SizedBox(height: 2.h),
 
-                  isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _buildMemberGrid(),
+                    /// Search
+                    _buildSearchBar(),
+                    SizedBox(height: 2.h),
 
-                  SizedBox(height: 10.h),
-                ],
+                    /// All Members Label
+                    Container(
+                      width: 73.w,
+                      height: 3.3.h,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                      alignment: Alignment.centerLeft,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF2C2B2B),
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(10),
+                          bottomRight: Radius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        "ALL MEMBERS",
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12.sp,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 1.h),
+
+                    /// Members Grid
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _buildMemberGrid(),
+
+                    SizedBox(height: 10.h),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (isMenuOpen)
+
+            /// Menu Items (Floating)
+            if (isMenuOpen)
+              Positioned(
+                bottom: 11.h,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Transform.translate(
+                      offset: const Offset(0, 30),
+                      child: _menuItem(Icons.group, "Referrals", () {
+                        context.push('/addreferalpage');
+                      }),
+                    ),
+                    _menuItem(Icons.handshake, "Thank U Notes", () {
+                      context.push('/thankyounote');
+                    }),
+                    _menuItem(Icons.chat, "Testimonials", () {
+                      context.push('/addtestimonials');
+                    }),
+                    Transform.translate(
+                      offset: const Offset(0, 30),
+                      child: _menuItem(Icons.group_work, "One-To-Ones", () {
+                        context.push('/onetoone');
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+
+            /// Fixed Bottom Button
             Positioned(
-              bottom: 70,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Transform.translate(
-                    offset: const Offset(0, 30),
-                    child: _menuItem(Icons.group, "Referrals", () {
-                      context.push('/addreferalpage');
-                    }),
-                  ),
-                  _menuItem(Icons.handshake, "Thank U Notes", () {
-                    context.push('/thankyounote');
-                  }),
-                  _menuItem(Icons.chat, "Testimonials", () {
-                    context.push('/addtestimonials');
-                  }),
-                  Transform.translate(
-                    offset: const Offset(0, 30),
-                    child: _menuItem(Icons.group_work, "One-To-Ones", () {
-                      context.push('/onetoone');
-                    }),
-                  ),
-                ],
+              bottom: 2.h,
+              left: 50.w - 25.w,
+              child: Container(
+                width: 50.w,
+                height: 7.5.h,
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(40),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    /// Home Button
+                    GestureDetector(
+                      onTap: () {
+                        // TODO: Navigate to home
+                      },
+                      child: Container(
+                        width: 11.w,
+                        height: 11.w,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE53935),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.home, color: Colors.white),
+                      ),
+                    ),
+
+                    /// Add Button
+                    // ➕ or ✖ Toggle Button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => isMenuOpen = !isMenuOpen);
+                        if (isMenuOpen) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                            );
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: 5.h,
+                        height: 5.h,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border:
+                              Border.all(color: Color(0xFFE53935), width: 2),
+                        ),
+                        child: Icon(
+                          isMenuOpen ? Icons.close : Icons.add,
+                          color: const Color(0xFFE53935),
+                          size: 4.h,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          Positioned(
-            bottom: 10,
-            left: MediaQuery.of(context).size.width * 0.5 - 35,
-            child: GestureDetector(
-              onTap: () {
-                setState(() => isMenuOpen = !isMenuOpen);
-                if (isMenuOpen) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _scrollController.animateTo(
-                      _scrollController.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOut,
-                    );
-                  });
-                }
-              },
-              child: _circleIcon(isMenuOpen ? Icons.close : Icons.add),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

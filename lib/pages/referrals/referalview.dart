@@ -6,6 +6,7 @@ import 'package:grip/components/filter_options.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class ReferralDetailsPage extends StatefulWidget {
@@ -230,10 +231,12 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                                   final item = receivedReferrals[index];
                                   final detail = item['referalDetail'] ?? {};
                                   final name = detail['name'] ?? 'No Name';
-                                  final date = item['createdAt']
-                                          ?.toString()
-                                          .substring(0, 10) ??
-                                      '';
+                                  final rawDate = item['createdAt'];
+                                  final date = rawDate != null
+                                      ? DateFormat('dd-MM-yyyy')
+                                          .format(DateTime.parse(rawDate))
+                                      : '';
+
                                   final fromDetails = item['fromMember']
                                           ?['personalDetails'] ??
                                       {};
@@ -257,10 +260,12 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                               final item = givenReferrals[index];
                               final detail = item['referalDetail'] ?? {};
                               final name = detail['name'] ?? 'No Name';
-                              final date = item['createdAt']
-                                      ?.toString()
-                                      .substring(0, 10) ??
-                                  '';
+                              final rawDate = item['createdAt'];
+                              final date = rawDate != null
+                                  ? DateFormat('dd-MM-yyyy')
+                                      .format(DateTime.parse(rawDate))
+                                  : '';
+
                               final toDetails =
                                   item['toMember']?['personalDetails'] ?? {};
                               final toName =

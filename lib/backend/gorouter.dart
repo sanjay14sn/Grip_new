@@ -254,15 +254,28 @@ final GoRouter router = GoRouter(
       builder: (context, state) => MembershipDetailsPage(),
     ),
 
-    GoRoute(
-      path: '/Otherschapter/:id',
-      name: 'othersChapter',
-      builder: (context, state) {
-        final chapterId =
-            state.pathParameters['id']; // this is your selectedChapterId
-        return OtherChapterPage(chapterId: chapterId!);
-      },
-    ),
+    // GoRoute(
+    //   path: '/Otherschapter/:id',
+    //   name: 'othersChapter',
+    //   builder: (context, state) {
+    //     final chapterId =
+    //         state.pathParameters['id']; // this is your selectedChapterId
+    //     return OtherChapterPage(chapterId: chapterId!);
+    //   },
+    // ),
+
+
+GoRoute(
+  path: '/Otherschapter/:chapterId',
+  builder: (context, state) {
+    final chapterId = state.pathParameters['chapterId']!;
+    final chapterName = state.uri.queryParameters['name'] ?? '';
+    return OtherChapterPage(
+      chapterId: chapterId,
+      chapterName: chapterName,
+    );
+  },
+),
 
     GoRoute(
       path: '/visitorsview',

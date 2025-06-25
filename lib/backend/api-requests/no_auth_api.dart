@@ -495,11 +495,13 @@ class PublicRoutesApiService {
       );
 
       final json = jsonDecode(response.body);
+
       return ApiResponse(
         statusCode: response.statusCode,
         isSuccess: response.statusCode == 200,
         data: json['data'],
         message: json['message'],
+        extra: json['pagination'], // ✅ This is what was missing!
       );
     } catch (e) {
       return ApiResponse(
@@ -600,6 +602,7 @@ class PublicRoutesApiService {
         isSuccess: isSuccess,
         message: data['message'] ?? '',
         data: data['data'],
+        extra: data['pagination'], // ✅ Include pagination info here
       );
     } catch (e) {
       return ApiResponse(

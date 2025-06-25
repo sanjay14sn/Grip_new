@@ -4,6 +4,7 @@ import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class VisitorFormPage extends StatefulWidget {
@@ -22,7 +23,10 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController visitDateController = TextEditingController();
 
+  String? visitDateISO; // for backend
+
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   Future<void> _handleRegister() async {
     final name = nameController.text.trim();
     final company = companyController.text.trim();
@@ -30,51 +34,43 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
     final mobile = mobileController.text.trim();
     final email = emailController.text.trim();
     final address = addressController.text.trim();
-    final visitDate = visitDateController.text.trim();
 
-    // Validation: Required fields
     if (name.isEmpty ||
         company.isEmpty ||
         category.isEmpty ||
         mobile.isEmpty ||
         address.isEmpty ||
-        visitDate.isEmpty) {
+        visitDateController.text.isEmpty) {
       ToastUtil.showToast(context, "Please fill all required fields (*)");
       return;
     }
 
-    // Name validation
     if (name.length > 50) {
       ToastUtil.showToast(context, "Name must be under 50 characters");
       return;
     }
 
-    // Company validation
     if (company.length > 70) {
       ToastUtil.showToast(context, "Company must be under 70 characters");
       return;
     }
 
-    // Category validation
     if (category.length > 70) {
       ToastUtil.showToast(context, "Category must be under 70 characters");
       return;
     }
 
-    // Mobile number validation
     if (!RegExp(r'^\d{10}$').hasMatch(mobile)) {
       ToastUtil.showToast(context, "Mobile number must be exactly 10 digits");
       return;
     }
 
-    // Email validation (only if not empty)
     if (email.isNotEmpty &&
         !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       ToastUtil.showToast(context, "Please enter a valid email address");
       return;
     }
 
-    // Address validation
     if (address.length > 200) {
       ToastUtil.showToast(context, "Address must be under 200 characters");
       return;
@@ -87,7 +83,7 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
       "mobile": mobile,
       "email": email,
       "address": address,
-      "visitDate": visitDate,
+      "visitDate": visitDateISO,
     };
 
     final response = await PublicRoutesApiService.registerVisitor(requestBody);
@@ -104,6 +100,7 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
       emailController.clear();
       addressController.clear();
       visitDateController.clear();
+      visitDateISO = null;
 
       Navigator.pop(context, true);
     } else {
@@ -133,51 +130,37 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back Button
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE0E2E7),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE0E2E7),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.arrow_back),
                 ),
               ),
               SizedBox(height: 2.h),
-
-              // Top Row
               Row(
                 children: [
                   SizedBox(width: 3.w),
-                  Image.asset(
-                    'assets/images/visitors.png',
-                    height: 44,
-                    width: 44,
-                  ),
+                  Image.asset('assets/images/visitors.png',
+                      height: 44, width: 44),
                   SizedBox(width: 2.w),
-                  Text(
-                    'Visitors Details',
-                    style: TTextStyles.ReferralSlip,
-                  ),
+                  Text('Visitors Details', style: TTextStyles.ReferralSlip),
                 ],
               ),
-
               SizedBox(height: 2.h),
-
-              // Form Fields with Controllers
               buildInputField('Name*', controller: nameController),
               buildInputField('Company*', controller: companyController),
               buildInputField('Category*', controller: categoryController),
               buildInputField('Mobile*', controller: mobileController),
               buildInputField('Email', controller: emailController),
-              buildInputField('Address', controller: addressController),
+              buildInputField('Address',
+                  controller: addressController, maxLines: 3),
               buildDateField('Visit Date*', controller: visitDateController),
-
               SizedBox(height: 3.h),
-
-              // Register Button
               Center(
                 child: GestureDetector(
                   onTap: _handleRegister,
@@ -201,7 +184,6 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
                   ),
                 ),
               ),
-
               SizedBox(height: 3.h),
             ],
           ),
@@ -268,9 +250,10 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
               lastDate: DateTime(2030),
             );
             if (picked != null) {
-              final fixedTime =
-                  DateTime(picked.year, picked.month, picked.day, 10, 30);
-              visitDateController.text = fixedTime.toIso8601String();
+              visitDateISO =
+                  DateTime(picked.year, picked.month, picked.day, 10, 30)
+                      .toIso8601String();
+              controller.text = DateFormat('dd-MM-yyyy').format(picked);
             }
           },
         ),

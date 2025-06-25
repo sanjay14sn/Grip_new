@@ -4,8 +4,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
-import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class ChapterSelector extends StatefulWidget {
@@ -79,22 +79,24 @@ class _ChapterSelectorState extends State<ChapterSelector> {
   @override
   Widget build(BuildContext context) {
     return isLoading
-        ? const Center(child: CircularProgressIndicator())
+        ? _buildShimmerLoading()
         : Column(
             children: [
               SizedBox(height: 2.h),
               _dropdownField(
-                  "Select Zone",
-                  zones.map((z) => z['zoneName'].toString()).toList(),
-                  selectedZoneId == null
-                      ? null
-                      : zones.firstWhere(
-                          (z) => z['_id'] == selectedZoneId)['zoneName'],
-                  (val) {
-                final selected = zones.firstWhere((z) => z['zoneName'] == val);
-                selectedZoneId = selected['_id'];
-                fetchChaptersByZone(selectedZoneId!);
-              }),
+                "Select Zone",
+                zones.map((z) => z['zoneName'].toString()).toList(),
+                selectedZoneId == null
+                    ? null
+                    : zones.firstWhere(
+                        (z) => z['_id'] == selectedZoneId)['zoneName'],
+                (val) {
+                  final selected =
+                      zones.firstWhere((z) => z['zoneName'] == val);
+                  selectedZoneId = selected['_id'];
+                  fetchChaptersByZone(selectedZoneId!);
+                },
+              ),
               SizedBox(height: 2.h),
               if (selectedZoneId != null && chaptersInZone.isNotEmpty)
                 _dropdownField(
@@ -116,7 +118,10 @@ class _ChapterSelectorState extends State<ChapterSelector> {
               GestureDetector(
                 onTap: () {
                   if (selectedZoneId != null && selectedChapterId != null) {
-                    context.push('/Otherschapter/$selectedChapterId');
+                    final chapterName = chaptersInZone.firstWhere(
+                        (c) => c['_id'] == selectedChapterId)['chapterName'];
+                    context.push(
+                        '/Otherschapter/$selectedChapterId?name=$chapterName');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -142,9 +147,40 @@ class _ChapterSelectorState extends State<ChapterSelector> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 5.w),
+      child: Column(
+        children: [
+          SizedBox(height: 2.h),
+          _shimmerBox(width: double.infinity, height: 50),
+          SizedBox(height: 2.h),
+          _shimmerBox(width: double.infinity, height: 50),
+          SizedBox(height: 4.h),
+          _shimmerBox(width: double.infinity, height: 48),
+        ],
+      ),
+    );
+  }
+
+  Widget _shimmerBox({required double width, required double height}) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
   }
 
   Widget _dropdownField(String hint, List<String> items, String? selectedValue,

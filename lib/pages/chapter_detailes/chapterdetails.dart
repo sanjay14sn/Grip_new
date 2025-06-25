@@ -10,7 +10,6 @@ import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/other_chapter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -255,53 +254,125 @@ class _MyChapterPageState extends State<MyChapterPage> {
     final memberCount = chapterProvider.members.length;
 
     return _isLoading
-        ? GridView.builder(
-            itemCount: memberCount,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: 1.h),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 3.w,
-              mainAxisSpacing: 3.w,
-              childAspectRatio: 0.85,
-            ),
-            itemBuilder: (_, __) => Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 10.w,
-                      height: 6.h,
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    SizedBox(height: 0.8.h),
-                    Container(
-                      width: 8.w,
-                      height: 1.5.h,
-                      color: Colors.grey,
-                    ),
-                    SizedBox(height: 0.5.h),
-                    Container(
-                      width: 10.w,
-                      height: 1.3.h,
-                      color: Colors.grey,
-                    ),
-                  ],
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Shimmer Search Box
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  height: 6.h,
+                  width: double.infinity,
+                  margin: EdgeInsets.only(bottom: 2.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               ),
-            ),
+
+              // Shimmer CID Member Section Title
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  width: 73.w,
+                  height: 3.3.h,
+                  margin: EdgeInsets.only(bottom: 1.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Shimmer CID Member Card
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  height: 18.h,
+                  margin: EdgeInsets.only(bottom: 2.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+
+              // Shimmer All Members Section Title
+              Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
+                  width: 73.w,
+                  height: 3.3.h,
+                  margin: EdgeInsets.only(bottom: 1.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Shimmer Member Grid
+              GridView.builder(
+                itemCount: 9,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(vertical: 1.h),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 3.w,
+                  mainAxisSpacing: 3.w,
+                  childAspectRatio: 0.85,
+                ),
+                itemBuilder: (_, __) => Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 10.w,
+                          height: 6.h,
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        SizedBox(height: 0.8.h),
+                        Container(
+                          width: 8.w,
+                          height: 1.5.h,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 0.5.h),
+                        Container(
+                          width: 10.w,
+                          height: 1.3.h,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,

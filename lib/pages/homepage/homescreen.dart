@@ -23,6 +23,8 @@ class Homescreen extends StatefulWidget {
 class _HomescreenState extends State<Homescreen> {
   String? _storedToken;
   String? _username;
+  int _thankYouCount = 0;
+
   List<dynamic> _visitors = [];
   bool _isLoading = true;
   int _visitorCount = 0;
@@ -38,17 +40,19 @@ class _HomescreenState extends State<Homescreen> {
   String? _memberId;
   Map<String, dynamic>? _memberData; // at top of your state class
 
-  @override
   void initState() {
     super.initState();
-    _loadUserData();
-    _loadChapterDetails();
-    _loadVisitors();
-    _loadOneToOneList();
-    _loadTestimonials();
-    _loadReferralSlips();
-    _loadThankYouNotes();
+    _loadUserData(); // keep separate since you use _username
+    _loadChapterDetails(); // needs user data too
     fetchMember();
+
+    Future.wait([
+      _loadVisitors(),
+      _loadOneToOneList(),
+      _loadTestimonials(),
+      _loadReferralSlips(),
+      _loadThankYouNotes(),
+    ]);
   }
 
   void _loadChapterDetails() async {
@@ -181,7 +185,7 @@ class _HomescreenState extends State<Homescreen> {
         if (data is List) {
           setState(() {
             _testimonialList = data;
-            _testimonialCount = data.length;
+            _testimonialCount = response.extra?['total'] ?? data.length;
           });
         } else {
           setState(() {
@@ -216,7 +220,6 @@ class _HomescreenState extends State<Homescreen> {
     print("✅ API Response received.");
     print("➡️ Success: ${response.isSuccess}");
     print("➡️ Message: ${response.message}");
-    print("➡️ Data: ${response.data}");
 
     if (mounted) {
       setState(() {
@@ -224,10 +227,17 @@ class _HomescreenState extends State<Homescreen> {
 
         if (response.isSuccess) {
           _referralList = response.data ?? [];
-          _referralCount = _referralList.length;
 
-          print("📦 Referral list loaded with ${_referralCount} items.");
+          // ✅ Use total from pagination
+          final int total = response.extra?['total'] ?? _referralList.length;
+          _referralCount = total;
+
+          print(
+              "📦 Referrals loaded: ${_referralList.length} shown, total: $_referralCount");
         } else {
+          _referralList = [];
+          _referralCount = 0;
+
           print("❌ Failed to load referrals: ${response.message}");
           ToastUtil.showToast(context, response.message);
         }
@@ -240,21 +250,22 @@ class _HomescreenState extends State<Homescreen> {
 
     final response = await PublicRoutesApiService.fetchGivenThankYouNotes();
 
+    setState(() {
+      _isThankYouLoading = false;
+    });
+
     if (response.isSuccess && response.data is List) {
       final notes = response.data as List<dynamic>;
-      print('✅ Successfully fetched ${notes.length} Thank You Notes');
+      final int total = response.extra?['total'] ?? notes.length;
 
-      for (var i = 0; i < notes.length; i++) {
-        print('📝 Note $i: ${notes[i]}');
-      }
+      print('✅ Successfully fetched ${notes.length} notes (total: $total)');
 
       setState(() {
         _givenNotes = notes;
-        _isThankYouLoading = false;
+        _thankYouCount = total; // ✅ assign pagination total
       });
     } else {
       print('❌ Failed to fetch Thank You Notes: ${response.message}');
-      setState(() => _isThankYouLoading = false);
       ToastUtil.showToast(context, "❌ Failed to load Thank You Notes");
     }
   }
@@ -406,8 +417,7 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Thank U Notes",
-                      value:
-                          _isThankYouLoading ? '0' : "${_givenNotes.length}+",
+                      value: _isThankYouLoading ? '0' : '$_thankYouCount+',
                       onTapAddView: () {
                         context.push('/thankyounote');
                       },
