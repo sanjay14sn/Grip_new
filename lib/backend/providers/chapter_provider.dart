@@ -20,7 +20,8 @@ class ChapterProvider extends ChangeNotifier {
     final response =
         await PublicRoutesApiService.fetchChapterDetailsById(chapterId);
 
-    print('📥 API Response: ${response.isSuccess}, message: ${response.message}');
+    print(
+        '📥 API Response: ${response.isSuccess}, message: ${response.message}');
     if (response.isSuccess && response.data != null) {
       try {
         final data = response.data['data'];
@@ -83,6 +84,7 @@ class ChapterDetails {
   final String meetingDayAndTime;
   final String meetingType;
   final String zoneName;
+  final String cidId; // <-- Add this
   final String cidName;
   final String cidEmail;
   final String stateName;
@@ -95,6 +97,7 @@ class ChapterDetails {
     required this.meetingDayAndTime,
     required this.meetingType,
     required this.zoneName,
+    required this.cidId, // <-- Add this
     required this.cidName,
     required this.cidEmail,
     required this.stateName,
@@ -110,6 +113,7 @@ class ChapterDetails {
       meetingDayAndTime: json['meetingDayAndTime'] ?? '',
       meetingType: json['meetingType'] ?? '',
       zoneName: json['zoneId']?['zoneName'] ?? '',
+      cidId: json['cidId']?['_id'] ?? '', // <-- Extract cidId from nested object
       cidName: json['cidId']?['name'] ?? '',
       cidEmail: json['cidId']?['email'] ?? '',
       stateName: json['stateName'] ?? '',
@@ -117,3 +121,4 @@ class ChapterDetails {
     );
   }
 }
+

@@ -231,11 +231,21 @@ final GoRouter router = GoRouter(
       builder: (context, state) => MembershipDetailsPage(),
     ),
 
+    // GoRoute(
+    //   path: '/Otherschapter',
+    //   builder: (context, state) {
+    //     final chapter = state.extra as ChapterDetail;
+    //     return OtherChapterPage(chapter: chapter);
+    //   },
+    // ),
+
     GoRoute(
-      path: '/Otherschapter',
+      path: '/Otherschapter/:id',
+      name: 'othersChapter',
       builder: (context, state) {
-        final chapter = state.extra as ChapterDetail;
-        return OtherChapterPage(chapter: chapter);
+        final chapterId =
+            state.pathParameters['id']; // this is your selectedChapterId
+        return OtherChapterPage(chapterId: chapterId!);
       },
     ),
 

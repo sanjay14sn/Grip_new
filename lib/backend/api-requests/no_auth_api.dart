@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
@@ -768,5 +769,166 @@ class PublicRoutesApiService {
     }
 
     return response;
+  }
+
+  static Future<ApiResponse> fetchZoneList() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated. Please login again.',
+      );
+    }
+
+    final response = await makeRequest(
+      url: '$endPointbaseUrl/api/mobile/zones/list',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.isSuccess &&
+        response.data != null &&
+        response.data is Map<String, dynamic>) {
+      final List<dynamic> list = response.data['data'];
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: true,
+        data: list,
+        message: response.data['message'] ?? '',
+      );
+    }
+
+    return response;
+  }
+
+  static Future<ApiResponse> fetchChaptersByZone(String zoneId) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated. Please login again.',
+      );
+    }
+
+    final response = await makeRequest(
+      url: '$endPointbaseUrl/api/mobile/chapters/by-zone/$zoneId',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.isSuccess &&
+        response.data != null &&
+        response.data is Map<String, dynamic>) {
+      final List<dynamic> list = response.data['data'];
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: true,
+        data: list,
+        message: response.data['message'] ?? '',
+      );
+    }
+
+    return response;
+  }
+
+  static Future<ApiResponse> fetchMembersByChapter(String chapterId) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated. Please login again.',
+      );
+    }
+
+    final response = await makeRequest(
+      url: '$endPointbaseUrl/api/mobile/members/by-chapter/$chapterId',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.isSuccess &&
+        response.data != null &&
+        response.data is Map<String, dynamic>) {
+      final List<dynamic> list = response.data['data'];
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: true,
+        data: list,
+        message: response.data['message'] ?? '',
+      );
+    }
+
+    return response;
+  }
+
+  static Future<ApiResponse> fetchCidDetails(String cidId) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated. Please login again.',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url: '$endPointbaseUrl/api/mobile/cid/$cidId',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.isSuccess &&
+          response.data != null &&
+          response.data is Map<String, dynamic>) {
+        return ApiResponse(
+          statusCode: response.statusCode,
+          isSuccess: true,
+          data: response.data['data'], // ✅ assuming structure: { data: {...} }
+          message: response.data['message'] ?? 'Success',
+        );
+      }
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: false,
+        data: null,
+        message: response.message ?? 'Something went wrong',
+      );
+    } catch (e) {
+      return ApiResponse(
+        isSuccess: false,
+        message: 'Exception: $e',
+        data: null,
+        statusCode: 500,
+      );
+    }
   }
 }

@@ -8,6 +8,7 @@ class DetailedMember {
   final String website;
   final String address;
   final String chapterName;
+  final String? cid; // <-- add this
 
   DetailedMember({
     required this.id,
@@ -19,6 +20,7 @@ class DetailedMember {
     required this.website,
     required this.address,
     required this.chapterName,
+    this.cid, // <-- optional
   });
 
   factory DetailedMember.fromJson(Map<String, dynamic> json) {
@@ -45,6 +47,7 @@ class DetailedMember {
         addressData['postalCode'],
       ].whereType<String>().map((e) => e.trim()).where((e) => e.isNotEmpty).join(', '),
       chapterName: chapterId['chapterName']?.toString() ?? '',
+      cid: chapterInfo['cidId']?.toString(), // <-- here
     );
   }
 }

@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
-import 'package:grip/pages/chapter_detailes/otherchapter/otherchaptersproile.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class othersMemberCard extends StatelessWidget {
-  final MemberModel member;
-  const othersMemberCard({required this.member});
+  final othersMemberModel member; // ✅ FIXED: Correct model class
+  const othersMemberCard({super.key, required this.member});
 
   @override
   Widget build(BuildContext context) {
-   // final isRoleCard = member.role.isNotEmpty;
-
     return Material(
       child: InkWell(
         onTap: () {
           context.push('/Chaptermember');
         },
-        borderRadius: BorderRadius.circular(10), // match card shape
+        borderRadius: BorderRadius.circular(10),
         child: Container(
           width: 33.w,
           height: 11.h,
@@ -41,7 +38,7 @@ class othersMemberCard extends StatelessWidget {
                         height: 6.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          image: DecorationImage(
+                          image: const DecorationImage(
                             image: AssetImage("assets/images/profile.png"),
                             fit: BoxFit.cover,
                           ),
@@ -54,11 +51,11 @@ class othersMemberCard extends StatelessWidget {
                       Text(member.company,
                           textAlign: TextAlign.center,
                           style: TTextStyles.membercard),
-                      if ( member.phone != null)
+                      if (member.phone.isNotEmpty)
                         Padding(
                           padding: EdgeInsets.only(top: 0.8.h),
                           child: Text(
-                            "📞 ${member.phone!}",
+                            "📞 ${member.phone}",
                             style: TTextStyles.membercard,
                           ),
                         ),
@@ -66,7 +63,8 @@ class othersMemberCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // if (isRoleCard)
+              // Optional: show role
+              // if (member.role != null && member.role!.isNotEmpty)
               //   Container(
               //     width: double.infinity,
               //     height: 3.h,
@@ -77,7 +75,7 @@ class othersMemberCard extends StatelessWidget {
               //       ),
               //     ),
               //     alignment: Alignment.center,
-              //     child: Text(member.role,
+              //     child: Text(member.role!,
               //         textAlign: TextAlign.center,
               //         style: TTextStyles.chapterrole),
               //   ),

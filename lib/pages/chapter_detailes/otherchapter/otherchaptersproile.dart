@@ -1,406 +1,305 @@
-// import 'dart:ui';
-// import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:grip/pages/chapter_detailes/membermodel.dart';
-// import 'package:grip/pages/chapter_detailes/otherchapter/others_card.dart';
-// import 'package:grip/utils/constants/Tcolors.dart';
-// import 'package:sizer/sizer.dart';
-
-// class OtherChapterPage extends StatefulWidget {
-//   const OtherChapterPage({Key? key}) : super(key: key);
-
-//   @override
-//   State<OtherChapterPage> createState() => _MyChapterPageState();
-// }
-
-// class _MyChapterPageState extends State<OtherChapterPage> {
-//   bool isMenuOpen = false;
-//   final ScrollController _scrollController = ScrollController();
-
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
-
-//   @override
-//   void dispose() {
-//     _scrollController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.grey[200],
-//       resizeToAvoidBottomInset: false,
-//       body: Stack(
-//         children: [
-//           // Main content
-//           SafeArea(
-//             child: SingleChildScrollView(
-//               controller: _scrollController,
-//               padding: EdgeInsets.all(3.w),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Row(
-//                     children: [
-//                       GestureDetector(
-//                         onTap: () {
-//                           Navigator.pop(context);
-//                         },
-//                         child: Container(
-//                           padding: const EdgeInsets.all(8),
-//                           decoration: BoxDecoration(
-//                             color: const Color(0xFFE0E2E7),
-//                             shape: BoxShape.circle,
-//                           ),
-//                           child: const Icon(Icons.arrow_back),
-//                         ),
-//                       ),
-//                       SizedBox(width: 10.h),
-//                       Center(
-//                         child: Text(
-//                           "Grip Madhuram",
-//                           textAlign: TextAlign.center,
-//                           style: TextStyle(
-//                             fontWeight: FontWeight.w600,
-//                             fontSize: 16,
-//                             color: Tcolors.title_color,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   SizedBox(height: 2.h),
-//                   //     _buildMyChapterView(),
-//                   SizedBox(height: 20.h),
-//                 ],
-//               ),
-//             ),
-//           ),
-
-//           if (isMenuOpen)
-//             Positioned(
-//               bottom: 70,
-//               left: 0,
-//               right: 0,
-//               child: Material(
-//                 color: Colors.transparent,
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                   children: [
-//                     Transform.translate(
-//                       offset: Offset(0, 30),
-//                       child: _menuItem(Icons.group, "Referrals", () {
-//                         print("Referrals tapped");
-//                         context.push('/addreferalpage');
-//                         // Add your navigation or logic here
-//                       }),
-//                     ),
-//                     _menuItem(Icons.handshake, "Thank U Notes", () {
-//                       print("Thank U Notes tapped");
-//                       context.push('/thankyounote');
-//                     }),
-//                     _menuItem(Icons.chat, "Testimonials", () {
-//                       context.push('/addtestimonials');
-//                       print("Testimonials tapped");
-//                     }),
-//                     Transform.translate(
-//                       offset: Offset(0, 30),
-//                       child: _menuItem(Icons.group_work, "One-To-Ones", () {
-//                         print("One-To-Ones tapped");
-//                         context.push('/onetoone');
-//                       }),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-
-//           // Bottom Buttons (Home + Add/Close)
-//           if (!isMenuOpen)
-//             Positioned(
-//               bottom: 10,
-//               left: MediaQuery.of(context).size.width * 0.2,
-//               right: MediaQuery.of(context).size.width * 0.2,
-//               child: ClipRRect(
-//                 borderRadius: BorderRadius.circular(50),
-//                 child: BackdropFilter(
-//                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-//                   child: Container(
-//                     width: 212,
-//                     height: 60,
-//                     decoration: BoxDecoration(
-//                       color: Colors.white.withOpacity(0.2), // translucent white
-//                       borderRadius: BorderRadius.circular(50),
-//                       boxShadow: [
-//                         BoxShadow(
-//                           color: Color(0x405A5A5A), // 25% opacity shadow
-//                           offset: Offset(0, 1),
-//                           blurRadius: 10,
-//                           spreadRadius: 2,
-//                         ),
-//                       ],
-//                       border: Border.all(
-//                         color: Colors.white
-//                             .withOpacity(0.3), // subtle glassy border
-//                         width: 1,
-//                       ),
-//                     ),
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                       children: [
-//                         GestureDetector(
-//                           onTap: () {
-//                             // Handle home button tap
-//                           },
-//                           child: _circleIcon(Icons.home),
-//                         ),
-//                         GestureDetector(
-//                           onTap: () {
-//                             setState(() {
-//                               isMenuOpen = !isMenuOpen;
-//                             });
-
-//                             if (!isMenuOpen) return;
-
-//                             WidgetsBinding.instance.addPostFrameCallback((_) {
-//                               _scrollController.animateTo(
-//                                 _scrollController.position.maxScrollExtent,
-//                                 duration: Duration(milliseconds: 300),
-//                                 curve: Curves.easeOut,
-//                               );
-//                             });
-//                           },
-//                           child: _circleIcon(Icons.add),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-
-//           if (isMenuOpen)
-//             Positioned(
-//               bottom: 10,
-//               left: MediaQuery.of(context).size.width * 0.5 -
-//                   35, // center based on icon size
-//               child: GestureDetector(
-//                 onTap: () {
-//                   setState(() {
-//                     isMenuOpen = !isMenuOpen;
-//                   });
-//                 },
-//                 child: _circleIcon(Icons.close),
-//               ),
-//             ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _circleIcon(IconData icon) {
-//     return Container(
-//       height: 35,
-//       width: 35,
-//       decoration: BoxDecoration(
-//         shape: BoxShape.circle,
-//         color: Colors.white,
-//         border: Border.all(color: Colors.red, width: 2),
-//         boxShadow: [
-//           BoxShadow(
-//             color: Colors.black26,
-//             blurRadius: 4,
-//             offset: Offset(0, 2),
-//           ),
-//         ],
-//       ),
-//       child: Icon(icon, color: Colors.red),
-//     );
-//   }
-
-//   Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Column(
-//         children: [
-//           Stack(
-//             clipBehavior: Clip.none,
-//             children: [
-//               Container(
-//                 padding: EdgeInsets.all(14),
-//                 decoration: BoxDecoration(
-//                   color: Colors.red,
-//                   shape: BoxShape.circle,
-//                 ),
-//                 child: Icon(icon, color: Colors.white, size: 28),
-//               ),
-//               Positioned(
-//                 top: -8,
-//                 right: -4,
-//                 child: Container(
-//                   height: 16,
-//                   width: 16,
-//                   child: Icon(
-//                     Icons.add,
-//                     size: 14,
-//                     color: Colors.red,
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 5),
-//           Text(label, style: TextStyle(fontSize: 12)),
-//         ],
-//       ),
-//     );
-//   }
-
-//   // Widget _buildMyChapterView() {
-//   //   final List<Map<String, dynamic>> sections = [
-//   //     {"title": "HEAD TABLE MEMBERS", "members": headMembers},
-//   //     {"title": "CORE COMMITTEE MEMBERS", "members": coreCommitteeMembers},
-//   //     {"title": "ALL MEMBERS", "members": allMembers},
-//   //   ];
-
-//   //   return Column(
-//   //     children: [
-//   //       _searchBar(),
-//   //       SizedBox(height: 2.h),
-//   //       ListView.builder(
-//   //         itemCount: sections.length,
-//   //         shrinkWrap: true,
-//   //         physics: NeverScrollableScrollPhysics(),
-//   //         itemBuilder: (context, index) {
-//   //           final section = sections[index];
-//   //           return Column(
-//   //             crossAxisAlignment: CrossAxisAlignment.start,
-//   //             children: [
-//   //               SectionHeader(title: section["title"]),
-//   //               MemberGrid(members: section["members"]),
-//   //               SizedBox(height: 2.h),
-//   //             ],
-//   //           );
-//   //         },
-//   //       ),
-//   //     ],
-//   //   );
-//   // }
-
-//   Widget _searchBar() {
-//     return Container(
-//       padding: EdgeInsets.symmetric(horizontal: 3.w),
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.grey.shade400),
-//         borderRadius: BorderRadius.circular(8),
-//       ),
-//       child: Row(
-//         children: [
-//           Icon(Icons.search, color: Tcolors.title_color),
-//           SizedBox(width: 2.w),
-//           Expanded(
-//             child: TextField(
-//               decoration:
-//                   InputDecoration(hintText: "Search", border: InputBorder.none),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class SectionHeader extends StatelessWidget {
-//   final String title;
-//   const SectionHeader({required this.title});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       width: 73.w,
-//       height: 3.3.h,
-//       decoration: BoxDecoration(
-//         color: const Color(0xFF2C2B2B), // Rich dark gray
-//         borderRadius: const BorderRadius.only(
-//           topRight: Radius.circular(10),
-//           bottomRight: Radius.circular(10),
-//         ),
-//       ),
-//       padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-//       alignment: Alignment.centerLeft,
-//       child: Text(
-//         title,
-//         style: GoogleFonts.poppins(
-//           fontWeight: FontWeight.w600,
-//           fontSize: 12.sp,
-//           color: Colors.white,
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class MemberGrid extends StatelessWidget {
-//   final List<MemberModel> members;
-//   const MemberGrid({required this.members});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GridView.builder(
-//       itemCount: members.length,
-//       shrinkWrap: true,
-//       physics: NeverScrollableScrollPhysics(),
-//       padding: EdgeInsets.symmetric(vertical: 1.h),
-//       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//         crossAxisCount: 3, // Adjust the number of columns as needed
-//         crossAxisSpacing: 3.w,
-//         mainAxisSpacing: 3.w,
-//         childAspectRatio: 0.85, // Adjust the aspect ratio as needed
-//       ),
-//       itemBuilder: (context, index) {
-//         return othersMemberCard(member: members[index]);
-//       },
-//     );
-//   }
-// }
-// 
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
+import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
+import 'package:grip/pages/chapter_detailes/mychapter/member_info.dart';
+import 'package:grip/pages/chapter_detailes/otherchapter/others_card.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
+import 'package:http/http.dart' as http;
+import 'package:sizer/sizer.dart';
 
-class OtherChapterPage extends StatelessWidget {
-  final ChapterDetail chapter;
+class OtherChapterPage extends StatefulWidget {
+  final String chapterId;
 
-  const OtherChapterPage({super.key, required this.chapter});
+  const OtherChapterPage({super.key, required this.chapterId});
+
+  @override
+  State<OtherChapterPage> createState() => _OtherChapterPageState();
+}
+
+class _OtherChapterPageState extends State<OtherChapterPage> {
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+
+  List<othersMemberModel> allMembers = [];
+  List<othersMemberModel> filteredMembers = [];
+
+  bool isMenuOpen = false;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMembers();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> fetchMembers() async {
+    print('🔄 Fetching members for chapter ID: ${widget.chapterId}');
+
+    final response =
+        await PublicRoutesApiService.fetchMembersByChapter(widget.chapterId);
+
+    print('📥 API Response Status: ${response.statusCode}');
+    print('✅ Success: ${response.isSuccess}');
+    print('📦 Raw Data: ${response.data}');
+
+    if (response.isSuccess && response.data != null) {
+      try {
+        final List<othersMemberModel> members = (response.data as List)
+            .map((e) => othersMemberModel.fromJson(e))
+            .toList();
+        setState(() {
+          allMembers = members;
+          filteredMembers = members;
+          isLoading = false;
+        });
+      } catch (e) {
+        print('❌ Error while parsing member list: $e');
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error parsing member list: $e')),
+        );
+      }
+    } else {
+      print('❌ API call failed or no data');
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.message ?? 'Failed to load members')),
+      );
+    }
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredMembers = allMembers.where((member) {
+        final name = member.name.toLowerCase();
+        final company = member.company.toLowerCase();
+        return name.contains(query) || company.contains(query);
+      }).toList();
+    });
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 3.w),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.white,
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.search, color: Tcolors.title_color),
+          SizedBox(width: 2.w),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                hintText: "Search by name or company",
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMemberGrid() {
+    return GridView.builder(
+      itemCount: filteredMembers.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(vertical: 1.h),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 3.w,
+        mainAxisSpacing: 3.w,
+        childAspectRatio: 0.85,
+      ),
+      itemBuilder: (context, index) {
+        return othersMemberCard(member: filteredMembers[index]);
+      },
+    );
+  }
+
+  Widget _circleIcon(IconData icon) {
+    return Container(
+      height: 35,
+      width: 35,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        border: Border.all(color: Colors.red, width: 2),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+        ],
+      ),
+      child: Icon(icon, color: Colors.red),
+    );
+  }
+
+  Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: Colors.white, size: 28),
+              ),
+              const Positioned(
+                top: -8,
+                right: -4,
+                child: SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: Icon(Icons.add, size: 14, color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Text(label, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(chapter.chapterName)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Meeting Venue: ${chapter.meetingVenue}"),
-            Text("Meeting Type: ${chapter.meetingType}"),
-            const SizedBox(height: 12),
-            Text("CID:", style: TextStyle(fontWeight: FontWeight.bold)),
-            Text("Name: ${chapter.cid['name']}"),
-            Text("Email: ${chapter.cid['email']}"),
-            const SizedBox(height: 12),
-            Text("Members:", style: TextStyle(fontWeight: FontWeight.bold)),
-            ...chapter.members.map((member) => ListTile(
-                  title: Text(member['name']),
-                  subtitle: Text(member['email']),
-                  trailing: Text(member['mobileNumber']),
-                )),
-          ],
-        ),
+      backgroundColor: Colors.grey[200],
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: EdgeInsets.all(3.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFE0E2E7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.arrow_back),
+                        ),
+                      ),
+                      SizedBox(width: 10.h),
+                      Text(
+                        "Other Chapter Members",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Tcolors.title_color,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 2.h),
+
+                  // Search
+                  _buildSearchBar(),
+                  SizedBox(height: 2.h),
+
+                  // Members
+                  Text(
+                    "ALL MEMBERS",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.sp,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 1.h),
+
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _buildMemberGrid(),
+
+                  SizedBox(height: 10.h),
+                ],
+              ),
+            ),
+          ),
+          if (isMenuOpen)
+            Positioned(
+              bottom: 70,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Transform.translate(
+                    offset: const Offset(0, 30),
+                    child: _menuItem(Icons.group, "Referrals", () {
+                      context.push('/addreferalpage');
+                    }),
+                  ),
+                  _menuItem(Icons.handshake, "Thank U Notes", () {
+                    context.push('/thankyounote');
+                  }),
+                  _menuItem(Icons.chat, "Testimonials", () {
+                    context.push('/addtestimonials');
+                  }),
+                  Transform.translate(
+                    offset: const Offset(0, 30),
+                    child: _menuItem(Icons.group_work, "One-To-Ones", () {
+                      context.push('/onetoone');
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          Positioned(
+            bottom: 10,
+            left: MediaQuery.of(context).size.width * 0.5 - 35,
+            child: GestureDetector(
+              onTap: () {
+                setState(() => isMenuOpen = !isMenuOpen);
+                if (isMenuOpen) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _scrollController.animateTo(
+                      _scrollController.position.maxScrollExtent,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
+                  });
+                }
+              },
+              child: _circleIcon(isMenuOpen ? Icons.close : Icons.add),
+            ),
+          ),
+        ],
       ),
     );
   }

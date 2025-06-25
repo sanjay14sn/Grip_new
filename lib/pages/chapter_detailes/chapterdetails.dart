@@ -10,6 +10,7 @@ import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/pages/chapter_detailes/mychapter/member_card.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/other_chapter.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -26,6 +27,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
 
   List<DetailedMember> _detailedMembers = [];
   List<DetailedMember> _filteredMembers = [];
+  MemberModel? _cidMember;
 
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
@@ -33,7 +35,15 @@ class _MyChapterPageState extends State<MyChapterPage> {
   @override
   void initState() {
     super.initState();
+
     _fetchAllMemberDetails();
+    final chapterProvider =
+        Provider.of<ChapterProvider>(context, listen: false);
+    final cidId = chapterProvider.chapterDetails?.cidId;
+    if (cidId != null && cidId.isNotEmpty) {
+      _fetchCidDetails(cidId); // 👈 pass the actual cidId
+    }
+
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -49,41 +59,110 @@ class _MyChapterPageState extends State<MyChapterPage> {
   }
 
   Future<void> _fetchAllMemberDetails() async {
-    setState(() => _isLoading = true);
+    debugPrint("🔄 Fetching all member details...");
+    setState(() {
+      _isLoading = true;
+      debugPrint("🔃 isLoading set to true");
+    });
+
     _detailedMembers.clear();
+    debugPrint("🧹 Cleared existing detailed members");
 
     const storage = FlutterSecureStorage();
     final userDataString = await storage.read(key: 'user_data');
+    debugPrint("🔐 Retrieved user data string: $userDataString");
 
     String? currentUserId;
     if (userDataString != null) {
       final userData = jsonDecode(userDataString);
       currentUserId = userData['id'];
+      debugPrint("👤 Current user ID: $currentUserId");
+    } else {
+      debugPrint("⚠️ No user data found in secure storage");
     }
 
     final chapterProvider =
         Provider.of<ChapterProvider>(context, listen: false);
+
+    // ✅ Get and print the CID ID from ChapterDetails
+    final cidId = chapterProvider.chapterDetails?.cidId;
+    debugPrint("📛 CID ID from chapter: $cidId");
+
     final members = chapterProvider.members;
+    debugPrint("📋 Total members fetched: ${members.length}");
 
     for (final member in members) {
+      debugPrint("➡️ Processing member ID: ${member.id}");
+
       if (member.id == currentUserId) {
         debugPrint("🙅 Skipping current user: $currentUserId");
-        continue; // Skip current user
+        continue;
       }
 
+      debugPrint("🌐 Fetching details for member: ${member.id}");
       final response =
           await PublicRoutesApiService.fetchMemberDetailsById(member.id);
 
       if (response.isSuccess && response.data != null) {
+        debugPrint("✅ Successfully fetched details for member: ${member.id}");
         final detailed = DetailedMember.fromJson(response.data);
         _detailedMembers.add(detailed);
+      } else {
+        debugPrint(
+            "❌ Failed to fetch details for member: ${member.id}, Status: ${response.isSuccess}");
       }
     }
 
     setState(() {
       _filteredMembers = _detailedMembers;
       _isLoading = false;
+      debugPrint("✅ Member details updated and isLoading set to false");
     });
+  }
+
+  Future<void> _fetchCidDetails(String cidId) async {
+    debugPrint('🔄 Fetching CID details for ID: $cidId');
+
+    try {
+      // Optional: You can set a loading flag here if needed
+      // setState(() => _isCidLoading = true);
+
+      final response = await PublicRoutesApiService.fetchCidDetails(
+          cidId); // ✅ No 'cid/' prefix
+
+      debugPrint(
+          '📥 CID API response: ${response.isSuccess}, data: ${response.data}');
+
+      if (response.isSuccess && response.data != null) {
+        final data = response.data;
+
+        final member = MemberModel(
+          name: data['username'] ?? '',
+          company: data['companyName'] ?? '',
+          phone: data['mobileNumber'] ?? '',
+          role: data['role']?['name'] ?? '',
+          website: data['website'], // or null if not provided
+          chapterName: data['chapterName'], // or null if not provided
+          businessDescription: data['businessDescription'], // or null
+          email: data['email'] ?? '',
+          address: data['address'], // or null if not provided
+        );
+
+        setState(() {
+          _cidMember = member;
+          // _isCidLoading = false;
+        });
+
+        debugPrint('✅ CID details fetched: ${member.name}, ${member.company}');
+      } else {
+        debugPrint(
+            '❌ Failed to fetch CID details. Message: ${response.message}');
+        // setState(() => _isCidLoading = false);
+      }
+    } catch (e) {
+      debugPrint('❌ Error fetching CID details: $e');
+      // setState(() => _isCidLoading = false);
+    }
   }
 
   @override
@@ -252,14 +331,12 @@ class _MyChapterPageState extends State<MyChapterPage> {
                         alignment: Alignment.center,
                         child: TextField(
                           controller: _searchController,
-                          textAlignVertical:
-                              TextAlignVertical.center, // 👈 Center the text
+                          textAlignVertical: TextAlignVertical.center,
                           decoration: const InputDecoration(
                             hintText: "Search by name or company",
                             border: InputBorder.none,
                             isDense: true,
-                            contentPadding:
-                                EdgeInsets.zero, // 👈 Remove extra padding
+                            contentPadding: EdgeInsets.zero,
                           ),
                           style: TextStyle(fontSize: 15.7.sp),
                         ),
@@ -269,6 +346,34 @@ class _MyChapterPageState extends State<MyChapterPage> {
                 ),
               ),
               SizedBox(height: 2.h),
+
+              // CID Member Section
+              if (_cidMember != null) ...[
+                Container(
+                  width: 73.w,
+                  height: 3.3.h,
+                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                  alignment: Alignment.centerLeft,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF2C2B2B),
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    "CID MEMBER",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.sp,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 1.h),
+                MemberCard(member: _cidMember!),
+                SizedBox(height: 2.h),
+              ],
 
               // Section Header
               Container(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
 
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
@@ -12,22 +13,22 @@ class MemberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final isRoleCard = member.role.isNotEmpty;
+    final bool isRoleCard = member.role != null && member.role!.isNotEmpty;
 
     return Material(
+      color: Colors.white,
+      elevation: 2,
+      borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: () {
           context.push('/Chaptermember', extra: member);
         },
-
-        borderRadius: BorderRadius.circular(10), // match card shape
+        borderRadius: BorderRadius.circular(10),
         child: Container(
           width: 33.w,
-          height: 11.h,
+          height: isRoleCard ? 19.h : 14.h,
           decoration: BoxDecoration(
-            color: Colors.white,
             borderRadius: BorderRadius.circular(10),
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 3)],
           ),
           child: Column(
             children: [
@@ -35,53 +36,67 @@ class MemberCard extends StatelessWidget {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Container(
                         width: 10.w,
                         height: 6.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          image: DecorationImage(
+                          image: const DecorationImage(
                             image: AssetImage("assets/images/profile.png"),
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
-                      SizedBox(height: 0.8.h),
-                      Text(member.name,
-                          textAlign: TextAlign.center,
-                          style: TTextStyles.membername),
-                      Text(member.company,
-                          textAlign: TextAlign.center,
-                          style: TTextStyles.membercard),
+                      SizedBox(height: 0.5.h),
+                      Text(
+                        member.name,
+                        textAlign: TextAlign.center,
+                        style: TTextStyles.membername,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        member.company,
+                        textAlign: TextAlign.center,
+                        style: TTextStyles.membercard,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       if (member.phone != null)
                         Padding(
-                          padding: EdgeInsets.only(top: 0.8.h),
+                          padding: EdgeInsets.only(top: 0.5.h),
                           child: Text(
                             "📞 ${member.phone!}",
                             style: TTextStyles.membercard,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                     ],
                   ),
                 ),
               ),
-              // if (isRoleCard)
-              //   Container(
-              //     width: double.infinity,
-              //     height: 3.h,
-              //     decoration: const BoxDecoration(
-              //       color: Tcolors.smalll_button,
-              //       borderRadius: BorderRadius.vertical(
-              //         bottom: Radius.circular(10),
-              //       ),
-              //     ),
-              //     alignment: Alignment.center,
-              //     child: Text(member.role,
-              //         textAlign: TextAlign.center,
-              //         style: TTextStyles.chapterrole),
-              //   ),
+
+              if (isRoleCard)
+                Container(
+                  width: double.infinity,
+                  height: 3.3.h,
+                  decoration: const BoxDecoration(
+                    color: Tcolors.smalll_button,
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(10),
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    member.role!,
+                    style: TTextStyles.chapterrole,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
             ],
           ),
         ),
