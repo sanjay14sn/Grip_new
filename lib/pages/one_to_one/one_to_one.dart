@@ -242,7 +242,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                       children: [
                         // Autofill Address Field (at bottom)
                         Container(
-                          margin: EdgeInsets.only(top: 22),
+                          margin: const EdgeInsets.only(top: 22),
                           height: 85,
                           width: double.infinity,
                           alignment: Alignment.centerLeft,
@@ -254,7 +254,8 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                           child: Consumer<LocationProvider>(
                             builder: (context, locationProvider, child) {
                               if (locationProvider.isFetching) {
-                                return const CircularProgressIndicator();
+                                return const Text(
+                                    "Fetching current location...");
                               } else if (locationProvider.fullAddress != null) {
                                 return Text(locationProvider.fullAddress!);
                               } else {
@@ -288,7 +289,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                                   style: TTextStyles.livelocation,
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF50A6C5),
+                                  backgroundColor: const Color(0xFF50A6C5),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -479,7 +480,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
 
                           if (response.isSuccess) {
                             ToastUtil.showToast(
-                                context, '✅ Submitted successfully!');
+                                context, '✅One-to-one Submitted successfully!');
                             Navigator.pop(context, true); // ✅ Return true
                           } else {
                             ToastUtil.showToast(

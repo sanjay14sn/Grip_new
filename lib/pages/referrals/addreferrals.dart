@@ -31,6 +31,37 @@ class _ReferralPageState extends State<ReferralPage> {
   final TextEditingController commentsController = TextEditingController();
 
   void _handleSubmitReferral() async {
+    final name = nameController.text.trim();
+    final mobile = mobileController.text.trim();
+    final address = addressController.text.trim();
+    final comments = commentsController.text.trim();
+
+    // 🔒 Check all fields are filled
+    if (name.isEmpty || mobile.isEmpty || address.isEmpty || comments.isEmpty) {
+      ToastUtil.showToast(context, "Please fill all required fields");
+      return;
+    }
+
+    if (name.length > 50) {
+      ToastUtil.showToast(context, "Name must be under 50 characters");
+      return;
+    }
+
+    if (mobile.length != 10 || !RegExp(r'^\d{10}$').hasMatch(mobile)) {
+      ToastUtil.showToast(context, "Mobile number must be exactly 10 digits");
+      return;
+    }
+
+    if (address.length > 150) {
+      ToastUtil.showToast(context, "Address must be under 150 characters");
+      return;
+    }
+
+    if (comments.length > 150) {
+      ToastUtil.showToast(context, "Comments must be under 150 characters");
+      return;
+    }
+
     final String? toMemberId =
         showMyChapter ? selectedPersonId : fetchedAssociateUid;
 
@@ -52,11 +83,11 @@ class _ReferralPageState extends State<ReferralPage> {
     }
 
     final referalDetail = {
-      'name': nameController.text.trim(),
-      'category': 'Plumber', // Replace with dynamic input if needed
-      'mobileNumber': mobileController.text.trim(),
-      'comments': commentsController.text.trim(),
-      'address': addressController.text.trim(),
+      'name': name,
+      'category': 'Plumber',
+      'mobileNumber': mobile,
+      'comments': comments,
+      'address': address,
     };
 
     final response = await PublicRoutesApiService.submitReferralSlip(
@@ -67,7 +98,7 @@ class _ReferralPageState extends State<ReferralPage> {
 
     if (response.isSuccess) {
       ToastUtil.showToast(context, "Referral slip submitted successfully");
-      Navigator.pop(context, true); // 👈 triggers refresh on home
+      Navigator.pop(context, true);
     } else {
       ToastUtil.showToast(context, "❌ ${response.message}");
     }
@@ -79,6 +110,7 @@ class _ReferralPageState extends State<ReferralPage> {
     required TextEditingController controller,
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
+    int? maxLength,
   }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 2.h),
@@ -86,7 +118,9 @@ class _ReferralPageState extends State<ReferralPage> {
         controller: controller,
         keyboardType: keyboardType,
         maxLines: maxLines,
+        maxLength: maxLength,
         decoration: InputDecoration(
+          counterText: "", // hides counter
           hintText: isRequired ? "$label" : label,
           hintStyle: TTextStyles.visitorsdetails,
           filled: true,
@@ -340,14 +374,24 @@ class _ReferralPageState extends State<ReferralPage> {
 
                           SizedBox(height: 1.h),
                           buildInputField("Name*", true,
-                              controller: nameController),
-                          buildInputField("Mobile*", true,
-                              controller: mobileController,
-                              keyboardType: TextInputType.phone),
-                          buildInputField("Address(Or)Area", false,
-                              controller: addressController),
-                          buildInputField("Comments", false,
-                              controller: commentsController, maxLines: 4),
+                              controller: nameController, maxLength: 50),
+                          buildInputField(
+                            "Mobile*",
+                            true,
+                            controller: mobileController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 10,
+                          ),
+                          buildInputField(
+                            "Address(Or)Area",
+                            true,
+                            controller: addressController,
+                            maxLength: 150,
+                          ),
+                          buildInputField("Comments", true,
+                              controller: commentsController,
+                              maxLength: 150,
+                              maxLines: 4),
                           SizedBox(height: 3.h),
                           Container(
                             width: double.infinity,

@@ -99,6 +99,7 @@ class _GiventestimonialspageState extends State<Giventestimonialspage> {
               SizedBox(
                 height: 67.h,
                 child: Card(
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

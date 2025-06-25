@@ -76,7 +76,7 @@ class GivenReferralSlipPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("To:", style: TTextStyles.Rivenrefsmall),
+                        Text("Name:", style: TTextStyles.Rivenrefsmall),
                         SizedBox(height: 1.h),
                         Row(
                           children: [
@@ -89,7 +89,7 @@ class GivenReferralSlipPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(name, style: TTextStyles.refname),
-                                Text(category, style: TTextStyles.Rivenrefsmall),
+                               // Text("", style: TTextStyles.Rivenrefsmall),
                               ],
                             ),
                           ],
@@ -112,7 +112,7 @@ class GivenReferralSlipPage extends StatelessWidget {
                                 child: Text.rich(
                                   TextSpan(
                                     children: [
-                                      TextSpan(text: '$name\n'),
+                                      TextSpan(text: 'Mobile:\n'),
                                       const WidgetSpan(
                                         child: Icon(
                                           Icons.call,
@@ -150,8 +150,8 @@ class GivenReferralSlipPage extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 2.h),
-                        Text('Category:', style: TTextStyles.Rivenrefsmall),
-                        Text(category, style: TTextStyles.reftext),
+                     //   Text('Category:', style: TTextStyles.Rivenrefsmall),
+                     //   Text(category, style: TTextStyles.reftext),
                         SizedBox(height: 2.h),
                         Text('Comments:', style: TTextStyles.Rivenrefsmall),
                         Text(comments, style: TTextStyles.reftext),

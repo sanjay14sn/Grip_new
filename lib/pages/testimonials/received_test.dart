@@ -32,7 +32,9 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
     final hasImages = images.isNotEmpty;
 
     final currentImage = hasImages ? images[currentImageIndex] : null;
-    final imageName = currentImage?['originalName'] ?? currentImage?['docName'] ?? 'No Document';
+    final imageName = currentImage?['originalName'] ??
+        currentImage?['docName'] ??
+        'No Document';
     final docPath = currentImage?['docPath'] ?? '';
     final docName = currentImage?['docName'] ?? '';
 
@@ -65,8 +67,8 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                   Expanded(
                     child: Center(
                       child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 4.w, vertical: 1.h),
                         decoration: BoxDecoration(
                           color: const Color(0xFFC6221A),
                           borderRadius: BorderRadius.circular(2.w),
@@ -91,6 +93,7 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
               SizedBox(
                 height: 67.h,
                 child: Card(
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -148,7 +151,8 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                                 // Header Row
                                 Container(
                                   height: 2.5.h,
-                                  padding: EdgeInsets.symmetric(horizontal: 2.w),
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 2.w),
                                   color: Colors.white,
                                   child: Row(
                                     mainAxisAlignment:

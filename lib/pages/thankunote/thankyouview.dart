@@ -38,7 +38,7 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
   }
 
   Future<void> _loadReceivedThankYouNotes() async {
-    setState(() => _isLoading = true);
+    setState(() => _isLoading = false);
     final response = await PublicRoutesApiService.fetchReceivedThankYouNotes();
 
     if (response.isSuccess && response.data is List) {

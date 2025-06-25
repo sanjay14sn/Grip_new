@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class Givenonetoonepage extends StatefulWidget {
@@ -25,7 +25,6 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
         "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
             .trim();
     final companyName = toMember['companyName'] ?? 'No Company';
-    final comment = widget.data['comments'] ?? '';
 
     final images = widget.data['images'] as List? ?? [];
     final hasImages = images.isNotEmpty;
@@ -38,8 +37,15 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
     final docName = currentImage?['docName'] ?? '';
 
     final imageUrl = (hasImages && docPath.isNotEmpty && docName.isNotEmpty)
-        ? "${UrlService.IMAGE_BASE_URL}/$docPath/$docName"
+        ? "https://your-image-base-url.com/$docPath/$docName" // Replace with actual base URL or from env
         : null;
+
+    final place = widget.data['whereDidYouMeet'] ?? 'No place specified';
+    final address = widget.data['address'] ?? 'No location';
+    final dateStr = widget.data['date'];
+    final formattedDate = dateStr != null
+        ? DateFormat('dd-MM-yyyy').format(DateTime.parse(dateStr))
+        : 'No date';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -90,8 +96,9 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
 
               /// 🧾 Card
               SizedBox(
-                height: 67.h,
+                height: 70.h,
                 child: Card(
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -232,9 +239,19 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
                         ),
                         SizedBox(height: 2.h),
 
-                        /// 💬 Comments
-                        Text('Comments:', style: TTextStyles.Rivenrefsmall),
-                        Text(comment, style: TTextStyles.reftext),
+                        /// 🏠 Place
+                        Text('Place Met:', style: TTextStyles.Rivenrefsmall),
+                        Text(place, style: TTextStyles.reftext),
+                        SizedBox(height: 1.5.h),
+
+                        /// 📅 Date
+                        Text('Date:', style: TTextStyles.Rivenrefsmall),
+                        Text(formattedDate, style: TTextStyles.reftext),
+                        SizedBox(height: 1.5.h),
+
+                        /// 📌 Location
+                        Text('Location:', style: TTextStyles.Rivenrefsmall),
+                        Text(address, style: TTextStyles.reftext),
                       ],
                     ),
                   ),

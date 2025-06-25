@@ -157,6 +157,7 @@ class _ChapterSelectorState extends State<ChapterSelector> {
       ),
       child: DropdownButtonFormField<String>(
         decoration: InputDecoration(
+          fillColor: Colors.white,
           hintText: hint,
           border: InputBorder.none,
         ),

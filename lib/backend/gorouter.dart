@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/Registration.dart';
 import 'package:grip/components/attandance_sucessfull.dart';
@@ -197,8 +198,30 @@ final GoRouter router = GoRouter(
       path: '/Chaptermember',
       name: 'chapterDetails',
       builder: (context, state) {
-        final member = state.extra as MemberModel;
-        return ChapterDetails(member: member);
+        final extra = state.extra;
+
+        if (extra is MemberModel) {
+          return ChapterDetails(member: extra);
+        } else if (extra is othersMemberModel) {
+          // Convert othersMemberModel to MemberModel before passing
+          final converted = MemberModel(
+            name: extra.name,
+            company: extra.company,
+            phone: extra.phone,
+            role: extra.role,
+            website: extra.website,
+            chapterName: extra.chapterName,
+            businessDescription: extra.businessDescription,
+            email: extra.email,
+            address: extra.address,
+          );
+          return ChapterDetails(member: converted);
+        } else {
+          // Fallback if type is unknown
+          return const Scaffold(
+            body: Center(child: Text('Invalid member data')),
+          );
+        }
       },
     ),
 
@@ -230,14 +253,6 @@ final GoRouter router = GoRouter(
       path: '/membershipdetails',
       builder: (context, state) => MembershipDetailsPage(),
     ),
-
-    // GoRoute(
-    //   path: '/Otherschapter',
-    //   builder: (context, state) {
-    //     final chapter = state.extra as ChapterDetail;
-    //     return OtherChapterPage(chapter: chapter);
-    //   },
-    // ),
 
     GoRoute(
       path: '/Otherschapter/:id',

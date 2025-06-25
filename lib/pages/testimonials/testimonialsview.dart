@@ -26,7 +26,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
   List<dynamic> filteredGivenReferrals = [];
   List<dynamic> filteredReceivedReferrals = [];
 
-  bool isLoading = true;
+  bool isLoading = false;
 
   FilterOptions filter = FilterOptions();
 
@@ -103,9 +103,8 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
 
   @override
   Widget build(BuildContext context) {
-    final activeList = isReceivedSelected
-        ? filteredReceivedReferrals
-        : filteredGivenReferrals;
+    final activeList =
+        isReceivedSelected ? filteredReceivedReferrals : filteredGivenReferrals;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -148,8 +147,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
 
               Row(
                 children: [
-                  Text('Testimonials Details',
-                      style: TTextStyles.ReferralSlip),
+                  Text('Testimonials Details', style: TTextStyles.ReferralSlip),
                   const SizedBox(width: 8),
                   Image.asset(
                     'assets/images/fluent_person-feedback-16-filled.png',

@@ -52,16 +52,32 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
   Future<void> _submitTestimonial() async {
     final toMember =
         showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
+    final comment = commentController.text.trim();
 
-    if (toMember == null || commentController.text.trim().isEmpty) {
+    if (toMember == null || toMember.isEmpty) {
       ToastUtil.showToast(
-          context, "Please select a member and write comments.");
+          context, "Please select a member or enter associate number");
+      return;
+    }
+
+    if (comment.isEmpty) {
+      ToastUtil.showToast(context, "Comments are required");
+      return;
+    }
+
+    if (comment.length > 150) {
+      ToastUtil.showToast(context, "Comments must be under 150 characters");
+      return;
+    }
+
+    if (pickedImages.isEmpty) {
+      ToastUtil.showToast(context, "Please upload at least one document");
       return;
     }
 
     final response = await PublicRoutesApiService.submitTestimonialSlip(
       toMember: toMember,
-      comments: commentController.text.trim(),
+      comments: comment,
       imageFiles: pickedImages,
     );
 

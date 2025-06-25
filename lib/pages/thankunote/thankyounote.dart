@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:grip/components/Associate_number.dart';
 import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/pages/toastutill.dart';
@@ -42,7 +43,6 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
   void submitForm() async {
     final toMember =
         showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
-
     final amount = amountController.text.trim();
     final comments = commentsController.text.trim();
 
@@ -57,8 +57,18 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
       return;
     }
 
+    if (!RegExp(r'^\d{1,20}$').hasMatch(amount)) {
+      ToastUtil.showToast(context, "Amount must be numeric and max 20 digits");
+      return;
+    }
+
     if (comments.isEmpty) {
       ToastUtil.showToast(context, "Comments is required");
+      return;
+    }
+
+    if (comments.length > 250) {
+      ToastUtil.showToast(context, "Comments must be under 150 characters");
       return;
     }
 
@@ -70,7 +80,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
 
     if (response.isSuccess) {
       ToastUtil.showToast(context, "Thank You Note submitted successfully");
-      Navigator.pop(context, true); // 👈 this triggers refresh on home
+      Navigator.pop(context, true); // 👈 refresh on home
     } else {
       ToastUtil.showToast(context, "❌ ${response.message}");
     }
@@ -272,6 +282,7 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                       EdgeInsets.symmetric(horizontal: 3.w),
                                   child: TextField(
                                     controller: amountController,
+                                    // maxLength: 20,
                                     decoration: const InputDecoration(
                                       hintText: "Amount",
                                       border: InputBorder.none,
@@ -279,6 +290,11 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                     keyboardType:
                                         TextInputType.numberWithOptions(
                                             decimal: true),
+
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(20),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -290,23 +306,27 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
 
                         // Comments Field
                         Container(
-                          width: double.infinity,
-                          height: 15.h,
-                          padding: EdgeInsets.symmetric(horizontal: 4.w),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(2.w),
-                          ),
-                          child: TextField(
-                            controller: commentsController,
-                            maxLines: null,
-                            expands: true,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Comments",
+                            width: double.infinity,
+                            height: 15.h,
+                            padding: EdgeInsets.symmetric(horizontal: 4.w),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(2.w),
                             ),
-                          ),
-                        ),
+                            child: TextField(
+                              controller: commentsController,
+                              //maxLength: 150,
+                              expands: true,
+                              minLines: null,
+                              maxLines: null,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Comments",
+                              ),
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(250),
+                              ],
+                            )),
 
                         SizedBox(height: 4.h),
 

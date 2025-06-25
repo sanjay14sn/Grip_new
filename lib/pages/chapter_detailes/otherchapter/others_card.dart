@@ -14,7 +14,7 @@ class othersMemberCard extends StatelessWidget {
     return Material(
       child: InkWell(
         onTap: () {
-          context.push('/Chaptermember');
+          context.push('/Chaptermember', extra: member);
         },
         borderRadius: BorderRadius.circular(10),
         child: Container(

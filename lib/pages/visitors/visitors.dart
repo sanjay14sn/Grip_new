@@ -24,38 +24,79 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
 
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   Future<void> _handleRegister() async {
-    print('📝 Starting registration...');
+    final name = nameController.text.trim();
+    final company = companyController.text.trim();
+    final category = categoryController.text.trim();
+    final mobile = mobileController.text.trim();
+    final email = emailController.text.trim();
+    final address = addressController.text.trim();
+    final visitDate = visitDateController.text.trim();
 
-    if (nameController.text.isEmpty ||
-        companyController.text.isEmpty ||
-        categoryController.text.isEmpty ||
-        mobileController.text.isEmpty ||
-        visitDateController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields (*)')),
-      );
+    // Validation: Required fields
+    if (name.isEmpty ||
+        company.isEmpty ||
+        category.isEmpty ||
+        mobile.isEmpty ||
+        address.isEmpty ||
+        visitDate.isEmpty) {
+      ToastUtil.showToast(context, "Please fill all required fields (*)");
+      return;
+    }
+
+    // Name validation
+    if (name.length > 50) {
+      ToastUtil.showToast(context, "Name must be under 50 characters");
+      return;
+    }
+
+    // Company validation
+    if (company.length > 70) {
+      ToastUtil.showToast(context, "Company must be under 70 characters");
+      return;
+    }
+
+    // Category validation
+    if (category.length > 70) {
+      ToastUtil.showToast(context, "Category must be under 70 characters");
+      return;
+    }
+
+    // Mobile number validation
+    if (!RegExp(r'^\d{10}$').hasMatch(mobile)) {
+      ToastUtil.showToast(context, "Mobile number must be exactly 10 digits");
+      return;
+    }
+
+    // Email validation (only if not empty)
+    if (email.isNotEmpty &&
+        !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      ToastUtil.showToast(context, "Please enter a valid email address");
+      return;
+    }
+
+    // Address validation
+    if (address.length > 200) {
+      ToastUtil.showToast(context, "Address must be under 200 characters");
       return;
     }
 
     final requestBody = {
-      "name": nameController.text.trim(),
-      "company": companyController.text.trim(),
-      "category": categoryController.text.trim(),
-      "mobile": mobileController.text.trim(),
-      "email": emailController.text.trim(),
-      "address": addressController.text.trim(),
-      "visitDate": visitDateController.text.trim(),
+      "name": name,
+      "company": company,
+      "category": category,
+      "mobile": mobile,
+      "email": email,
+      "address": address,
+      "visitDate": visitDate,
     };
-
-    print('📦 Submitting visitor: $requestBody');
 
     final response = await PublicRoutesApiService.registerVisitor(requestBody);
 
     if (response.isSuccess) {
       ToastUtil.showToast(
-          context,response.message ?? 'Visitor registered successfully');
+          context, response.message ?? 'Visitor registered successfully');
 
-      // ✅ Clear form
+      // Clear form
       nameController.clear();
       companyController.clear();
       categoryController.clear();
@@ -64,13 +105,9 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
       addressController.clear();
       visitDateController.clear();
 
-      // ✅ Return to previous screen and notify success
-      Navigator.pop(context, true); // 👈 this triggers refresh on home
+      Navigator.pop(context, true);
     } else {
-      print('❌ Registration failed: ${response.message}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ ${response.message}')),
-      );
+      ToastUtil.showToast(context, "❌ ${response.message}");
     }
   }
 
