@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/pages/Eventpage.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:sizer/sizer.dart';
 import 'package:grip/utils/theme/Textheme.dart';
@@ -15,6 +16,14 @@ class Giventestimonialspage extends StatefulWidget {
 
 class _GiventestimonialspageState extends State<Giventestimonialspage> {
   int currentImageIndex = 0;
+
+  String? buildImageUrl(Map<String, dynamic>? image) {
+    if (image == null) return null;
+    final docPath = image['docPath'];
+    final docName = image['docName'];
+    if (docPath == null || docName == null) return null;
+    return "${UrlService.IMAGE_BASE_URL}/$docPath/$docName";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +43,8 @@ class _GiventestimonialspageState extends State<Giventestimonialspage> {
     final imageName = currentImage?['originalName'] ??
         currentImage?['docName'] ??
         'No Document';
-    final docPath = currentImage?['docPath'] ?? '';
-    final docName = currentImage?['docName'] ?? '';
 
-    // Debug print statements
-    print('📦 Image Debug Info:');
-    print('🔹 docPath: $docPath');
-    print('🔹 docName: $docName');
-
-    final imageUrl = (hasImages && docPath.isNotEmpty && docName.isNotEmpty)
-        ? "${UrlService.IMAGE_BASE_URL}/$docPath/$docName"
-        : null;
-
-    print('🖼️ Final imageUrl: $imageUrl');
+    final imageUrl = buildImageUrl(currentImage);
 
     return Scaffold(
       backgroundColor: Colors.white,

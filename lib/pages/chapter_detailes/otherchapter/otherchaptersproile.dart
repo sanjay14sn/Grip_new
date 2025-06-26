@@ -24,6 +24,7 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
 
   List<othersMemberModel> allMembers = [];
   List<othersMemberModel> filteredMembers = [];
+  othersMemberModel? _cidMember;
 
   bool isMenuOpen = false;
   bool isLoading = true;
@@ -43,11 +44,10 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
   }
 
   Future<void> fetchMembers() async {
+    setState(() => isLoading = true);
+
     final response =
         await PublicRoutesApiService.fetchMembersByChapter(widget.chapterId);
-
-    // 🔍 Print full response for debugging
-    //print('FetchMembers Response: ${response.toJson()}');
 
     if (response.isSuccess && response.data != null) {
       try {
@@ -55,8 +55,18 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
             .map((e) => othersMemberModel.fromJson(e))
             .toList();
 
-        // 🔍 Optional: Print the parsed member count
-        print('Parsed Members Count: ${members.length}');
+        debugPrint('✅ Parsed Members Count: ${members.length}');
+
+        // Print cidId of the first member (for testing)
+        if (members.isNotEmpty) {
+          final cid = members.first.cidId;
+          debugPrint('📛 CID ID of first member: $cid');
+
+          // Optional: fetch cid details if you want to show in UI
+          if (cid != null && cid.isNotEmpty) {
+            await _fetchCidDetails(cid);
+          }
+        }
 
         setState(() {
           allMembers = members;
@@ -65,17 +75,63 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
         });
       } catch (e) {
         setState(() => isLoading = false);
-        print('Error parsing members: $e');
+        debugPrint('❌ Error parsing members: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error parsing member list: $e')),
         );
       }
     } else {
       setState(() => isLoading = false);
-      print('Fetch failed: ${response.message}');
+      debugPrint('❌ Fetch failed: ${response.message}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response.message ?? 'Failed to load members')),
       );
+    }
+  }
+
+  Future<void> _fetchCidDetails(String cidId) async {
+    debugPrint('🔄 Fetching CID details for ID: $cidId');
+
+    try {
+      // Optional: You can set a loading flag here if needed
+      // setState(() => _isCidLoading = true);
+
+      final response = await PublicRoutesApiService.fetchCidDetails(
+          cidId); // ✅ No 'cid/' prefix
+
+      debugPrint(
+          '📥 CID API response: ${response.isSuccess}, data: ${response.data}');
+
+      if (response.isSuccess && response.data != null) {
+        final data = response.data;
+
+        final member = othersMemberModel(
+          name: data['username'] ?? '',
+          company: data['companyName'] ?? '',
+          phone: data['mobileNumber'] ?? '',
+          role: data['role']?['name'] ?? '',
+          website: data['website'], // or null if not provided
+          chapterName: data['chapterName'], // or null if not provided
+          businessDescription: data['businessDescription'], // or null
+          email: data['email'] ?? '',
+          address: data['address'], // or null if not provided
+        );
+
+        setState(() {
+          _cidMember = member;
+          // _isCidLoading = false;
+        });
+
+        debugPrint(
+            '✅ CIDothers details fetched: ${member.name}, ${member.company}');
+      } else {
+        debugPrint(
+            '❌ Failed to fetch CID details. Message: ${response.message}');
+        // setState(() => _isCidLoading = false);
+      }
+    } catch (e) {
+      debugPrint('❌ Error fetching CID details: $e');
+      // setState(() => _isCidLoading = false);
     }
   }
 
@@ -213,6 +269,50 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                     /// Search
                     _buildSearchBar(),
                     SizedBox(height: 2.h),
+
+                    /// CID Member (if exists)
+                    if (_cidMember != null) ...[
+                      Container(
+                        width: 73.w,
+                        height: 3.3.h,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 3.w, vertical: 1.h),
+                        alignment: Alignment.centerLeft,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF2C2B2B),
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          "CID MEMBER",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12.sp,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 1.h),
+                      GridView.builder(
+                        itemCount: 1,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(vertical: 1.h),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 3.w,
+                          mainAxisSpacing: 3.w,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemBuilder: (context, index) {
+                          return othersMemberCard(
+                              member: _cidMember!, isCidMember: true);
+                        },
+                      ),
+                      SizedBox(height: 2.h),
+                    ],
 
                     /// All Members Label
                     Container(

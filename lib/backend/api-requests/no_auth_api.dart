@@ -984,4 +984,54 @@ class PublicRoutesApiService {
       );
     }
   }
+
+  static Future<ApiResponse> fetchAgentaEvents() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated. Please login again.',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url: '$endPointbaseUrl/api/mobile/agenta/list',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.isSuccess &&
+          response.data != null &&
+          response.data is Map<String, dynamic>) {
+        return ApiResponse(
+          statusCode: response.statusCode,
+          isSuccess: true,
+          data: response.data['data'],
+          message: response.data['message'] ?? 'Fetched successfully',
+        );
+      }
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: false,
+        data: null,
+        message: response.message ?? 'Something went wrong',
+      );
+    } catch (e) {
+      return ApiResponse(
+        isSuccess: false,
+        message: 'Exception: $e',
+        data: null,
+        statusCode: 500,
+      );
+    }
+  }
 }

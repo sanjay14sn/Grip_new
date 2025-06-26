@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -48,27 +47,54 @@ class _HomescreenState extends State<Homescreen> {
     _loadChapterDetails();
     fetchMember();
 
-    _loadAllDashboardData(); // 👈 wrap all
+    // Add slight delay before loading data
+    Future.delayed(const Duration(milliseconds: 1000), _loadAllDashboardData);
   }
 
-  Future<void> _loadAllDashboardData() async {
-    final connectivity = await Connectivity().checkConnectivity();
-    if (connectivity == ConnectivityResult.none) {
-      print("❌ Skipping dashboard data fetch: No internet");
-      return;
-    }
+// Add this helper method to your state class
+  Future<void> _runWithRetry(Future<void> Function() apiCall,
+      {String apiName = ''}) async {
+    const maxRetries = 2;
+    const retryDelay = Duration(seconds: 1);
 
-    try {
-      await Future.wait([
-        _loadVisitors(),
-        _loadOneToOneList(),
-        _loadTestimonials(),
-        _loadReferralSlips(),
-        _loadThankYouNotes(),
-      ]);
-    } catch (e) {
-      print("🚨 Error while loading dashboard data: $e");
-      ToastUtil.showToast(context, "❌ Failed to load dashboard data");
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await apiCall();
+        return; // Success - exit loop
+      } catch (e) {
+        print("⚠️ $apiName attempt $attempt failed: $e");
+        if (attempt == maxRetries) {
+          print("❌ All retries exhausted for $apiName");
+          rethrow;
+        }
+        await Future.delayed(retryDelay);
+      }
+    }
+  }
+
+// Update _loadAllDashboardData
+  Future<void> _loadAllDashboardData() async {
+    // final connectivity = await Connectivity().checkConnectivity();
+    // if (connectivity == ConnectivityResult.none) {
+    //   print("❌ Skipping dashboard data fetch: No internet");
+    //   return;
+    // }
+
+    final apis = [
+      () => _runWithRetry(_loadVisitors, apiName: 'Visitors'),
+      () => _runWithRetry(_loadOneToOneList, apiName: 'One-to-One'),
+      () => _runWithRetry(_loadTestimonials, apiName: 'Testimonials'),
+      () => _runWithRetry(_loadReferralSlips, apiName: 'Referrals'),
+      () => _runWithRetry(_loadThankYouNotes, apiName: 'Thank You Notes'),
+    ];
+
+    for (final api in apis) {
+      try {
+        await api();
+      } catch (e) {
+        print("🚨 API failed after retries: $e");
+        // Individual APIs handle their own errors
+      }
     }
   }
 
@@ -183,11 +209,15 @@ class _HomescreenState extends State<Homescreen> {
         }
       }
     } catch (e) {
-      print("🚨 Error in _loadVisitors: $e");
+      print("🚨 Critical error in _loadVisitors: $e");
       if (mounted) {
-        ToastUtil.showToast(context, "🚨 Error loading visitor list");
-        setState(() => _isLoading = false);
+        setState(() {
+          _visitors = [];
+          _visitorCount = 0;
+          _isLoading = false;
+        });
       }
+      rethrow; // Important for retry mechanism
     }
   }
 
@@ -475,12 +505,14 @@ class _HomescreenState extends State<Homescreen> {
                     Customcard(
                       title: "Thank U Notes",
                       value: _isThankYouLoading ? '0' : '$_thankYouCount+',
-                      onTapAddView: () {
-                        context.push('/thankyounote');
+                      onTapAddView: () async {
+                        final result = await context.push('/thankyounote');
+                        if (result == true) {
+                          await _loadThankYouNotes(); // 👈 reload after adding
+                        }
                       },
                       onTapView: () {
-                        context.push('/thankyouview',
-                            extra: _givenNotes); // pass data via `extra`
+                        context.push('/thankyouview', extra: _givenNotes);
                       },
                       imagePath: 'assets/images/handshake.png',
                     ),
@@ -509,7 +541,7 @@ class _HomescreenState extends State<Homescreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'one-to-ones',
+                      'One-to-Ones',
                       style: TTextStyles.customcard,
                       textAlign: TextAlign.left,
                     ),

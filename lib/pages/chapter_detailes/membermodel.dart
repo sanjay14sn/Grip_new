@@ -49,6 +49,8 @@ class othersMemberModel {
   final String? email;
   final String? address;
 
+  final String? cidId; // ✅ NEW FIELD
+
   othersMemberModel({
     required this.name,
     required this.company,
@@ -59,7 +61,9 @@ class othersMemberModel {
     this.businessDescription,
     this.email,
     this.address,
+    this.cidId, // ✅ include in constructor
   });
+
   factory othersMemberModel.fromJson(Map<String, dynamic> json) {
     final personal = json['personalDetails'] ?? {};
     final contact = json['contactDetails'] ?? {};
@@ -78,6 +82,7 @@ class othersMemberModel {
       businessDescription: business['businessDescription'],
       email: contact['email'],
       address: address['addressLine1'],
+      cidId: chapterInfo['cidId'], // ✅ extract cidId
     );
   }
 }

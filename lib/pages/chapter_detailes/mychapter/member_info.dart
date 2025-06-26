@@ -45,7 +45,8 @@ class ChapterDetails extends StatelessWidget {
               Center(
                 child: CircleAvatar(
                   radius: 10.w,
-                  backgroundImage: const AssetImage('assets/images/profile.png'),
+                  backgroundImage:
+                      const AssetImage('assets/images/profile.png'),
                 ),
               ),
               SizedBox(height: 1.5.h),
@@ -54,7 +55,8 @@ class ChapterDetails extends StatelessWidget {
               Center(
                 child: Text(
                   member.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
               Center(

@@ -101,7 +101,7 @@ class TTextStyles {
   );
   static final TextStyle ReferralSlip = GoogleFonts.roboto(
     color: Color(0xFFC6221A),
-    fontSize: 22.sp,
+    fontSize: 18.sp,
     fontWeight: FontWeight.w600,
   );
   static final TextStyle visitorsdetails = GoogleFonts.roboto(
