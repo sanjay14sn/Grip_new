@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -40,19 +41,35 @@ class _HomescreenState extends State<Homescreen> {
   String? _memberId;
   Map<String, dynamic>? _memberData; // at top of your state class
 
+  @override
   void initState() {
     super.initState();
-    _loadUserData(); // keep separate since you use _username
-    _loadChapterDetails(); // needs user data too
+    _loadUserData();
+    _loadChapterDetails();
     fetchMember();
 
-    Future.wait([
-      _loadVisitors(),
-      _loadOneToOneList(),
-      _loadTestimonials(),
-      _loadReferralSlips(),
-      _loadThankYouNotes(),
-    ]);
+    _loadAllDashboardData(); // 👈 wrap all
+  }
+
+  Future<void> _loadAllDashboardData() async {
+    final connectivity = await Connectivity().checkConnectivity();
+    if (connectivity == ConnectivityResult.none) {
+      print("❌ Skipping dashboard data fetch: No internet");
+      return;
+    }
+
+    try {
+      await Future.wait([
+        _loadVisitors(),
+        _loadOneToOneList(),
+        _loadTestimonials(),
+        _loadReferralSlips(),
+        _loadThankYouNotes(),
+      ]);
+    } catch (e) {
+      print("🚨 Error while loading dashboard data: $e");
+      ToastUtil.showToast(context, "❌ Failed to load dashboard data");
+    }
   }
 
   void _loadChapterDetails() async {
@@ -104,51 +121,73 @@ class _HomescreenState extends State<Homescreen> {
   Future<void> _loadOneToOneList() async {
     print('📡 Fetching One-to-One list from API...');
 
-    final response = await PublicRoutesApiService.getOneToOneList();
+    try {
+      final response = await PublicRoutesApiService.getOneToOneList();
 
-    if (response.isSuccess && response.data != null) {
-      print('✅ One-to-One list fetched successfully.');
-      print('📦 Total records (from extra): ${response.extra?['total']}');
-      print('📦 Total records (from data.length): ${response.data.length}');
+      if (!mounted) return;
 
-      for (var item in response.data) {
-        print(
-            '👥 From: ${item['fromMember']?['personalDetails']?['firstName']} '
-            'To: ${item['toMember']?['personalDetails']?['firstName']}');
+      if (response.isSuccess && response.data != null) {
+        print('✅ One-to-One list fetched successfully.');
+        print('📦 Total records (from extra): ${response.extra?['total']}');
+        print('📦 Total records (from data.length): ${response.data.length}');
+
+        for (var item in response.data) {
+          print(
+              '👥 From: ${item['fromMember']?['personalDetails']?['firstName']} '
+              'To: ${item['toMember']?['personalDetails']?['firstName']}');
+        }
+
+        setState(() {
+          _oneToOneList = response.data;
+          _oneToOneCount = response.extra?['total'] ?? response.data.length;
+          _isLoading = false;
+        });
+      } else {
+        print('❌ Failed to fetch One-to-One list: ${response.message}');
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ToastUtil.showToast(context, '❌ ${response.message}');
+        }
       }
-
-      setState(() {
-        _oneToOneList = response.data;
-        _oneToOneCount = response.extra?['total'] ?? response.data.length;
-        _isLoading = false;
-      });
-    } else {
-      print('❌ Failed to fetch One-to-One list: ${response.message}');
-      setState(() => _isLoading = false);
-      ToastUtil.showToast(context, '❌ ${response.message}');
+    } catch (e) {
+      print("🚨 Error in _loadOneToOneList: $e");
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ToastUtil.showToast(context, "🚨 Error loading One-to-One list");
+      }
     }
   }
 
   Future<void> _loadVisitors() async {
     print('📡 Fetching visitor list from API...');
 
-    final response = await PublicRoutesApiService.getVisitorsList();
+    try {
+      final response = await PublicRoutesApiService.getVisitorsList();
 
-    if (response.isSuccess && response.data != null) {
-      print('✅ Visitor list fetched successfully.');
-      print('📦 Total Visitors from pagination: ${response.extra?['total']}');
+      if (!mounted) return;
 
-      setState(() {
-        _visitors = response.data;
-        _visitorCount = response.extra?['total'] ?? response.data.length;
-        _isLoading = false;
-      });
-    } else {
-      print('❌ Failed to fetch visitors: ${response.message}');
-      ToastUtil.showToast(context, '❌ ${response.message}');
-      setState(() {
-        _isLoading = false;
-      });
+      if (response.isSuccess && response.data != null) {
+        print('✅ Visitor list fetched successfully.');
+        print('📦 Total Visitors from pagination: ${response.extra?['total']}');
+
+        setState(() {
+          _visitors = response.data;
+          _visitorCount = response.extra?['total'] ?? response.data.length;
+          _isLoading = false;
+        });
+      } else {
+        print('❌ Failed to fetch visitors: ${response.message}');
+        if (mounted) {
+          ToastUtil.showToast(context, '❌ ${response.message}');
+          setState(() => _isLoading = false);
+        }
+      }
+    } catch (e) {
+      print("🚨 Error in _loadVisitors: $e");
+      if (mounted) {
+        ToastUtil.showToast(context, "🚨 Error loading visitor list");
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -174,10 +213,14 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Future<void> _loadTestimonials() async {
+    print('📡 Fetching testimonials...');
+
     try {
-      setState(() => _isLoading = true);
+      if (mounted) setState(() => _isLoading = true);
 
       final response = await PublicRoutesApiService.getTestimonialGivenList();
+
+      if (!mounted) return;
 
       if (response.isSuccess && response.data != null) {
         final data = response.data;
@@ -202,71 +245,88 @@ class _HomescreenState extends State<Homescreen> {
         ToastUtil.showToast(context, "❌ ${response.message}");
       }
     } catch (e) {
-      setState(() {
-        _testimonialList = [];
-        _testimonialCount = 0;
-      });
-      ToastUtil.showToast(context, "🚨 Error loading testimonials: $e");
+      if (mounted) {
+        setState(() {
+          _testimonialList = [];
+          _testimonialCount = 0;
+        });
+        ToastUtil.showToast(context, "🚨 Error loading testimonials: $e");
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _loadReferralSlips() async {
     print("🔄 Loading referral slips...");
 
-    final response = await PublicRoutesApiService.getReferralGivenList();
+    try {
+      final response = await PublicRoutesApiService.getReferralGivenList();
 
-    print("✅ API Response received.");
-    print("➡️ Success: ${response.isSuccess}");
-    print("➡️ Message: ${response.message}");
+      print("✅ API Response received.");
+      print("➡️ Success: ${response.isSuccess}");
+      print("➡️ Message: ${response.message}");
 
-    if (mounted) {
+      if (!mounted) return;
+
       setState(() {
         _isReferralLoading = false;
 
         if (response.isSuccess) {
           _referralList = response.data ?? [];
-
-          // ✅ Use total from pagination
-          final int total = response.extra?['total'] ?? _referralList.length;
-          _referralCount = total;
-
+          _referralCount = response.extra?['total'] ?? _referralList.length;
           print(
               "📦 Referrals loaded: ${_referralList.length} shown, total: $_referralCount");
         } else {
           _referralList = [];
           _referralCount = 0;
-
+          ToastUtil.showToast(context, '❌ ${response.message}');
           print("❌ Failed to load referrals: ${response.message}");
-          ToastUtil.showToast(context, response.message);
         }
       });
+    } catch (e) {
+      print("🚨 Exception while loading referrals: $e");
+      if (mounted) {
+        setState(() {
+          _isReferralLoading = false;
+          _referralList = [];
+          _referralCount = 0;
+        });
+        ToastUtil.showToast(
+            context, "🚨 Network error. Please try again later.");
+      }
     }
   }
 
   Future<void> _loadThankYouNotes() async {
     print('📦 Loading Thank You Notes...');
 
-    final response = await PublicRoutesApiService.fetchGivenThankYouNotes();
+    try {
+      final response = await PublicRoutesApiService.fetchGivenThankYouNotes();
 
-    setState(() {
-      _isThankYouLoading = false;
-    });
+      if (!mounted) return;
+      setState(() => _isThankYouLoading = false);
 
-    if (response.isSuccess && response.data is List) {
-      final notes = response.data as List<dynamic>;
-      final int total = response.extra?['total'] ?? notes.length;
+      if (response.isSuccess && response.data is List) {
+        final notes = response.data as List<dynamic>;
+        final int total = response.extra?['total'] ?? notes.length;
 
-      print('✅ Successfully fetched ${notes.length} notes (total: $total)');
+        print('✅ Successfully fetched ${notes.length} notes (total: $total)');
 
-      setState(() {
-        _givenNotes = notes;
-        _thankYouCount = total; // ✅ assign pagination total
-      });
-    } else {
-      print('❌ Failed to fetch Thank You Notes: ${response.message}');
-      ToastUtil.showToast(context, "❌ Failed to load Thank You Notes");
+        setState(() {
+          _givenNotes = notes;
+          _thankYouCount = total;
+        });
+      } else {
+        print('❌ Failed to fetch Thank You Notes: ${response.message}');
+        ToastUtil.showToast(context, "❌ Failed to load Thank You Notes");
+      }
+    } catch (e) {
+      print("🚨 Error loading thank you notes: $e");
+      if (mounted) {
+        ToastUtil.showToast(
+            context, "🚨 Network error loading Thank You Notes");
+      }
     }
   }
 
@@ -285,9 +345,6 @@ class _HomescreenState extends State<Homescreen> {
         setState(() {
           _memberData = response.data;
         });
-
-        print(
-            '✅ Member loaded for profile: ${_memberData!['personalDetails']['firstName']}');
       } else {
         ToastUtil.showToast(context, '❌ Failed to load member');
       }

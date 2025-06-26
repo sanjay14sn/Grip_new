@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -190,31 +191,42 @@ class _MemberListPageState extends State<MemberListPage> {
                             final isSelected = member.name == selectedMember;
 
                             return ListTile(
-                              dense: true,
-                              title: Text(
-                                member.name,
-                                style: TextStyle(
-                                  color: isSelected ? Colors.red : Colors.black,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
+                                dense: true,
+                                title: Text(
+                                  member.name,
+                                  style: TextStyle(
+                                    color:
+                                        isSelected ? Colors.red : Colors.black,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
                                 ),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  selectedMember = member.name;
+                                onTap: () async {
+                                  setState(() {
+                                    selectedMember = member.name;
+                                  });
+
+                                  print("👤 Name: ${member.name}");
+                                  print("📞 Mobile: ${member.mobileNumber}");
+                                  print("🆔 UID: ${member.id}");
+
+                                  final response = await PublicRoutesApiService
+                                      .fetchOthersOneToOnes(member.id);
+
+                                  if (response.isSuccess &&
+                                      response.data != null) {
+                                    // Pass data to next page via extra
+                                    context.push('/OthersOneToOnesPage',
+                                        extra: response.data);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(response.message ??
+                                              "Failed to load data")),
+                                    );
+                                  }
                                 });
-
-                                print("👤 Name: ${member.name}");
-                                print("📞 Mobile: ${member.mobileNumber}");
-                                print("🆔 UID: ${member.id}");
-                                print("🏷️ Chapter ID: ${chapter?.id}");
-                                print(
-                                    "🏷️ Chapter Name: ${chapter?.chapterName}");
-
-                                context.push('/OthersOneToOnesPage');
-                              },
-                            );
                           },
                         ),
                       ),

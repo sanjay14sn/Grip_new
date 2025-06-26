@@ -231,12 +231,12 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/OthersOneToOnesPage',
-      builder: (context, state) => OthersOneToOnesPage(),
+      builder: (context, state) {
+        final othersData = state.extra as List<dynamic>;
+        return OthersOneToOnesPage(othersList: othersData);
+      },
     ),
-    GoRoute(
-      path: '/viewonetoone',
-      builder: (context, state) => OneToOneDetailsPage(),
-    ),
+
     GoRoute(
       path: '/QRscanner',
       builder: (context, state) => QRScanPage(),
@@ -264,18 +264,17 @@ final GoRouter router = GoRouter(
     //   },
     // ),
 
-
-GoRoute(
-  path: '/Otherschapter/:chapterId',
-  builder: (context, state) {
-    final chapterId = state.pathParameters['chapterId']!;
-    final chapterName = state.uri.queryParameters['name'] ?? '';
-    return OtherChapterPage(
-      chapterId: chapterId,
-      chapterName: chapterName,
-    );
-  },
-),
+    GoRoute(
+      path: '/Otherschapter/:chapterId',
+      builder: (context, state) {
+        final chapterId = state.pathParameters['chapterId']!;
+        final chapterName = state.uri.queryParameters['name'] ?? '';
+        return OtherChapterPage(
+          chapterId: chapterId,
+          chapterName: chapterName,
+        );
+      },
+    ),
 
     GoRoute(
       path: '/visitorsview',
