@@ -14,7 +14,7 @@ class UpcomingEventsPage extends StatefulWidget {
 
 class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
   List<AgentaEvent> _events = [];
-  bool _isLoading = false;
+  bool _isLoading = true; // Start with loading
 
   @override
   void initState() {
@@ -22,6 +22,7 @@ class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
     _fetchEvents();
   }
 
+  // Fetch events from the API
   Future<void> _fetchEvents() async {
     final response = await PublicRoutesApiService.fetchAgentaEvents();
 
@@ -66,7 +67,7 @@ class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
               ? ListView.builder(
                   padding: EdgeInsets.all(4.w),
                   itemCount: 5, // Show 5 shimmer cards
-                  itemBuilder: (_, __) => ShimmerCard(),
+                  itemBuilder: (_, __) => const ShimmerCard(),
                 )
               : _events.isEmpty
                   ? const Center(child: Text('No upcoming events'))
@@ -190,50 +191,57 @@ class EventCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Image with overlay title
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: imageUrl != null && imageUrl!.isNotEmpty
-                ? Image.network(
-                    imageUrl!,
-                    height: 20.h,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
+            child: Stack(
+              alignment: Alignment.bottomLeft,
+              children: [
+                imageUrl != null && imageUrl!.isNotEmpty
+                    ? Image.network(
+                        imageUrl!,
                         height: 20.h,
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: Icon(Icons.broken_image,
-                              size: 40, color: Colors.grey),
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return Container(
-                        height: 20.h,
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    },
-                  )
-                : Container(
-                    height: 20.h,
-                    width: double.infinity,
-                    color: Colors.grey[300],
-                    alignment: Alignment.center,
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            _noImageFallback(title),
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return _shimmerImagePlaceholder();
+                        },
+                      )
+                    : _noImageFallback(title),
+
+                // Title overlay
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.7)
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
                   ),
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
+
+          // Event details
           Padding(
             padding: EdgeInsets.all(3.w),
             child: Column(
@@ -246,7 +254,7 @@ class EventCard extends StatelessWidget {
                     SizedBox(width: 2.w),
                     Text(
                       date,
-                      style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+                      style: TextStyle(fontSize: 11.sp, color: Colors.black87),
                     ),
                     const Spacer(),
                     const Icon(Icons.access_time,
@@ -254,7 +262,7 @@ class EventCard extends StatelessWidget {
                     SizedBox(width: 2.w),
                     Text(
                       time,
-                      style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+                      style: TextStyle(fontSize: 11.sp, color: Colors.black87),
                     ),
                   ],
                 ),
@@ -268,7 +276,7 @@ class EventCard extends StatelessWidget {
                       child: Text(
                         location,
                         style:
-                            TextStyle(fontSize: 12.sp, color: Colors.black87),
+                            TextStyle(fontSize: 11.sp, color: Colors.black87),
                       ),
                     ),
                   ],
@@ -280,6 +288,51 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
+
+  // Shimmer placeholder while image loads
+  Widget _shimmerImagePlaceholder() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: 20.h,
+        width: double.infinity,
+        color: Colors.grey[300],
+      ),
+    );
+  }
+
+  // Fallback with centered title if no image
+  Widget _noImageFallback(String title) {
+    return Container(
+      height: 20.h,
+      width: double.infinity,
+      color: Colors.grey[300],
+      alignment: Alignment.center,
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.bold,
+          color: Colors.black54,
+        ),
+      ),
+    );
+  }
+}
+
+// Helper method to create shimmer for image loading
+Widget _shimmerImagePlaceholder() {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    child: Container(
+      height: 20.h,
+      width: double.infinity,
+      color: Colors.grey[300],
+    ),
+  );
 }
 
 class AgentaEvent {

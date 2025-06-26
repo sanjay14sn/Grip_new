@@ -218,14 +218,34 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
                                           imageUrl: imageUrl,
                                           fit: BoxFit.cover,
                                           width: double.infinity,
-                                          placeholder: (context, url) =>
-                                              const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
+                                          fadeInDuration: Duration.zero,
+                                          fadeOutDuration: Duration.zero,
+                                          progressIndicatorBuilder:
+                                              (context, url, progress) {
+                                            final percent =
+                                                progress.progress ?? 0.0;
+                                            return Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                    '${(percent * 100).toStringAsFixed(0)}%'),
+                                                SizedBox(height: 8),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 16.0),
+                                                  child:
+                                                      LinearProgressIndicator(
+                                                          value: percent),
+                                                ),
+                                              ],
+                                            );
+                                          },
                                           errorWidget: (context, url, error) =>
                                               const Center(
-                                            child: Text("❌ Image load failed"),
-                                          ),
+                                                  child: Text(
+                                                      "❌ Image load failed")),
                                         )
                                       : Container(
                                           color: Colors.grey[300],
