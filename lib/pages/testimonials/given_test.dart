@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:grip/components/download.dart';
+import 'package:grip/components/download.dart' as FileDownloader;
 import 'package:grip/pages/Eventpage.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:sizer/sizer.dart';
@@ -191,15 +193,36 @@ class _GiventestimonialspageState extends State<Giventestimonialspage> {
                                               child: _buildIconButton('>'),
                                             ),
                                           SizedBox(width: 2.w),
-                                          Icon(Icons.download,
-                                              size: 14.sp, color: Colors.blue),
                                           SizedBox(width: 1.w),
-                                          Text(
-                                            'Download',
-                                            style: TextStyle(
-                                              fontSize: 12.sp,
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.w500,
+                                          GestureDetector(
+                                            onTap: () {
+                                              if (imageUrl != null &&
+                                                  imageUrl.isNotEmpty) {
+                                                final fileName =
+                                                    imageUrl.split('/').last;
+                                                FileDownloader.FileDownloader
+                                                    .downloadImage(
+                                                  url: imageUrl,
+                                                  fileName: fileName,
+                                                  context: context,
+                                                );
+                                              }
+                                            },
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.download,
+                                                    size: 14.sp,
+                                                    color: Colors.blue),
+                                                SizedBox(width: 1.w),
+                                                Text(
+                                                  'Download',
+                                                  style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: Colors.blue,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
