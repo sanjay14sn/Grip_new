@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -42,40 +43,62 @@ class PublicRoutesApiService {
 
       switch (method.toUpperCase()) {
         case 'POST':
-          response = await http.post(uri,
-              headers: _defaultHeaders(headers),
-              body: body != null ? jsonEncode(body) : null);
+          response = await http
+              .post(uri,
+                  headers: _defaultHeaders(headers),
+                  body: body != null ? jsonEncode(body) : null)
+              .timeout(const Duration(seconds: 12));
           break;
         case 'GET':
-          response = await http.get(uri, headers: _defaultHeaders(headers));
+          response = await http
+              .get(uri, headers: _defaultHeaders(headers))
+              .timeout(const Duration(seconds: 12));
           break;
         case 'PUT':
-          response = await http.put(uri,
-              headers: _defaultHeaders(headers),
-              body: body != null ? jsonEncode(body) : null);
+          response = await http
+              .put(uri,
+                  headers: _defaultHeaders(headers),
+                  body: body != null ? jsonEncode(body) : null)
+              .timeout(const Duration(seconds: 12));
           break;
         case 'PATCH':
-          response = await http.patch(uri,
-              headers: _defaultHeaders(headers),
-              body: body != null ? jsonEncode(body) : null);
+          response = await http
+              .patch(uri,
+                  headers: _defaultHeaders(headers),
+                  body: body != null ? jsonEncode(body) : null)
+              .timeout(const Duration(seconds: 12));
           break;
         case 'DELETE':
-          response = await http.delete(uri,
-              headers: _defaultHeaders(headers),
-              body: body != null ? jsonEncode(body) : null);
+          response = await http
+              .delete(uri,
+                  headers: _defaultHeaders(headers),
+                  body: body != null ? jsonEncode(body) : null)
+              .timeout(const Duration(seconds: 12));
           break;
         default:
           return ApiResponse(
-              statusCode: 405,
-              isSuccess: false,
-              message: 'Unsupported HTTP method: $method',
-              data: null);
+            statusCode: 405,
+            isSuccess: false,
+            message: 'Unsupported HTTP method: $method',
+            data: null,
+          );
       }
 
       return _processResponse(response);
+    } on TimeoutException catch (_) {
+      return ApiResponse(
+        statusCode: 408,
+        isSuccess: false,
+        message: '⏱️ Request timed out. Please try again.',
+        data: null,
+      );
     } catch (e) {
       return ApiResponse(
-          statusCode: 500, isSuccess: false, message: 'Error: $e', data: null);
+        statusCode: 500,
+        isSuccess: false,
+        message: '⚠️ Unexpected error: $e',
+        data: null,
+      );
     }
   }
 

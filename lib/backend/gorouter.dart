@@ -17,6 +17,9 @@ import 'package:grip/pages/one_to_one/others_one_to_one.dart';
 import 'package:grip/pages/one_to_one/recived_one_to_one.dart';
 import 'package:grip/pages/one_to_one/viewone_to_one.dart';
 import 'package:grip/pages/one_to_one/viewmembers.dart';
+import 'package:grip/pages/othersview.dart/otherreferral.dart';
+import 'package:grip/pages/othersview.dart/otherstest.dart';
+import 'package:grip/pages/othersview.dart/othersvisitors.dart';
 import 'package:grip/pages/payment/membershipdetails.dart';
 import 'package:grip/pages/qrscanner.dart';
 import 'package:grip/pages/referrals/receivedreferral.dart';
@@ -254,16 +257,6 @@ final GoRouter router = GoRouter(
       builder: (context, state) => MembershipDetailsPage(),
     ),
 
-    // GoRoute(
-    //   path: '/Otherschapter/:id',
-    //   name: 'othersChapter',
-    //   builder: (context, state) {
-    //     final chapterId =
-    //         state.pathParameters['id']; // this is your selectedChapterId
-    //     return OtherChapterPage(chapterId: chapterId!);
-    //   },
-    // ),
-
     GoRoute(
       path: '/Otherschapter/:chapterId',
       builder: (context, state) {
@@ -304,5 +297,17 @@ final GoRouter router = GoRouter(
       path: '/token',
       builder: (context, state) => TokenValidityPage(),
     ),
+    GoRoute(
+        path: '/OthersTestimonial',
+        builder: (context, state) => OthersTestimonialsViewPage()),
+    GoRoute(
+        path: '/OthersTestimonial',
+        builder: (context, state) => OthersTestimonialsViewPage()),
+    GoRoute(
+        path: '/Othersreferral',
+        builder: (context, state) => OtherReferralViewPage()),
+    GoRoute(
+        path: '/Othersvisitors',
+        builder: (context, state) => OthersVisitorsPage()),
   ],
 );

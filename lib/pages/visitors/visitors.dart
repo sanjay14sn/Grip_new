@@ -104,7 +104,7 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
 
       Navigator.pop(context, true);
     } else {
-      ToastUtil.showToast(context, "❌ ${response.message}");
+      ToastUtil.showToast(context, "No Internet Connection");
     }
   }
 

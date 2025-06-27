@@ -97,6 +97,7 @@ class MemberCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                
             ],
           ),
         ),

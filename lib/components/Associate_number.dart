@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
@@ -47,9 +48,23 @@ class _CustomInputFieldState extends State<CustomInputField> {
     if (status.isGranted) {
       final contact = await FlutterContacts.openExternalPick();
       if (contact != null && contact.phones.isNotEmpty) {
-        final phone = contact.phones.first.number.replaceAll(RegExp(r'\D'), '');
-        widget.controller.text = phone;
-        _onChanged(phone);
+        String phone =
+            contact.phones.first.number.replaceAll(RegExp(r'\D'), '');
+
+        // 🧹 Remove leading +91 or 91 if exists and ensure it's 10 digits
+        if (phone.startsWith('91') && phone.length > 10) {
+          phone = phone.substring(phone.length - 10);
+        }
+
+        if (phone.length == 10) {
+          widget.controller.text = phone;
+          _onChanged(phone);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Please select a valid 10-digit number.")),
+          );
+        }
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -59,8 +74,15 @@ class _CustomInputFieldState extends State<CustomInputField> {
   }
 
   void _onChanged(String value) {
-    final cleaned = value.replaceAll(RegExp(r'\D'), '');
+    String cleaned = value.replaceAll(RegExp(r'\D'), '');
+
+    // 🧼 Remove leading country code if present
+    if (cleaned.startsWith('91') && cleaned.length > 10) {
+      cleaned = cleaned.substring(cleaned.length - 10);
+    }
+
     if (cleaned.length == 10) {
+      widget.controller.text = cleaned;
       _fetchMemberDetails(cleaned);
     } else {
       setState(() {
@@ -142,6 +164,11 @@ class _CustomInputFieldState extends State<CustomInputField> {
               keyboardType: widget.keyboardType,
               maxLines: 1,
               onChanged: _onChanged,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(10), // ⛔️ Max 10 digits
+                FilteringTextInputFormatter
+                    .digitsOnly, // ⛔️ Only digits allowed
+              ],
               decoration: InputDecoration(
                 hintText: widget.isRequired ? "${widget.label}" : widget.label,
                 hintStyle: TTextStyles.visitorsdetails,

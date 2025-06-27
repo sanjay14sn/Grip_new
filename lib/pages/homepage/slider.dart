@@ -15,6 +15,7 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
     {"name": "Mr. Suthik", "image": "assets/images/dummyslider.jpg"},
     {"name": "Ms. Priya", "image": "assets/images/dummyslider.jpg"},
     {"name": "Mr. Arjun", "image": "assets/images/dummyslider.jpg"},
+    {"name": "Mr. Arjun", "image": "assets/images/dummyslider.jpg"},
   ];
 
   int _currentIndex = 0;
@@ -26,9 +27,10 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
         CarouselSlider(
           options: CarouselOptions(
             height: 20.h,
-
-            viewportFraction: 1.1, // <- Full width, no side visibility
+            viewportFraction: 1.1,
             enableInfiniteScroll: true,
+            autoPlay: true,
+            autoPlayInterval: Duration(seconds: 3),
             onPageChanged: (index, reason) {
               setState(() {
                 _currentIndex = index;

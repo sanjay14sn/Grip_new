@@ -71,6 +71,7 @@ dependencies:
   dio: ^5.8.0+1
   device_info_plus: ^11.5.0
   
+  
 
 dev_dependencies:
   flutter_test:

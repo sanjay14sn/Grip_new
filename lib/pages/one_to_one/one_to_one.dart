@@ -54,6 +54,79 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
     }
   }
 
+  void _handleSubmitOneToOne() async {
+    final String? toMemberId = fetchedAssociateUid ?? selectedPersonId;
+    print('👤 Selected toMemberId: $toMemberId');
+
+    if (toMemberId == null ||
+        _pickedImage == null ||
+        selectedLocation == null) {
+      print('⚠️ Missing one or more required fields:');
+      print('   toMemberId: $toMemberId');
+      print('   _pickedImage: $_pickedImage');
+      print('   selectedLocation: $selectedLocation');
+      ToastUtil.showToast(context, "Please complete all required fields.");
+      return;
+    }
+
+    // Map UI selection to backend enum
+    String mappedLocation = '';
+    switch (selectedLocation) {
+      case 'At Your Location':
+        mappedLocation = 'yourlocation';
+        break;
+      case 'At Their Location':
+        mappedLocation = 'theirlocation';
+        break;
+      case 'At A Common Location':
+        mappedLocation = 'commonlocation';
+        break;
+      default:
+        mappedLocation = 'commonlocation';
+    }
+    print('📍 Selected location: $selectedLocation → $mappedLocation');
+
+    const storage = FlutterSecureStorage();
+    final userDataString = await storage.read(key: 'user_data');
+
+    if (userDataString == null) {
+      print('❌ Secure storage: user_data not found');
+      ToastUtil.showToast(context, "User data not found.");
+      return;
+    }
+
+    final userData = jsonDecode(userDataString);
+    print('🔐 User data loaded: $userData');
+
+    print('📤 Submitting 1-to-1 slip with:');
+    print('   toMember: $toMemberId');
+    print('   whereDidYouMeet: $mappedLocation');
+    print('   address: ${context.read<LocationProvider>().fullAddress}');
+    print('   date: ${DateTime.now().toIso8601String()}');
+    print('   imageFile: $_pickedImage');
+
+    final response = await PublicRoutesApiService.submitOneToOneSlip(
+      toMember: toMemberId,
+      whereDidYouMeet: mappedLocation,
+      address: context.read<LocationProvider>().fullAddress ?? '',
+      date: DateTime.now().toIso8601String(),
+      imageFile: _pickedImage,
+    );
+
+    print('📡 API Response:');
+    print('   statusCode: ${response.statusCode}');
+    print('   success: ${response.isSuccess}');
+    print('   message: ${response.message}');
+    print('   data: ${response.data}');
+
+    if (response.isSuccess) {
+      ToastUtil.showToast(context, '✅ One-to-one Submitted successfully!');
+      Navigator.pop(context, true); // Return true to refresh previous screen
+    } else {
+      ToastUtil.showToast(context, '❌ Failed: ${response.message}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -404,89 +477,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                       width: double.infinity,
                       height: 6.5.h,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          final String? toMemberId =
-                              fetchedAssociateUid ?? selectedPersonId;
-                          print('👤 Selected toMemberId: $toMemberId');
-
-                          if (toMemberId == null ||
-                              _pickedImage == null ||
-                              selectedLocation == null) {
-                            print('⚠️ Missing one or more required fields:');
-                            print('   toMemberId: $toMemberId');
-                            print('   _pickedImage: $_pickedImage');
-                            print('   selectedLocation: $selectedLocation');
-                            ToastUtil.showToast(context,
-                                "Please complete all required fields.");
-                            return;
-                          }
-
-                          // Map UI selection to backend enum
-                          String mappedLocation = '';
-                          switch (selectedLocation) {
-                            case 'At Your Location':
-                              mappedLocation = 'yourlocation';
-                              break;
-                            case 'At Their Location':
-                              mappedLocation = 'theirlocation';
-                              break;
-                            case 'At A Common Location':
-                              mappedLocation = 'commonlocation';
-                              break;
-                            default:
-                              mappedLocation = 'commonlocation';
-                          }
-                          print(
-                              '📍 Selected location: $selectedLocation → $mappedLocation');
-
-                          const storage = FlutterSecureStorage();
-                          final userDataString =
-                              await storage.read(key: 'user_data');
-
-                          if (userDataString == null) {
-                            print('❌ Secure storage: user_data not found');
-                            ToastUtil.showToast(
-                                context, "User data not found.");
-                            return;
-                          }
-
-                          final userData = jsonDecode(userDataString);
-                          print('🔐 User data loaded: $userData');
-
-                          print('📤 Submitting 1-to-1 slip with:');
-                          print('   toMember: $toMemberId');
-                          print('   whereDidYouMeet: $mappedLocation');
-                          print(
-                              '   address: ${context.read<LocationProvider>().fullAddress}');
-                          print('   date: ${DateTime.now().toIso8601String()}');
-                          print('   imageFile: $_pickedImage');
-
-                          final response =
-                              await PublicRoutesApiService.submitOneToOneSlip(
-                            toMember: toMemberId,
-                            whereDidYouMeet: mappedLocation,
-                            address:
-                                context.read<LocationProvider>().fullAddress ??
-                                    '',
-                            date: DateTime.now().toIso8601String(),
-                            imageFile: _pickedImage,
-                          );
-
-                          print('📡 API Response:');
-                          print('   statusCode: ${response.statusCode}');
-                          print('   success: ${response.isSuccess}');
-                          print('   message: ${response.message}');
-                          print('   data: ${response.data}');
-
-                          if (response.isSuccess) {
-                            ToastUtil.showToast(
-                                context, '✅One-to-one Submitted successfully!');
-                            Navigator.pop(context, true); // ✅ Return true
-                          } else {
-                            ToastUtil.showToast(
-                                context, '❌ Failed: ${response.message}');
-                          }
-                        },
+                        onPressed: _handleSubmitOneToOne,
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(

@@ -72,14 +72,7 @@ class _HomescreenState extends State<Homescreen> {
     }
   }
 
-// Update _loadAllDashboardData
   Future<void> _loadAllDashboardData() async {
-    // final connectivity = await Connectivity().checkConnectivity();
-    // if (connectivity == ConnectivityResult.none) {
-    //   print("❌ Skipping dashboard data fetch: No internet");
-    //   return;
-    // }
-
     final apis = [
       () => _runWithRetry(_loadVisitors, apiName: 'Visitors'),
       () => _runWithRetry(_loadOneToOneList, apiName: 'One-to-One'),

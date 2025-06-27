@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
-class ChapterDetails extends StatelessWidget {
+class ChapterDetails extends StatefulWidget {
   final MemberModel member;
 
   const ChapterDetails({super.key, required this.member});
 
   @override
+  State<ChapterDetails> createState() => _ChapterDetailsState();
+}
+
+class _ChapterDetailsState extends State<ChapterDetails> {
+  bool isMenuOpen = true;
+
+  @override
   Widget build(BuildContext context) {
+    final isCID = widget.member.role?.toLowerCase() == 'cid';
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SafeArea(
@@ -18,7 +29,7 @@ class ChapterDetails extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back button
+              // Back Button
               GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
@@ -41,12 +52,36 @@ class ChapterDetails extends StatelessWidget {
               ),
               SizedBox(height: 1.5.h),
 
+              // Menu right below "About"
+              if (!isCID)
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _menuItem(Icons.group, "Referrals", () {
+                          context.push('/Othersreferral');
+                        }),
+                        _menuItem(Icons.chat, "Testimonials", () {
+                          context.push('/OthersTestimonial');
+                        }),
+                        // _menuItem(Icons.group_work, "One-To-Ones", () {
+                        //   context.push('/onetoone');
+                        // }),
+                        _menuItem(Icons.remove_red_eye_sharp, "Visitors", () {
+                          context.push('/Othersvisitors');
+                        }),
+                      ],
+                    ),
+                    SizedBox(height: 2.h),
+                  ],
+                ),
+
               // Profile Image
               Center(
                 child: CircleAvatar(
                   radius: 10.w,
-                  backgroundImage:
-                      const AssetImage('assets/images/profile.png'),
+                  backgroundImage: const AssetImage('assets/images/profile.png'),
                 ),
               ),
               SizedBox(height: 1.5.h),
@@ -54,30 +89,28 @@ class ChapterDetails extends StatelessWidget {
               // Name & Role
               Center(
                 child: Text(
-                  member.name,
+                  widget.member.name,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
               Center(
                 child: Text(
-                  // member.chapterName,
-                  "Member",
+                  widget.member.role ?? "Member",
                   style: const TextStyle(
-                    color: Colors.red,
+                    color: Color(0xFFC83837),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
               ),
-
               SizedBox(height: 2.h),
 
               // Description
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Text(
-                  member.businessDescription ?? "No Description",
+                  widget.member.businessDescription ?? "No Description",
                   textAlign: TextAlign.left,
                   style: TTextStyles.profiledes,
                 ),
@@ -85,11 +118,11 @@ class ChapterDetails extends StatelessWidget {
               SizedBox(height: 2.5.h),
 
               // Contact Info
-              infoRow(Icons.business, member.company),
-              infoRow(Icons.phone, member.phone),
-              infoRow(Icons.email, member.email ?? 'N/A'),
-              infoRow(Icons.language, member.website ?? 'N/A'),
-              infoRow(Icons.location_on, member.address ?? 'N/A'),
+              infoRow(Icons.business, widget.member.company),
+              infoRow(Icons.phone, widget.member.phone),
+              infoRow(Icons.email, widget.member.email ?? 'N/A'),
+              infoRow(Icons.language, widget.member.website ?? 'N/A'),
+              infoRow(Icons.location_on, widget.member.address ?? 'N/A'),
               SizedBox(height: 3.h),
             ],
           ),
@@ -111,6 +144,26 @@ class ChapterDetails extends StatelessWidget {
               style: TTextStyles.profiledetails,
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _menuItem(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: Tcolors.red_button,
+            ),
+            child: Icon(icon, color: Colors.white, size: 28),
+          ),
+          const SizedBox(height: 5),
+          Text(label, style: const TextStyle(fontSize: 12)),
         ],
       ),
     );

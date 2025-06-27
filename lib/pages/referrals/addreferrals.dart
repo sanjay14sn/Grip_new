@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/Associate_number.dart';
 import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
 
 class ReferralPage extends StatefulWidget {
@@ -37,7 +40,7 @@ class _ReferralPageState extends State<ReferralPage> {
     final comments = commentsController.text.trim();
 
     // 🔒 Check all fields are filled
-    if (name.isEmpty || mobile.isEmpty || address.isEmpty || comments.isEmpty) {
+    if (name.isEmpty || mobile.isEmpty || comments.isEmpty) {
       ToastUtil.showToast(context, "Please fill all required fields");
       return;
     }
@@ -49,11 +52,6 @@ class _ReferralPageState extends State<ReferralPage> {
 
     if (mobile.length != 10 || !RegExp(r'^\d{10}$').hasMatch(mobile)) {
       ToastUtil.showToast(context, "Mobile number must be exactly 10 digits");
-      return;
-    }
-
-    if (address.length > 150) {
-      ToastUtil.showToast(context, "Address must be under 150 characters");
       return;
     }
 
@@ -111,6 +109,7 @@ class _ReferralPageState extends State<ReferralPage> {
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
     int? maxLength,
+    Widget? suffixIcon,
   }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 2.h),
@@ -120,13 +119,14 @@ class _ReferralPageState extends State<ReferralPage> {
         maxLines: maxLines,
         maxLength: maxLength,
         decoration: InputDecoration(
-          counterText: "", // hides counter
+          counterText: "",
           hintText: isRequired ? "$label" : label,
           hintStyle: TTextStyles.visitorsdetails,
           filled: true,
           fillColor: Colors.grey[200],
           contentPadding:
               EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+          suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -134,6 +134,89 @@ class _ReferralPageState extends State<ReferralPage> {
         ),
       ),
     );
+  }
+
+  Future<void> pickContact() async {
+    final status = await Permission.contacts.status;
+
+    if (status.isGranted) {
+      // Permission already granted
+      await _openAndFillContact();
+    } else if (status.isDenied || status.isRestricted || status.isLimited) {
+      // Ask for permission
+      final result = await Permission.contacts.request();
+
+      if (result.isGranted) {
+        await _openAndFillContact();
+      } else {
+        ToastUtil.showToast(
+            context, '📛 Contact permission is required to pick a contact');
+      }
+    } else if (status.isPermanentlyDenied) {
+      // Permanently denied — direct to app settings
+      ToastUtil.showToast(context,
+          '🔒 Contact permission permanently denied. Please enable it in settings.');
+      await openAppSettings();
+    }
+  }
+
+  Future<void> _openAndFillContact() async {
+    if (!await FlutterContacts.requestPermission()) {
+      ToastUtil.showToast(context, '📛 Permission denied for contacts');
+      return;
+    }
+
+    try {
+      final List<Contact> contacts =
+          await FlutterContacts.getContacts(withProperties: true);
+
+      if (contacts.isEmpty) {
+        ToastUtil.showToast(context, 'No contacts found');
+        return;
+      }
+
+      // Show bottom sheet picker
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (context) {
+          return SizedBox(
+            height: 60.h,
+            child: ListView.builder(
+              itemCount: contacts.length,
+              itemBuilder: (context, index) {
+                final contact = contacts[index];
+                final phone = contact.phones.isNotEmpty
+                    ? contact.phones.first.number
+                    : '';
+
+                return ListTile(
+                  title: Text(contact.displayName),
+                  subtitle: Text(phone),
+                  onTap: () {
+                    nameController.text = contact.displayName;
+                    if (phone.isNotEmpty) {
+                      mobileController.text = phone
+                          .replaceAll(RegExp(r'\D'), '')
+                          .padLeft(10, '0')
+                          .substring(0, 10);
+                    }
+                    Navigator.pop(context); // Close bottom sheet
+                  },
+                );
+              },
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      print('❌ Failed to load contacts: $e');
+      ToastUtil.showToast(context, 'Error loading contacts');
+    }
   }
 
   @override
@@ -373,8 +456,18 @@ class _ReferralPageState extends State<ReferralPage> {
                           ),
 
                           SizedBox(height: 1.h),
-                          buildInputField("Name*", true,
-                              controller: nameController, maxLength: 50),
+                          buildInputField(
+                            "Name*",
+                            true,
+                            controller: nameController,
+                            maxLength: 50,
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.contact_page,
+                                  color: Colors.grey[700]),
+                              onPressed: pickContact,
+                            ),
+                          ),
+
                           buildInputField(
                             "Mobile*",
                             true,
