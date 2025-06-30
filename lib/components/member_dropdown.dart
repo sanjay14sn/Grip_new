@@ -7,7 +7,11 @@ import 'package:grip/backend/providers/chapter_provider.dart';
 
 class MemberDropdown extends StatefulWidget {
   final void Function(
-      String name, String uid, String chapterId, String chapterName)? onSelect;
+    String name,
+    String uid,
+    String chapterId,
+    String chapterName,
+  )? onSelect;
 
   const MemberDropdown({super.key, this.onSelect});
 
@@ -47,11 +51,8 @@ class _MemberDropdownState extends State<MemberDropdown> {
         .map((e) => {'name': e.name, 'id': e.id})
         .toList();
 
-    // Add CID
-    final items = [
-      ...filteredMembers,
-      if (chapter != null) {'name': chapter.cidName, 'id': 'CID'}
-    ];
+    // Only use members (CID removed)
+    final items = [...filteredMembers];
 
     return Container(
       height: 6.h,
@@ -89,6 +90,7 @@ class _MemberDropdownState extends State<MemberDropdown> {
                   final chapterId = chapter?.id ?? '';
                   final chapterName = chapter?.chapterName ?? '';
 
+                  // For debugging
                   print('✅ Name: $name');
                   print('🆔 UID: $uid');
                   print('🏷️ Chapter ID: $chapterId');

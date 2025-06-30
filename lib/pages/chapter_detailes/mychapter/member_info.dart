@@ -65,9 +65,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                         _menuItem(Icons.chat, "Testimonials", () {
                           context.push('/OthersTestimonial');
                         }),
-                        // _menuItem(Icons.group_work, "One-To-Ones", () {
-                        //   context.push('/onetoone');
-                        // }),
+                        _menuItem(Icons.group_work, "One-To-Ones", () {}),
                         _menuItem(Icons.remove_red_eye_sharp, "Visitors", () {
                           context.push('/Othersvisitors');
                         }),
@@ -81,7 +79,8 @@ class _ChapterDetailsState extends State<ChapterDetails> {
               Center(
                 child: CircleAvatar(
                   radius: 10.w,
-                  backgroundImage: const AssetImage('assets/images/profile.png'),
+                  backgroundImage:
+                      const AssetImage('assets/images/profile.png'),
                 ),
               ),
               SizedBox(height: 1.5.h),

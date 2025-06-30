@@ -85,7 +85,7 @@ class _OthersTestimonialsViewPageState
             children: [
               // Top bar
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Back Button
                   GestureDetector(
@@ -101,42 +101,11 @@ class _OthersTestimonialsViewPageState
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-
-                  // Filter Icon
-                  //   GestureDetector(
-                  //     onTap: () {
-                  //       showGeneralDialog(
-                  //         context: context,
-                  //         barrierDismissible: true,
-                  //         barrierLabel: "Dismiss",
-                  //         barrierColor: Colors.transparent,
-                  //         transitionDuration: Duration(milliseconds: 200),
-                  //         pageBuilder: (_, __, ___) {
-                  //           return Stack(
-                  //             children: [
-                  //               Positioned(
-                  //                 top: 60,
-                  //                 right: 16,
-                  //                 child: Material(
-                  //                   color: Colors.transparent,
-                  //                   child: FilterDialog(),
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           );
-                  //         },
-                  //       );
-                  //     },
-                  //     child: Container(
-                  //       padding: const EdgeInsets.all(8),
-                  //       decoration: BoxDecoration(
-                  //         color: Color(0xFFE0E2E7),
-                  //         shape: BoxShape.circle,
-                  //       ),
-                  //       child: const Icon(Icons.filter_alt_outlined,
-                  //           color: Colors.black),
-                  //     ),
-                  //   )
+                  const SizedBox(width: 12), // Space between icon and text
+                  Text(
+                    'Kumar R',
+                    style: TTextStyles.ReferralSlip,
+                  ),
                 ],
               ),
               SizedBox(height: 2.h),

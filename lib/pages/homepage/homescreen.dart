@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/backend/handle.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/bottomappbartemp.dart';
+import 'package:grip/pages/allcount.dart';
 import 'package:grip/pages/homepage/customcard.dart';
 import 'package:grip/pages/homepage/slider.dart';
 import 'package:grip/pages/toastutill.dart';
@@ -46,8 +48,6 @@ class _HomescreenState extends State<Homescreen> {
     _loadUserData();
     _loadChapterDetails();
     fetchMember();
-
-    // Add slight delay before loading data
     Future.delayed(const Duration(milliseconds: 1000), _loadAllDashboardData);
   }
 
@@ -73,22 +73,19 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Future<void> _loadAllDashboardData() async {
-    final apis = [
-      () => _runWithRetry(_loadVisitors, apiName: 'Visitors'),
-      () => _runWithRetry(_loadOneToOneList, apiName: 'One-to-One'),
-      () => _runWithRetry(_loadTestimonials, apiName: 'Testimonials'),
-      () => _runWithRetry(_loadReferralSlips, apiName: 'Referrals'),
-      () => _runWithRetry(_loadThankYouNotes, apiName: 'Thank You Notes'),
-    ];
+    await _runWithRetry(_loadVisitors, apiName: 'Visitors');
+    await Future.delayed(const Duration(milliseconds: 300));
 
-    for (final api in apis) {
-      try {
-        await api();
-      } catch (e) {
-        print("🚨 API failed after retries: $e");
-        // Individual APIs handle their own errors
-      }
-    }
+    await _runWithRetry(_loadOneToOneList, apiName: 'One-to-One');
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    await _runWithRetry(_loadTestimonials, apiName: 'Testimonials');
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    await _runWithRetry(_loadReferralSlips, apiName: 'Referrals');
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    await _runWithRetry(_loadThankYouNotes, apiName: 'Thank You Notes');
   }
 
   void _loadChapterDetails() async {
@@ -165,14 +162,12 @@ class _HomescreenState extends State<Homescreen> {
         print('❌ Failed to fetch One-to-One list: ${response.message}');
         if (mounted) {
           setState(() => _isLoading = false);
-          ToastUtil.showToast(context, '❌ ${response.message}');
+          ToastUtil.showToast(context, getSafeErrorMessage(response.message));
         }
       }
     } catch (e) {
-      print("🚨 Error in _loadOneToOneList: $e");
       if (mounted) {
         setState(() => _isLoading = false);
-        ToastUtil.showToast(context, "🚨 Error loading One-to-One list");
       }
     }
   }
@@ -195,9 +190,8 @@ class _HomescreenState extends State<Homescreen> {
           _isLoading = false;
         });
       } else {
-        print('❌ Failed to fetch visitors: ${response.message}');
         if (mounted) {
-          ToastUtil.showToast(context, '❌ ${response.message}');
+          ToastUtil.showToast(context, getSafeErrorMessage(response.message));
           setState(() => _isLoading = false);
         }
       }
@@ -230,9 +224,7 @@ class _HomescreenState extends State<Homescreen> {
 
       print('👤 Username: $_username');
       print('🆔 Member ID: $memberId');
-    } else {
-      print('❌ No user data found.');
-    }
+    } else {}
   }
 
   Future<void> _loadTestimonials() async {
@@ -265,7 +257,7 @@ class _HomescreenState extends State<Homescreen> {
           _testimonialList = [];
           _testimonialCount = 0;
         });
-        ToastUtil.showToast(context, "❌ ${response.message}");
+        ToastUtil.showToast(context, getSafeErrorMessage(response.message));
       }
     } catch (e) {
       if (mounted) {
@@ -273,7 +265,6 @@ class _HomescreenState extends State<Homescreen> {
           _testimonialList = [];
           _testimonialCount = 0;
         });
-        ToastUtil.showToast(context, "🚨 Error loading testimonials: $e");
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -303,8 +294,8 @@ class _HomescreenState extends State<Homescreen> {
         } else {
           _referralList = [];
           _referralCount = 0;
-          ToastUtil.showToast(context, '❌ ${response.message}');
-          print("❌ Failed to load referrals: ${response.message}");
+          ToastUtil.showToast(context, getSafeErrorMessage(response.message));
+          print("Failed to load referrals: ${response.message}");
         }
       });
     } catch (e) {
@@ -315,8 +306,7 @@ class _HomescreenState extends State<Homescreen> {
           _referralList = [];
           _referralCount = 0;
         });
-        ToastUtil.showToast(
-            context, "🚨 Network error. Please try again later.");
+        ToastUtil.showToast(context, "Network error. Please try again later.");
       }
     }
   }
@@ -341,14 +331,12 @@ class _HomescreenState extends State<Homescreen> {
           _thankYouCount = total;
         });
       } else {
-        print('❌ Failed to fetch Thank You Notes: ${response.message}');
-        ToastUtil.showToast(context, "❌ Failed to load Thank You Notes");
+        print(' Failed to fetch Thank You Notes: ${response.message}');
       }
     } catch (e) {
-      print("🚨 Error loading thank you notes: $e");
+      print("Error loading thank you notes: $e");
       if (mounted) {
-        ToastUtil.showToast(
-            context, "🚨 Network error loading Thank You Notes");
+        ToastUtil.showToast(context, "Network error loading Thank You Notes");
       }
     }
   }
@@ -369,7 +357,7 @@ class _HomescreenState extends State<Homescreen> {
           _memberData = response.data;
         });
       } else {
-        ToastUtil.showToast(context, '❌ Failed to load member');
+        ToastUtil.showToast(context, 'Network error loading Thank You Notes');
       }
     }
   }
@@ -404,7 +392,7 @@ class _HomescreenState extends State<Homescreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Welcome, ${_username ?? 'User'}", // ✅ Dynamic
+                            "${_username ?? 'User'}", // ✅ Dynamic
                             style: TTextStyles.usernametitle,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
@@ -464,6 +452,8 @@ class _HomescreenState extends State<Homescreen> {
                 SizedBox(
                   height: 1.h,
                 ),
+                HomeDashboard(), // or wherever your home page is.
+                SizedBox(height: 1.5.h),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

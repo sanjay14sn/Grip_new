@@ -51,7 +51,7 @@ class _OthersVisitorsPageState extends State<OthersVisitorsPage> {
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-                  Text('Visitors Invited by Me',
+                  Text('Visitors Invited by Kumar R',
                       style: TTextStyles.Editprofile),
                   const SizedBox(width: 40), // placeholder space for symmetry
                 ],
@@ -86,8 +86,7 @@ class _OthersVisitorsPageState extends State<OthersVisitorsPage> {
                           final dateStr = visitor['date'];
                           final formattedDate = dateStr != null
                               ? DateFormat('dd-MM-yyyy').format(
-                                  DateTime.tryParse(dateStr) ??
-                                      DateTime.now())
+                                  DateTime.tryParse(dateStr) ?? DateTime.now())
                               : '';
 
                           return visitorTile(
@@ -102,7 +101,8 @@ class _OthersVisitorsPageState extends State<OthersVisitorsPage> {
     );
   }
 
-  Widget visitorTile(BuildContext context, String name, String date, String? imageUrl) {
+  Widget visitorTile(
+      BuildContext context, String name, String date, String? imageUrl) {
     return Card(
       color: Colors.white,
       elevation: 2,
@@ -116,8 +116,7 @@ class _OthersVisitorsPageState extends State<OthersVisitorsPage> {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundImage:
-                  imageUrl != null ? NetworkImage(imageUrl) : null,
+              backgroundImage: imageUrl != null ? NetworkImage(imageUrl) : null,
               child: imageUrl == null ? const Icon(Icons.person) : null,
             ),
             SizedBox(width: 3.w),

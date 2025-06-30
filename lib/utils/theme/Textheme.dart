@@ -250,4 +250,19 @@ class TTextStyles {
     fontSize: 14.sp,
     fontWeight: FontWeight.w600,
   );
+  static final TextStyle month = GoogleFonts.roboto(
+    color: Colors.black,
+    fontSize: 14.sp,
+    fontWeight: FontWeight.bold,
+  );
+  static final TextStyle Catname = GoogleFonts.roboto(
+    color: Colors.black,
+    fontSize: 14.sp,
+    fontWeight: FontWeight.bold,
+  );
+  static final TextStyle CatNUM = GoogleFonts.roboto(
+    color: Colors.black,
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w700,
+  );
 }

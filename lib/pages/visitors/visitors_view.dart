@@ -140,8 +140,7 @@ class _VisitorsViewpageState extends State<VisitorsViewpage> {
                           final dateStr = visitor['visitDate']?.toString();
                           final formattedDate = dateStr != null
                               ? DateFormat('dd-MM-yyyy').format(
-                                  DateTime.tryParse(dateStr) ??
-                                      DateTime.now())
+                                  DateTime.tryParse(dateStr) ?? DateTime.now())
                               : '';
 
                           return referralTile(
