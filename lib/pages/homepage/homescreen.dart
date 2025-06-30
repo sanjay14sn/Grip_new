@@ -465,7 +465,7 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Total Referral",
-                      value: _isReferralLoading ? '0' : '$_referralCount+',
+                      value: _isReferralLoading ? '0' : '$_referralCount',
                       onTapAddView: () async {
                         final result = await context.push('/addreferalpage');
                         if (result == true) {
@@ -487,7 +487,7 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Thank U Notes",
-                      value: _isThankYouLoading ? '0' : '$_thankYouCount+',
+                      value: _isThankYouLoading ? '0' : '$_thankYouCount',
                       onTapAddView: () async {
                         final result = await context.push('/thankyounote');
                         if (result == true) {
@@ -508,7 +508,7 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Testimonials",
-                      value: _isLoading ? '0' : '$_testimonialCount+',
+                      value: _isLoading ? '0' : '$_testimonialCount',
                       onTapAddView: () async {
                         final result = await context.push('/addtestimonials');
                         if (result == true) {
@@ -531,7 +531,7 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "One-to-Ones",
-                      value: _isLoading ? '0' : '$_oneToOneCount+',
+                      value: _isLoading ? '0' : '$_oneToOneCount',
                       onTapAddView: () async {
                         final result = await context.push('/onetoone');
                         if (result == true) {
@@ -552,7 +552,7 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Visitors",
-                      value: _isLoading ? '0' : '$_visitorCount+',
+                      value: _isLoading ? '0' : '$_visitorCount',
                       onTapAddView: () async {
                         final result = await context.push('/visitors');
                         if (result == true) {
@@ -564,9 +564,26 @@ class _HomescreenState extends State<Homescreen> {
                       },
                       imagePath: 'assets/images/visitors.png',
                     ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Chapter Visitors',
+                      style: TTextStyles.customcard,
+                      textAlign: TextAlign.left,
+                    ),
+                    SizedBox(height: 8),
+                    Customcard(
+                      title: "Chapter Visitors – ( Last 7 Days )",
+                      value: '10',
+                      onTapAddView: () {},
+                      onTapView: () {
+                        context.push('/allvisitors', extra: _visitors);
+                      },
+                      imagePath: 'assets/images/visitors.png',
+                      viewOnly: true, // ✅ Only shows "View"
+                    ),
                   ],
                 ),
-                SizedBox(height: 4.h)
+                SizedBox(height: 8.h)
               ],
             ),
           )),

@@ -41,6 +41,7 @@ import 'package:grip/pages/testimonials/addtestimonials.dart';
 import 'package:grip/pages/testimonials/testimonialsview.dart';
 import 'package:grip/pages/thankunote/thankyounote.dart';
 import 'package:grip/pages/timeout.dart';
+import 'package:grip/pages/visitors/allchaptervisitors.dart';
 import 'package:grip/pages/visitors/visitors.dart';
 import 'package:grip/pages/visitors/visitors_detailed.dart';
 import 'package:grip/pages/visitors/visitors_view.dart';
@@ -306,8 +307,8 @@ final GoRouter router = GoRouter(
     GoRoute(
         path: '/Othersreferral',
         builder: (context, state) => OtherReferralViewPage()),
-    GoRoute(
-        path: '/Othersvisitors',
-        builder: (context, state) => OthersVisitorsPage()),
+   GoRoute(
+        path: '/allvisitors',
+        builder: (context, state) => AllVisitorsViewpage()),
   ],
 );

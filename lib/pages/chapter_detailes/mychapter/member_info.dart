@@ -19,7 +19,20 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final isCID = widget.member.role?.toLowerCase() == 'cid';
+    final hideMenuRoles = [
+      'president',
+      'vice president',
+      'treasurer',
+      'chairman referral',
+      'chairman one to one',
+      'chairman visitors',
+      'chairman attendance',
+      'chairman event',
+      'chairman business resource',
+      'public image chairman',
+    ];
+    final shouldHideMenu =
+        hideMenuRoles.contains(widget.member.role?.toLowerCase() ?? '');
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -53,7 +66,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
               SizedBox(height: 1.5.h),
 
               // Menu right below "About"
-              if (!isCID)
+              if (!shouldHideMenu)
                 Column(
                   children: [
                     Row(

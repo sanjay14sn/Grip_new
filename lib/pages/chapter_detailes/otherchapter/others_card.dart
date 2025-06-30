@@ -17,7 +17,8 @@ class othersMemberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isRoleCard = isCidMember && member.role != null && member.role!.isNotEmpty;
+    final bool isRoleCard =
+        isCidMember && member.role != null && member.role!.isNotEmpty;
 
     return Material(
       color: Colors.white,

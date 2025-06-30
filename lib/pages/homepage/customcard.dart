@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
-import 'package:grip/utils/constants/Timages.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -10,6 +9,7 @@ class Customcard extends StatelessWidget {
   final VoidCallback onTapAddView;
   final VoidCallback onTapView;
   final String imagePath;
+  final bool viewOnly; // ✅ New field
 
   const Customcard({
     super.key,
@@ -18,6 +18,7 @@ class Customcard extends StatelessWidget {
     required this.onTapAddView,
     required this.onTapView,
     required this.imagePath,
+    this.viewOnly = false, // ✅ default is false
   });
 
   @override
@@ -26,7 +27,6 @@ class Customcard extends StatelessWidget {
 
     return Card(
       elevation: 3,
-      // color: Tcolors.homecard,
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -34,7 +34,7 @@ class Customcard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               width: 14.w,
               height: 12.h,
               child: Padding(
@@ -54,14 +54,63 @@ class Customcard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(value, style: TTextStyles.usernametitle),
                   const SizedBox(height: 8),
-                  isAddOnly
-                      ? GestureDetector(
+
+                  // ✅ Conditional button logic
+                  if (viewOnly)
+                    GestureDetector(
+                      onTap: onTapView,
+                      child: Container(
+                        height: 3.h,
+                        width: 27.w,
+                        decoration: BoxDecoration(
+                          color: Tcolors.smalll_button,
+                          borderRadius: BorderRadius.circular(60),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "View",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (isAddOnly)
+                    GestureDetector(
+                      onTap: onTapAddView,
+                      child: Container(
+                        height: 3.h,
+                        width: 30.w,
+                        decoration: BoxDecoration(
+                          gradient: Tcolors.red_button,
+                          borderRadius: BorderRadius.circular(60),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "Add New",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
                           onTap: onTapAddView,
                           child: Container(
                             height: 3.h,
-                            width: 30.w,
+                            width: 25.w,
                             decoration: BoxDecoration(
-                              gradient: Tcolors.red_button,
+                              color: Tcolors.smalll_button,
                               borderRadius: BorderRadius.circular(60),
                             ),
                             child: const Center(
@@ -75,55 +124,31 @@ class Customcard extends StatelessWidget {
                               ),
                             ),
                           ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: onTapAddView,
-                              child: Container(
-                                height: 3.h,
-                                width: 25.w,
-                                decoration: BoxDecoration(
-                                  color: Tcolors.smalll_button,
-                                  borderRadius: BorderRadius.circular(60),
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    "Add New",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8.w),
-                            GestureDetector(
-                              onTap: onTapView,
-                              child: Container(
-                                height: 3.h,
-                                width: 27.w,
-                                decoration: BoxDecoration(
-                                  color: Tcolors.smalll_button,
-                                  borderRadius: BorderRadius.circular(60),
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    "View",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
+                        SizedBox(width: 8.w),
+                        GestureDetector(
+                          onTap: onTapView,
+                          child: Container(
+                            height: 3.h,
+                            width: 27.w,
+                            decoration: BoxDecoration(
+                              color: Tcolors.smalll_button,
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "View",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),

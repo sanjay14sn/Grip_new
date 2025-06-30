@@ -125,7 +125,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
         'value': 'Given 5 / Received 8',
         'icon': Icons.swap_horiz
       },
-      {'title': '1 to 1', 'value': 'Total 5', 'icon': Icons.group},
+      {'title': 'One to Ones', 'value': 'Total 5', 'icon': Icons.group},
       {'title': 'Visitors', 'value': 'Total 2', 'icon': Icons.desktop_windows},
       {
         'title': 'Thank u Notes',
