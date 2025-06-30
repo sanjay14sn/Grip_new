@@ -1,6 +1,5 @@
-import 'package:grip/pages/one_to_one/others_one_to_one.dart';
-
 class MemberModel {
+  final String id; // ✅ Add this
   final String name;
   final String company;
   final String phone;
@@ -12,6 +11,7 @@ class MemberModel {
   final String? address;
 
   MemberModel({
+    required this.id, // ✅ Include in constructor
     required this.name,
     required this.company,
     required this.phone,
@@ -25,6 +25,7 @@ class MemberModel {
 
   factory MemberModel.fromJson(Map<String, dynamic> json) {
     return MemberModel(
+      id: json['_id'] ?? '', // ✅ Read ID from backend
       name: json['name'] ?? '',
       company: json['company'] ?? '',
       phone: json['phone'] ?? '',
@@ -38,7 +39,9 @@ class MemberModel {
   }
 }
 
+
 class othersMemberModel {
+  final String id; // ✅ Add this
   final String name;
   final String company;
   final String phone;
@@ -48,10 +51,10 @@ class othersMemberModel {
   final String? businessDescription;
   final String? email;
   final String? address;
-
-  final String? cidId; // ✅ NEW FIELD
+  final String? cidId;
 
   othersMemberModel({
+    required this.id, // ✅ Include in constructor
     required this.name,
     required this.company,
     required this.phone,
@@ -61,7 +64,7 @@ class othersMemberModel {
     this.businessDescription,
     this.email,
     this.address,
-    this.cidId, // ✅ include in constructor
+    this.cidId,
   });
 
   factory othersMemberModel.fromJson(Map<String, dynamic> json) {
@@ -72,6 +75,7 @@ class othersMemberModel {
     final address = json['businessAddress'] ?? {};
 
     return othersMemberModel(
+      id: json['_id'] ?? '', // ✅ Extract the ID from root level
       name:
           '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}'.trim(),
       company: personal['companyName'] ?? '',
@@ -82,7 +86,7 @@ class othersMemberModel {
       businessDescription: business['businessDescription'],
       email: contact['email'],
       address: address['addressLine1'],
-      cidId: chapterInfo['cidId'], // ✅ extract cidId
+      cidId: chapterInfo['cidId'],
     );
   }
 }

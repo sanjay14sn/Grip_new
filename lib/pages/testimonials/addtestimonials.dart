@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/Associate_number.dart';
+import 'package:grip/components/Dotloader.dart';
 import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
@@ -25,6 +26,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
 
   String? selectedPersonId; // For MY CHAPTER
   String? selectedPersonIdFromNumber; // For OTHER CHAPTER
+  bool isSubmitting = false;
 
   List<File> pickedImages = [];
 
@@ -50,6 +52,9 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
   }
 
   Future<void> _submitTestimonial() async {
+    if (isSubmitting) return;
+
+    setState(() => isSubmitting = true);
     final toMember =
         showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
     final comment = commentController.text.trim();
@@ -220,15 +225,18 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                 width: double.infinity,
                 height: 6.5.h,
                 child: ElevatedButton(
-                  onPressed: _submitTestimonial,
+                  onPressed: isSubmitting ? null : _submitTestimonial,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.shade700,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text("Submit",
-                      style: TextStyle(fontSize: 14.sp, color: Colors.white)),
+                  child: isSubmitting
+                      ? const DotLoader()
+                      : Text("Submit",
+                          style:
+                              TextStyle(fontSize: 14.sp, color: Colors.white)),
                 ),
               ),
             ],

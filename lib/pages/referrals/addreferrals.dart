@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
-
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/Associate_number.dart';
+import 'package:grip/components/Dotloader.dart';
 import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
@@ -22,6 +22,7 @@ class _ReferralPageState extends State<ReferralPage> {
   bool givenYourCard = false;
   final Color customRed = const Color(0xFFC6221A);
   bool showMyChapter = true;
+  bool isSubmitting = false;
 
   String? selectedPersonName; // For UI
   String? selectedPersonId; // For API (toMember)
@@ -34,6 +35,8 @@ class _ReferralPageState extends State<ReferralPage> {
   final TextEditingController commentsController = TextEditingController();
 
   void _handleSubmitReferral() async {
+    if (isSubmitting) return; // Prevent double submits
+    setState(() => isSubmitting = true);
     final name = nameController.text.trim();
     final mobile = mobileController.text.trim();
     final address = addressController.text.trim();
@@ -501,15 +504,17 @@ class _ReferralPageState extends State<ReferralPage> {
                                   borderRadius: BorderRadius.circular(2.w),
                                 ),
                               ),
-                              onPressed: _handleSubmitReferral,
-                              child: Text(
-                                "Submit",
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+                              onPressed:
+                                  isSubmitting ? null : _handleSubmitReferral,
+                              child: isSubmitting
+                                  ? const DotLoader(
+                                      color: Colors.white,
+                                      size: 10,
+                                    )
+                                  : Text(
+                                      "Submit",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                             ),
                           ),
                           SizedBox(height: 3.h),

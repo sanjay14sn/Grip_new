@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/components/Dotloader.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
@@ -23,56 +24,67 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController visitDateController = TextEditingController();
 
-  String? visitDateISO; // for backend
-
+  String? visitDateISO;
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  bool isSubmitting = false;
 
   Future<void> _handleRegister() async {
+    if (isSubmitting) return;
+    setState(() => isSubmitting = true);
+
     final name = nameController.text.trim();
     final company = companyController.text.trim();
     final category = categoryController.text.trim();
     final mobile = mobileController.text.trim();
     final email = emailController.text.trim();
     final address = addressController.text.trim();
+    final visitDate = visitDateController.text.trim();
 
     if (name.isEmpty ||
         company.isEmpty ||
         category.isEmpty ||
         mobile.isEmpty ||
         address.isEmpty ||
-        visitDateController.text.isEmpty) {
+        visitDate.isEmpty) {
       ToastUtil.showToast(context, "Please fill all required fields (*)");
+      setState(() => isSubmitting = false);
       return;
     }
 
     if (name.length > 50) {
       ToastUtil.showToast(context, "Name must be under 50 characters");
+      setState(() => isSubmitting = false);
       return;
     }
 
     if (company.length > 70) {
       ToastUtil.showToast(context, "Company must be under 70 characters");
+      setState(() => isSubmitting = false);
       return;
     }
 
     if (category.length > 70) {
       ToastUtil.showToast(context, "Category must be under 70 characters");
+      setState(() => isSubmitting = false);
       return;
     }
 
     if (!RegExp(r'^\d{10}$').hasMatch(mobile)) {
       ToastUtil.showToast(context, "Mobile number must be exactly 10 digits");
+      setState(() => isSubmitting = false);
       return;
     }
 
     if (email.isNotEmpty &&
         !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
       ToastUtil.showToast(context, "Please enter a valid email address");
+      setState(() => isSubmitting = false);
       return;
     }
 
     if (address.length > 200) {
       ToastUtil.showToast(context, "Address must be under 200 characters");
+      setState(() => isSubmitting = false);
       return;
     }
 
@@ -91,8 +103,6 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
     if (response.isSuccess) {
       ToastUtil.showToast(
           context, response.message ?? 'Visitor registered successfully');
-
-      // Clear form
       nameController.clear();
       companyController.clear();
       categoryController.clear();
@@ -101,11 +111,12 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
       addressController.clear();
       visitDateController.clear();
       visitDateISO = null;
-
       Navigator.pop(context, true);
     } else {
-      ToastUtil.showToast(context, "No Internet Connection");
+      ToastUtil.showToast(context, "❌ Failed: ${response.message}");
     }
+
+    setState(() => isSubmitting = false);
   }
 
   @override
@@ -152,33 +163,53 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
                 ],
               ),
               SizedBox(height: 2.h),
-              buildInputField('Name*', controller: nameController),
-              buildInputField('Company*', controller: companyController),
-              buildInputField('Category*', controller: categoryController),
-              buildInputField('Mobile*', controller: mobileController),
-              buildInputField('Email', controller: emailController),
+              buildInputField('Name*',
+                  controller: nameController, maxLength: 50),
+              buildInputField('Company*',
+                  controller: companyController, maxLength: 70),
+              buildInputField('Category*',
+                  controller: categoryController, maxLength: 70),
+              buildInputField('Mobile*',
+                  controller: mobileController,
+                  maxLength: 10,
+                  keyboardType: TextInputType.phone),
+              buildInputField('Email',
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress),
               buildInputField('Address',
-                  controller: addressController, maxLines: 3),
+                  controller: addressController, maxLines: 3, maxLength: 200),
               buildDateField('Visit Date*', controller: visitDateController),
               SizedBox(height: 3.h),
               Center(
-                child: GestureDetector(
-                  onTap: _handleRegister,
-                  child: Container(
-                    width: double.infinity,
-                    height: 6.h,
-                    decoration: BoxDecoration(
-                      gradient: Tcolors.red_button,
-                      borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 6.h,
+                  child: ElevatedButton(
+                    onPressed: isSubmitting ? null : _handleRegister,
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
                     ),
-                    child: Center(
-                      child: Text(
-                        'Register',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: Tcolors.red_button,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: isSubmitting
+                            ? const DotLoader()
+                            : Text(
+                                'Register',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -193,7 +224,10 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
   }
 
   Widget buildInputField(String label,
-      {int maxLines = 1, required TextEditingController controller}) {
+      {int maxLines = 1,
+      int? maxLength,
+      TextInputType? keyboardType,
+      required TextEditingController controller}) {
     double height = maxLines > 1 ? 114 : 50;
 
     return Padding(
@@ -203,7 +237,10 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
         child: TextFormField(
           controller: controller,
           maxLines: maxLines,
+          maxLength: maxLength,
+          keyboardType: keyboardType,
           decoration: InputDecoration(
+            counterText: "",
             hintText: label,
             hintStyle: TTextStyles.visitorsdetails,
             filled: true,
@@ -248,11 +285,22 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
               initialDate: DateTime.now(),
               firstDate: DateTime(2020),
               lastDate: DateTime(2030),
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    dialogBackgroundColor: Colors.white,
+                    colorScheme: const ColorScheme.light(
+                      primary: Color(0xFFC6221A),
+                      onPrimary: Colors.white,
+                      onSurface: Colors.black,
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
             );
             if (picked != null) {
-              visitDateISO =
-                  DateTime(picked.year, picked.month, picked.day, 10, 30)
-                      .toIso8601String();
+              visitDateISO = picked.toIso8601String();
               controller.text = DateFormat('dd-MM-yyyy').format(picked);
             }
           },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grip/components/Associate_number.dart';
+import 'package:grip/components/Dotloader.dart';
 import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
@@ -19,6 +20,8 @@ class ThankYouNotePage extends StatefulWidget {
 
 class _ThankYouNotePageState extends State<ThankYouNotePage> {
   String? selectedPerson;
+  bool isSubmitting = false;
+
   String? selectedPersonId;
   final List<String> personList = ['Person A', 'Person B', 'Person C'];
   final Color customRed = const Color(0xFFC6221A);
@@ -41,6 +44,9 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
   }
 
   void submitForm() async {
+    if (isSubmitting) return;
+
+    setState(() => isSubmitting = true); // Start loader
     final toMember =
         showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
     final amount = amountController.text.trim();
@@ -350,13 +356,19 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
                                 borderRadius: BorderRadius.circular(2.w),
                               ),
                               child: Center(
-                                child: Text(
-                                  "Submit",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.bold),
-                                ),
+                                child: isSubmitting
+                                    ? const DotLoader(
+                                        color: Colors.white,
+                                        size: 8,
+                                        dotCount: 4,
+                                      )
+                                    : Text(
+                                        "Submit",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                               ),
                             ),
                           ),

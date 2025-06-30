@@ -13,13 +13,11 @@ import 'package:grip/pages/mainsplashscreen.dart';
 import 'package:grip/pages/meeting.dart';
 import 'package:grip/pages/navigator_key.dart';
 import 'package:grip/pages/one_to_one/given_onetoone.dart';
-import 'package:grip/pages/one_to_one/others_one_to_one.dart';
 import 'package:grip/pages/one_to_one/recived_one_to_one.dart';
 import 'package:grip/pages/one_to_one/viewone_to_one.dart';
 import 'package:grip/pages/one_to_one/viewmembers.dart';
 import 'package:grip/pages/othersview.dart/otherreferral.dart';
 import 'package:grip/pages/othersview.dart/otherstest.dart';
-import 'package:grip/pages/othersview.dart/othersvisitors.dart';
 import 'package:grip/pages/payment/membershipdetails.dart';
 import 'package:grip/pages/qrscanner.dart';
 import 'package:grip/pages/referrals/receivedreferral.dart';
@@ -207,8 +205,9 @@ final GoRouter router = GoRouter(
         if (extra is MemberModel) {
           return ChapterDetails(member: extra);
         } else if (extra is othersMemberModel) {
-          // Convert othersMemberModel to MemberModel before passing
+          // ✅ Convert othersMemberModel to MemberModel including 'id'
           final converted = MemberModel(
+            id: extra.id,
             name: extra.name,
             company: extra.company,
             phone: extra.phone,
@@ -307,7 +306,7 @@ final GoRouter router = GoRouter(
     GoRoute(
         path: '/Othersreferral',
         builder: (context, state) => OtherReferralViewPage()),
-   GoRoute(
+    GoRoute(
         path: '/allvisitors',
         builder: (context, state) => AllVisitorsViewpage()),
   ],

@@ -105,17 +105,20 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
       if (response.isSuccess && response.data != null) {
         final data = response.data;
 
-        final member = othersMemberModel(
-          name: data['username'] ?? '',
-          company: data['companyName'] ?? '',
-          phone: data['mobileNumber'] ?? '',
-          role: data['role']?['name'] ?? '',
-          website: data['website'], // or null if not provided
-          chapterName: data['chapterName'], // or null if not provided
-          businessDescription: data['businessDescription'], // or null
-          email: data['email'] ?? '',
-          address: data['address'], // or null if not provided
-        );
+final member = othersMemberModel(
+  id: data['_id'] ?? '', // ✅ Extract the ID from the root object
+  name: data['username'] ?? '',
+  company: data['companyName'] ?? '',
+  phone: data['mobileNumber'] ?? '',
+  role: data['role']?['name'] ?? '',
+  website: data['website'],
+  chapterName: data['chapterName'],
+  businessDescription: data['businessDescription'],
+  email: data['email'] ?? '',
+  address: data['address'],
+  //cidId: data['cidId'], // ✅ Add this if it exists in root
+);
+
 
         setState(() {
           _cidMember = member;

@@ -136,6 +136,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
         final data = response.data;
 
         final member = MemberModel(
+          id: data['_id'] ?? '', // ✅ Extract the ID from the root object
           name: data['username'] ?? '',
           company: data['companyName'] ?? '',
           phone: data['mobileNumber'] ?? '',
@@ -485,6 +486,8 @@ class _MyChapterPageState extends State<MyChapterPage> {
                 itemBuilder: (context, index) {
                   final detailed = _filteredMembers[index];
                   final memberModel = MemberModel(
+                    id: detailed
+                        .id, // ✅ Add this line to provide the required ID
                     name: detailed.name,
                     company: detailed.company,
                     phone: detailed.mobile,
@@ -495,6 +498,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
                     email: detailed.email,
                     address: detailed.address,
                   );
+
                   return MemberCard(member: memberModel);
                 },
               ),

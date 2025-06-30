@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/location_provider.dart';
 import 'package:grip/components/Associate_number.dart';
+import 'package:grip/components/Dotloader.dart';
 import 'package:grip/components/member_dropdown.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
@@ -43,6 +44,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
       TextEditingController();
   File? _pickedImage;
   bool showMyChapter = true;
+  bool isSubmitting = false;
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -55,6 +57,8 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
   }
 
   void _handleSubmitOneToOne() async {
+    if (isSubmitting) return;
+    setState(() => isSubmitting = true);
     final String? toMemberId = fetchedAssociateUid ?? selectedPersonId;
     print('👤 Selected toMemberId: $toMemberId');
 
@@ -477,7 +481,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                       width: double.infinity,
                       height: 6.5.h,
                       child: ElevatedButton(
-                        onPressed: _handleSubmitOneToOne,
+                        onPressed: isSubmitting ? null : _handleSubmitOneToOne,
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
@@ -492,12 +496,13 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                             borderRadius: BorderRadius.circular(2.w),
                           ),
                           child: Center(
-                            child: Text("Submit", style: TTextStyles.Submit),
+                            child: isSubmitting
+                                ? const DotLoader()
+                                : Text("Submit", style: TTextStyles.Submit),
                           ),
                         ),
                       ),
                     ),
-
                     SizedBox(height: 2.h),
                   ],
                 ),

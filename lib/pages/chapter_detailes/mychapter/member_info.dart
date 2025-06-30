@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
@@ -16,6 +17,12 @@ class ChapterDetails extends StatefulWidget {
 
 class _ChapterDetailsState extends State<ChapterDetails> {
   bool isMenuOpen = true;
+
+  @override
+  void initState() {
+    super.initState();
+    print("👤 Member ID: ${widget.member.id}");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +85,32 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                         _menuItem(Icons.chat, "Testimonials", () {
                           context.push('/OthersTestimonial');
                         }),
-                        _menuItem(Icons.group_work, "One-To-Ones", () {}),
+                        _menuItem(Icons.group_work, "One-To-Ones", () async {
+                          final memberId = widget.member.id;
+
+                          if (memberId != null && memberId.isNotEmpty) {
+                            print("Fetching One-To-Ones for ID: $memberId");
+
+                            final response = await PublicRoutesApiService
+                                .fetchOthersOneToOnes(memberId);
+
+                            if (response.isSuccess && response.data != null) {
+                              context.push('/OthersOneToOnesPage',
+                                  extra: response.data);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(response.message ??
+                                        "Failed to load data")),
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Member ID not found")),
+                            );
+                          }
+                        }),
                         _menuItem(Icons.remove_red_eye_sharp, "Visitors", () {
                           context.push('/Othersvisitors');
                         }),
