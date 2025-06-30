@@ -7,8 +7,13 @@ import 'package:sizer/sizer.dart';
 
 class OtherReferralViewPage extends StatefulWidget {
   final String memberId;
+  final String memberName; // <-- Add this line
 
-  const OtherReferralViewPage({super.key, required this.memberId});
+  const OtherReferralViewPage({
+    super.key,
+    required this.memberId,
+    required this.memberName, // <-- Add this line
+  });
 
   @override
   State<OtherReferralViewPage> createState() => _OtherReferralViewPageState();
@@ -66,7 +71,8 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text('Referrals', style: TTextStyles.ReferralSlip),
+                  Text('${widget.memberName}\'s Referrals',
+                      style: TTextStyles.ReferralSlip),
                 ],
               ),
               SizedBox(height: 2.h),

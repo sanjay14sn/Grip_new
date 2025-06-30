@@ -83,7 +83,13 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                           final memberId = widget.member.id;
 
                           if (memberId != null && memberId.isNotEmpty) {
-                            context.push('/Othersreferral', extra: memberId);
+                            context.push(
+                              '/Othersreferral',
+                              extra: {
+                                'memberId': widget.member.id,
+                                'memberName': widget.member.name,
+                              },
+                            );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -92,7 +98,13 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                           }
                         }),
                         _menuItem(Icons.chat, "Testimonials", () {
-                          context.push('/OthersTestimonial');
+                          context.push(
+                            '/OthersTestimonial',
+                            extra: {
+                              'memberId': widget.member.id,
+                              'memberName': widget.member.name,
+                            },
+                          );
                         }),
                         _menuItem(Icons.group_work, "One-To-Ones", () async {
                           final memberId = widget.member.id;
@@ -104,8 +116,13 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                                 .fetchOthersOneToOnes(memberId);
 
                             if (response.isSuccess && response.data != null) {
-                              context.push('/OthersOneToOnesPage',
-                                  extra: response.data);
+                              context.push(
+                                '/OthersOneToOnesPage',
+                                extra: {
+                                  'data': response.data,
+                                  'memberName': widget.member.name,
+                                },
+                              );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -125,7 +142,13 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                           final memberId = widget.member.id;
 
                           if (memberId != null && memberId.isNotEmpty) {
-                            context.push('/Othersvisitors', extra: memberId);
+                            context.push(
+                              '/Othersvisitors',
+                              extra: {
+                                'memberId': widget.member.id,
+                                'memberName': widget.member.name,
+                              },
+                            );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

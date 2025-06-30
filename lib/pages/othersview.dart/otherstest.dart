@@ -6,7 +6,14 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class OthersTestimonialsViewPage extends StatefulWidget {
-  const OthersTestimonialsViewPage({super.key});
+  final String memberName;
+  final String memberId;
+
+  const OthersTestimonialsViewPage({
+    super.key,
+    required this.memberName,
+    required this.memberId,
+  });
 
   @override
   State<OthersTestimonialsViewPage> createState() =>
@@ -103,7 +110,7 @@ class _OthersTestimonialsViewPageState
                   ),
                   const SizedBox(width: 12), // Space between icon and text
                   Text(
-                    'Kumar R',
+                    '${widget.memberName}\'s Testimonials',
                     style: TTextStyles.ReferralSlip,
                   ),
                 ],

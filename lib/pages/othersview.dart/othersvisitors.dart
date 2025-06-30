@@ -6,7 +6,14 @@ import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class OthersVisitorsPage extends StatefulWidget {
-  const OthersVisitorsPage({super.key});
+  final String memberId;
+  final String memberName;
+
+  const OthersVisitorsPage({
+    super.key,
+    required this.memberId,
+    required this.memberName,
+  });
 
   @override
   State<OthersVisitorsPage> createState() => _OthersVisitorsPageState();
@@ -18,12 +25,9 @@ class _OthersVisitorsPageState extends State<OthersVisitorsPage> {
   String? memberId;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    memberId = GoRouterState.of(context).extra as String?;
-    if (memberId != null) {
-      _loadVisitorsByMember(memberId!);
-    }
+  void initState() {
+    super.initState();
+    _loadVisitorsByMember(widget.memberId);
   }
 
   Future<void> _loadVisitorsByMember(String id) async {
@@ -68,7 +72,7 @@ class _OthersVisitorsPageState extends State<OthersVisitorsPage> {
                   ),
                   Expanded(
                     child: Center(
-                      child: Text('Visitors Invited',
+                      child: Text('Visitors Invited by ${widget.memberName}',
                           style: TTextStyles.Editprofile),
                     ),
                   ),

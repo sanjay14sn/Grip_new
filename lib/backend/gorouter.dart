@@ -236,8 +236,11 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/OthersOneToOnesPage',
       builder: (context, state) {
-        final othersData = state.extra as List<dynamic>;
-        return OthersOneToOnesPage(othersList: othersData);
+        final extra = state.extra as Map<String, dynamic>;
+        return OthersOneToOnesPage(
+          othersList: extra['data'],
+          //memberName: extra['memberName'],
+        );
       },
     ),
 
@@ -305,16 +308,24 @@ final GoRouter router = GoRouter(
       builder: (context, state) => TokenValidityPage(),
     ),
     GoRoute(
-        path: '/OthersTestimonial',
-        builder: (context, state) => OthersTestimonialsViewPage()),
-    GoRoute(
-        path: '/OthersTestimonial',
-        builder: (context, state) => OthersTestimonialsViewPage()),
+      path: '/OthersTestimonial',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        return OthersTestimonialsViewPage(
+          memberName: extra['memberName'],
+          memberId: extra['memberId'],
+        );
+      },
+    ),
+
     GoRoute(
       path: '/Othersreferral',
       builder: (context, state) {
-        final memberId = state.extra as String;
-        return OtherReferralViewPage(memberId: memberId);
+        final extra = state.extra as Map<String, dynamic>;
+        return OtherReferralViewPage(
+          memberId: extra['memberId'],
+          memberName: extra['memberName'],
+        );
       },
     ),
 
@@ -331,7 +342,14 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
-        path: '/Othersvisitors',
-        builder: (context, state) => OthersVisitorsPage()),
+      path: '/Othersvisitors',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        return OthersVisitorsPage(
+          memberId: extra['memberId'],
+          memberName: extra['memberName'],
+        );
+      },
+    ),
   ],
 );
