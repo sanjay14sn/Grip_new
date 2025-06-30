@@ -31,6 +31,7 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
   Future<void> _handleRegister() async {
     if (isSubmitting) return;
     setState(() => isSubmitting = true);
+    print('Submitting visitor registration...');
 
     final name = nameController.text.trim();
     final company = companyController.text.trim();
@@ -40,36 +41,50 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
     final address = addressController.text.trim();
     final visitDate = visitDateController.text.trim();
 
+    print('Collected data:');
+    print('Name: $name');
+    print('Company: $company');
+    print('Category: $category');
+    print('Mobile: $mobile');
+    print('Email: $email');
+    print('Address: $address');
+    print('Visit Date: $visitDate');
+
     if (name.isEmpty ||
         company.isEmpty ||
         category.isEmpty ||
         mobile.isEmpty ||
         address.isEmpty ||
         visitDate.isEmpty) {
+      print('Validation failed: Required fields are missing');
       ToastUtil.showToast(context, "Please fill all required fields (*)");
       setState(() => isSubmitting = false);
       return;
     }
 
     if (name.length > 50) {
+      print('Validation failed: Name too long');
       ToastUtil.showToast(context, "Name must be under 50 characters");
       setState(() => isSubmitting = false);
       return;
     }
 
     if (company.length > 70) {
+      print('Validation failed: Company too long');
       ToastUtil.showToast(context, "Company must be under 70 characters");
       setState(() => isSubmitting = false);
       return;
     }
 
     if (category.length > 70) {
+      print('Validation failed: Category too long');
       ToastUtil.showToast(context, "Category must be under 70 characters");
       setState(() => isSubmitting = false);
       return;
     }
 
     if (!RegExp(r'^\d{10}$').hasMatch(mobile)) {
+      print('Validation failed: Invalid mobile number');
       ToastUtil.showToast(context, "Mobile number must be exactly 10 digits");
       setState(() => isSubmitting = false);
       return;
@@ -77,12 +92,14 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
 
     if (email.isNotEmpty &&
         !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      print('Validation failed: Invalid email');
       ToastUtil.showToast(context, "Please enter a valid email address");
       setState(() => isSubmitting = false);
       return;
     }
 
     if (address.length > 200) {
+      print('Validation failed: Address too long');
       ToastUtil.showToast(context, "Address must be under 200 characters");
       setState(() => isSubmitting = false);
       return;
@@ -98,9 +115,14 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
       "visitDate": visitDateISO,
     };
 
+    print('Sending request: $requestBody');
+
     final response = await PublicRoutesApiService.registerVisitor(requestBody);
 
+  
+
     if (response.isSuccess) {
+      print('Visitor registered successfully.');
       ToastUtil.showToast(
           context, response.message ?? 'Visitor registered successfully');
       nameController.clear();
@@ -113,6 +135,7 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
       visitDateISO = null;
       Navigator.pop(context, true);
     } else {
+      print('Registration failed: ${response.message}');
       ToastUtil.showToast(context, "❌ Failed: ${response.message}");
     }
 

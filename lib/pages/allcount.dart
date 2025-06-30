@@ -31,7 +31,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
               children: [
                 Container(
                   padding:
-                      EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.6.h),
+                      EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? Colors.red.withOpacity(0.1)
@@ -128,40 +128,52 @@ class _HomeDashboardState extends State<HomeDashboard> {
       {'title': 'One to Ones', 'value': 'Total 5', 'icon': Icons.group},
       {'title': 'Visitors', 'value': 'Total 2', 'icon': Icons.desktop_windows},
       {
-        'title': 'Thank u Notes',
-        'value': 'Given 5898/ Received 86534',
+        'title': 'Revenue',
+        'value': 'Given 5898 / Received 86534',
         'icon': Icons.currency_rupee_sharp
       },
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Remove any vertical spacing here
-        Padding(
-          padding: EdgeInsets.only(bottom: 0), // or adjust as needed
-          child: _buildTimeFilter(),
-        ),
-
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2.w),
-          child: GridView.builder(
-            shrinkWrap: true,
-            itemCount: statData.length,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 2.w,
-              mainAxisSpacing: 1.5.h,
-              childAspectRatio: 2.2,
+    return Padding(
+      padding: EdgeInsets.only(top: 1.h), // Only top padding; no horizontal
+      child: Container(
+        width: double.infinity, // Makes container stretch full width
+        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: Offset(0, 2),
             ),
-            itemBuilder: (context, index) {
-              final item = statData[index];
-              return _buildStatCard(item['title'], item['value'], item['icon']);
-            },
-          ),
+          ],
         ),
-      ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTimeFilter(),
+            SizedBox(height: 2.h),
+            GridView.builder(
+              shrinkWrap: true,
+              itemCount: statData.length,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 2.w,
+                mainAxisSpacing: 1.5.h,
+                childAspectRatio: 2.2,
+              ),
+              itemBuilder: (context, index) {
+                final item = statData[index];
+                return _buildStatCard(
+                    item['title'], item['value'], item['icon']);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

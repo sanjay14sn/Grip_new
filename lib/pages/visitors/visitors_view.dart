@@ -163,9 +163,13 @@ class _VisitorsViewpageState extends State<VisitorsViewpage> {
   Widget referralTile(BuildContext context, Map<String, dynamic> visitor,
       String name, String date, String imagePath) {
     return GestureDetector(
-      onTap: () {
-        context.push('/visiteddetails', extra: visitor);
-      },
+      onTap: () => context.push(
+        '/visiteddetails',
+        extra: {
+          'visitor': visitor,
+          'hideSensitiveFields': false,
+        },
+      ),
       child: Card(
         color: Colors.white,
         elevation: 2,

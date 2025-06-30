@@ -92,6 +92,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
     } else {
       ToastUtil.showToast(context, "❌ Failed: ${response.message}");
     }
+    setState(() => isSubmitting = false);
   }
 
   @override

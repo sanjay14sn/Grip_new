@@ -1,83 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/components/filter.dart';
-import 'package:grip/components/filter_options.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
 
 class AllVisitorsViewpage extends StatefulWidget {
-  const AllVisitorsViewpage({super.key});
+  final List<Map<String, dynamic>> allVisitors;
+
+  const AllVisitorsViewpage({super.key, required this.allVisitors});
 
   @override
   State<AllVisitorsViewpage> createState() => _AllVisitorsViewpageState();
 }
 
 class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
-  List<Map<String, dynamic>> allVisitors = [];
-  List<Map<String, dynamic>> filteredVisitors = [];
-  FilterOptions filter = FilterOptions();
+  late List<Map<String, dynamic>> visitors;
 
   @override
   void initState() {
     super.initState();
-    _loadDummyVisitors();
-  }
-
-  void _loadDummyVisitors() {
-    final now = DateTime.now();
-    allVisitors = List.generate(10, (index) {
-      return {
-        'name1': 'User ${index + 1}',
-        'name': 'Visitor ${index + 1}',
-        'visitDate': now.subtract(Duration(days: index)).toIso8601String(),
-      };
-    });
-    filteredVisitors = List.from(allVisitors);
-  }
-
-  void applyFilters() {
-    setState(() {
-      filteredVisitors = allVisitors.where((item) {
-        final dateStr = item['visitDate']?.toString();
-        final date = DateTime.tryParse(dateStr ?? '');
-        return date != null && filter.isWithinRange(date);
-      }).toList();
-    });
-  }
-
-  Future<void> openFilterDialog() async {
-    final result = await showGeneralDialog<FilterOptions>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: "Dismiss",
-      barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (_, __, ___) {
-        return Stack(
-          children: [
-            Positioned(
-              top: 60,
-              right: 16,
-              child: Material(
-                color: Colors.transparent,
-                child: FilterDialog(
-                  initialFilter: filter,
-                  showCategory: false,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (result != null) {
-      setState(() {
-        filter = result;
-      });
-      applyFilters();
-    }
+    visitors = widget.allVisitors;
   }
 
   @override
@@ -90,10 +32,10 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔙 Top bar
+              // 🔙 Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // 🔙 Back Button
                   GestureDetector(
                     onTap: () => context.pop(),
                     child: Container(
@@ -105,34 +47,31 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-                  Text('All Visitors', style: TTextStyles.Editprofile),
-                  GestureDetector(
-                    onTap: openFilterDialog,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
+
+                  // 🪪 Centered Title
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'All Visitors - 7 Days',
+                        style: TTextStyles.Editprofile,
                       ),
-                      child: const Icon(Icons.filter_alt_outlined,
-                          color: Colors.black),
                     ),
                   ),
+
+                  // 🔳 Empty box to balance the back button
+                  SizedBox(width: 40), // Same width as the back button area
                 ],
               ),
 
               SizedBox(height: 2.h),
 
-              // 👥 Title row
+              // 👥 Title
               Row(
                 children: [
                   Text('Visitors', style: TTextStyles.Editprofile),
                   const SizedBox(width: 8),
-                  Image.asset(
-                    'assets/images/handshake.png',
-                    width: 34,
-                    height: 34,
-                  )
+                  Image.asset('assets/images/handshake.png',
+                      width: 34, height: 34),
                 ],
               ),
 
@@ -140,13 +79,15 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
 
               // 📋 Visitor List
               Expanded(
-                child: filteredVisitors.isEmpty
+                child: visitors.isEmpty
                     ? const Center(child: Text('No visitors found.'))
                     : ListView.builder(
-                        itemCount: filteredVisitors.length,
+                        itemCount: visitors.length,
                         itemBuilder: (context, index) {
-                          final visitor = filteredVisitors[index];
-                          final name = visitor['name1'] ?? 'Unknown';
+                          final visitor = widget.allVisitors[index];
+                          final name = visitor['name'] ?? 'Unknown';
+                          final invitedByName = visitor['invitedBy']?['name'] ??
+                              'Unknown inviter';
                           final dateStr = visitor['visitDate']?.toString();
                           final formattedDate = dateStr != null
                               ? DateFormat('dd-MM-yyyy').format(
@@ -154,9 +95,8 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
                               : '';
 
                           return referralTile(
-                            context,
                             visitor,
-                            name,
+                            invitedByName,
                             formattedDate,
                             'assets/images/profile1.jpg',
                           );
@@ -170,12 +110,16 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
     );
   }
 
-  Widget referralTile(BuildContext context, Map<String, dynamic> visitor,
-      String name, String date, String imagePath) {
+  Widget referralTile(Map<String, dynamic> visitor, String invitedByName,
+      String date, String imagePath) {
     return GestureDetector(
-      onTap: () {
-        context.push('/visiteddetails', extra: visitor);
-      },
+      onTap: () => context.push(
+        '/visiteddetails',
+        extra: {
+          'visitor': visitor,
+          'hideSensitiveFields': true,
+        },
+      ),
       child: Card(
         color: Colors.white,
         elevation: 2,
@@ -187,36 +131,40 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage(imagePath),
-              ),
+              CircleAvatar(radius: 20, backgroundImage: AssetImage(imagePath)),
               SizedBox(width: 3.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: "Invited By: ",
+                          style: TextStyle(
+                            color: const Color(0xFFC6221A),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                          ),
+                        ),
+                        TextSpan(
+                          text: invitedByName,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    date,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
+                  Text(date,
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               ),
               const Spacer(),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: Colors.red,
-              ),
+              const Icon(Icons.arrow_forward_ios_rounded,
+                  size: 16, color: Colors.red),
             ],
           ),
         ),

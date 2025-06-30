@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
-import 'package:grip/backend/handle.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/bottomappbartemp.dart';
 import 'package:grip/pages/allcount.dart';
@@ -26,7 +25,7 @@ class _HomescreenState extends State<Homescreen> {
   String? _storedToken;
   String? _username;
   int _thankYouCount = 0;
-
+  List<dynamic> _allvisitors = [];
   List<dynamic> _visitors = [];
   bool _isLoading = true;
   int _visitorCount = 0;
@@ -86,6 +85,9 @@ class _HomescreenState extends State<Homescreen> {
     await Future.delayed(const Duration(milliseconds: 300));
 
     await _runWithRetry(_loadThankYouNotes, apiName: 'Thank You Notes');
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    await _runWithRetry(_loadVisitorsData, apiName: 'Seven Days Visitor');
   }
 
   void _loadChapterDetails() async {
@@ -159,10 +161,8 @@ class _HomescreenState extends State<Homescreen> {
           _isLoading = false;
         });
       } else {
-        print('❌ Failed to fetch One-to-One list: ${response.message}');
         if (mounted) {
           setState(() => _isLoading = false);
-          ToastUtil.showToast(context, getSafeErrorMessage(response.message));
         }
       }
     } catch (e) {
@@ -191,7 +191,6 @@ class _HomescreenState extends State<Homescreen> {
         });
       } else {
         if (mounted) {
-          ToastUtil.showToast(context, getSafeErrorMessage(response.message));
           setState(() => _isLoading = false);
         }
       }
@@ -257,7 +256,6 @@ class _HomescreenState extends State<Homescreen> {
           _testimonialList = [];
           _testimonialCount = 0;
         });
-        ToastUtil.showToast(context, getSafeErrorMessage(response.message));
       }
     } catch (e) {
       if (mounted) {
@@ -294,7 +292,7 @@ class _HomescreenState extends State<Homescreen> {
         } else {
           _referralList = [];
           _referralCount = 0;
-          ToastUtil.showToast(context, getSafeErrorMessage(response.message));
+
           print("Failed to load referrals: ${response.message}");
         }
       });
@@ -359,6 +357,25 @@ class _HomescreenState extends State<Homescreen> {
       } else {
         ToastUtil.showToast(context, 'Network error loading Thank You Notes');
       }
+    }
+  }
+
+  Future<void> _loadVisitorsData() async {
+    const storage = FlutterSecureStorage();
+    final userDataString = await storage.read(key: 'user_data');
+    if (userDataString == null) return;
+
+    final userData = jsonDecode(userDataString);
+    final chapterId = userData['chapterId'];
+
+    final response = await PublicRoutesApiService.fetchVisitors(chapterId);
+    if (response.isSuccess) {
+      print('🟢 Visitors fetched: ${response.data}');
+      setState(() {
+        _allvisitors = response.data; // ✅ Store it here
+      });
+    } else {
+      print('🔴 Visitors fetch failed: ${response.message}');
     }
   }
 
@@ -573,13 +590,17 @@ class _HomescreenState extends State<Homescreen> {
                     SizedBox(height: 8),
                     Customcard(
                       title: "Chapter Visitors – ( Last 7 Days )",
-                      value: '10',
+                      value: '${_allvisitors.length}', // ✅ Dynamic value
                       onTapAddView: () {},
-                      onTapView: () {
-                        context.push('/allvisitors', extra: _visitors);
+                      onTapView: () async {
+                        final result = await context.push('/allvisitors',
+                            extra: _allvisitors);
+                        if (result == true) {
+                          await _loadVisitorsData(); // reload if returned
+                        }
                       },
                       imagePath: 'assets/images/visitors.png',
-                      viewOnly: true, // ✅ Only shows "View"
+                      viewOnly: true,
                     ),
                   ],
                 ),

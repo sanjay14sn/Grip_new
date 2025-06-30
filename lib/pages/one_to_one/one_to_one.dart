@@ -59,6 +59,8 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
   void _handleSubmitOneToOne() async {
     if (isSubmitting) return;
     setState(() => isSubmitting = true);
+    print('🚀 Submitting 1-to-1...');
+
     final String? toMemberId = fetchedAssociateUid ?? selectedPersonId;
     print('👤 Selected toMemberId: $toMemberId');
 
@@ -70,6 +72,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
       print('   _pickedImage: $_pickedImage');
       print('   selectedLocation: $selectedLocation');
       ToastUtil.showToast(context, "Please complete all required fields.");
+      setState(() => isSubmitting = false);
       return;
     }
 
@@ -96,6 +99,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
     if (userDataString == null) {
       print('❌ Secure storage: user_data not found');
       ToastUtil.showToast(context, "User data not found.");
+      setState(() => isSubmitting = false);
       return;
     }
 
@@ -125,10 +129,12 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
 
     if (response.isSuccess) {
       ToastUtil.showToast(context, '✅ One-to-one Submitted successfully!');
-      Navigator.pop(context, true); // Return true to refresh previous screen
+      Navigator.pop(context, true); // Refresh previous screen
     } else {
       ToastUtil.showToast(context, '❌ Failed: ${response.message}');
     }
+
+    setState(() => isSubmitting = false); // Stop loader at the end
   }
 
   @override

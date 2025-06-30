@@ -103,6 +103,7 @@ class _ReferralPageState extends State<ReferralPage> {
     } else {
       ToastUtil.showToast(context, "❌ ${response.message}");
     }
+    setState(() => isSubmitting = false);
   }
 
   Widget buildInputField(

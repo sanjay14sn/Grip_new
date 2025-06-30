@@ -43,54 +43,84 @@ class _ThankYouNotePageState extends State<ThankYouNotePage> {
     super.dispose();
   }
 
-  void submitForm() async {
-    if (isSubmitting) return;
-
-    setState(() => isSubmitting = true); // Start loader
-    final toMember =
-        showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
-    final amount = amountController.text.trim();
-    final comments = commentsController.text.trim();
-
-    if (toMember == null || toMember.isEmpty) {
-      ToastUtil.showToast(
-          context, "Please select a member or enter associate number");
-      return;
-    }
-
-    if (amount.isEmpty) {
-      ToastUtil.showToast(context, "Amount is required");
-      return;
-    }
-
-    if (!RegExp(r'^\d{1,20}$').hasMatch(amount)) {
-      ToastUtil.showToast(context, "Amount must be numeric and max 20 digits");
-      return;
-    }
-
-    if (comments.isEmpty) {
-      ToastUtil.showToast(context, "Comments is required");
-      return;
-    }
-
-    if (comments.length > 250) {
-      ToastUtil.showToast(context, "Comments must be under 150 characters");
-      return;
-    }
-
-    final response = await PublicRoutesApiService.submitThankYouNoteSlip(
-      toMember: toMember,
-      amount: double.tryParse(amount) ?? 0,
-      comments: comments,
-    );
-
-    if (response.isSuccess) {
-      ToastUtil.showToast(context, "Thank You Note submitted successfully");
-      Navigator.pop(context, true); // 👈 refresh on home
-    } else {
-      ToastUtil.showToast(context, "❌ ${response.message}");
-    }
+void submitForm() async {
+  if (isSubmitting) {
+    print('Form is already being submitted. Returning early.');
+    return;
   }
+
+  setState(() => isSubmitting = true); // Start loader
+  print('Submitting Thank You Note...');
+
+  final toMember =
+      showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
+  final amount = amountController.text.trim();
+  final comments = commentsController.text.trim();
+
+  print('Collected Data:');
+  print('To Member: $toMember');
+  print('Amount: $amount');
+  print('Comments: $comments');
+
+  if (toMember == null || toMember.isEmpty) {
+    print('Validation failed: Member not selected');
+    ToastUtil.showToast(
+        context, "Please select a member or enter associate number");
+    setState(() => isSubmitting = false);
+    return;
+  }
+
+  if (amount.isEmpty) {
+    print('Validation failed: Amount is empty');
+    ToastUtil.showToast(context, "Amount is required");
+    setState(() => isSubmitting = false);
+    return;
+  }
+
+  if (!RegExp(r'^\d{1,20}$').hasMatch(amount)) {
+    print('Validation failed: Invalid amount format');
+    ToastUtil.showToast(
+        context, "Amount must be numeric and max 20 digits");
+    setState(() => isSubmitting = false);
+    return;
+  }
+
+  if (comments.isEmpty) {
+    print('Validation failed: Comments is empty');
+    ToastUtil.showToast(context, "Comments is required");
+    setState(() => isSubmitting = false);
+    return;
+  }
+
+  if (comments.length > 250) {
+    print('Validation failed: Comments too long');
+    ToastUtil.showToast(context, "Comments must be under 150 characters");
+    setState(() => isSubmitting = false);
+    return;
+  }
+
+  final double parsedAmount = double.tryParse(amount) ?? 0;
+  print('Sending request with: { toMember: $toMember, amount: $parsedAmount, comments: $comments }');
+
+  final response = await PublicRoutesApiService.submitThankYouNoteSlip(
+    toMember: toMember,
+    amount: parsedAmount,
+    comments: comments,
+  );
+
+ 
+  if (response.isSuccess) {
+    print('Thank You Note submitted successfully.');
+    ToastUtil.showToast(context, "Thank You Note submitted successfully");
+    Navigator.pop(context, true); // refresh home
+  } else {
+    print('Submission failed: ${response.message}');
+    ToastUtil.showToast(context, "❌ ${response.message}");
+  }
+
+  setState(() => isSubmitting = false); // Stop loader
+}
+
 
   @override
   Widget build(BuildContext context) {

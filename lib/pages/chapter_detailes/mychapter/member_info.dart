@@ -80,7 +80,16 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _menuItem(Icons.group, "Referrals", () {
-                          context.push('/Othersreferral');
+                          final memberId = widget.member.id;
+
+                          if (memberId != null && memberId.isNotEmpty) {
+                            context.push('/Othersreferral', extra: memberId);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Member ID missing")),
+                            );
+                          }
                         }),
                         _menuItem(Icons.chat, "Testimonials", () {
                           context.push('/OthersTestimonial');
@@ -111,8 +120,18 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                             );
                           }
                         }),
-                        _menuItem(Icons.remove_red_eye_sharp, "Visitors", () {
-                          context.push('/Othersvisitors');
+                        _menuItem(Icons.remove_red_eye_sharp, "Visitors",
+                            () async {
+                          final memberId = widget.member.id;
+
+                          if (memberId != null && memberId.isNotEmpty) {
+                            context.push('/Othersvisitors', extra: memberId);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Member ID not found")),
+                            );
+                          }
                         }),
                       ],
                     ),

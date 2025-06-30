@@ -107,11 +107,17 @@ class _ChapterSelectorState extends State<ChapterSelector> {
                   selectedChapterId == null
                       ? null
                       : chaptersInZone.firstWhere(
-                          (c) => c['_id'] == selectedChapterId)['chapterName'],
+                          (c) => c['_id'] == selectedChapterId,
+                          orElse: () => null,
+                        )?['chapterName'],
                   (val) {
-                    final matched = chaptersInZone
-                        .firstWhere((c) => c['chapterName'] == val);
-                    selectedChapterId = matched['_id'];
+                    final matched = chaptersInZone.firstWhere(
+                      (c) => c['chapterName'] == val,
+                      orElse: () => null,
+                    );
+                    if (matched != null) {
+                      selectedChapterId = matched['_id'];
+                    }
                   },
                 ),
               SizedBox(height: 4.h),

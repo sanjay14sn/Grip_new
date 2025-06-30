@@ -1,77 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grip/components/filter.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class OtherReferralViewPage extends StatefulWidget {
-  const OtherReferralViewPage({super.key});
+  final String memberId;
+
+  const OtherReferralViewPage({super.key, required this.memberId});
 
   @override
   State<OtherReferralViewPage> createState() => _OtherReferralViewPageState();
 }
 
 class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
-  // Your logic here
-
   bool isReceivedSelected = false;
+  bool isLoading = true;
 
-  final List<Map<String, String>> receivedReferrals = [
-    {
-      'name': 'Paul Mauray',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Dinesh',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'Amaran',
-      'date': '15 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Babu',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Mani',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-  ];
+  List<dynamic> receivedReferrals = [];
+  List<dynamic> givenReferrals = [];
 
-  final List<Map<String, String>> givenReferrals = [
-    {
-      'name': 'Suresh Kumar',
-      'date': '10 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Priya Dharshini',
-      'date': '11 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'John Moses',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Radha',
-      'date': '13 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-    {
-      'name': 'Ajay',
-      'date': '14 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchReferrals();
+  }
+
+  Future<void> fetchReferrals() async {
+    final givenResponse =
+        await PublicRoutesApiService.fetchGivenReferrals(widget.memberId);
+    final receivedResponse =
+        await PublicRoutesApiService.fetchReceivedReferrals(widget.memberId);
+
+    setState(() {
+      givenReferrals = givenResponse.data ?? [];
+      receivedReferrals = receivedResponse.data ?? [];
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,15 +50,12 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top bar
+              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  // Back Button
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => Navigator.pop(context),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -101,15 +65,13 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-                  const SizedBox(width: 12), // Space between icon and text
-                  Text(
-                    'Sasi',
-                    style: TTextStyles.ReferralSlip,
-                  ),
+                  const SizedBox(width: 12),
+                  Text('Referrals', style: TTextStyles.ReferralSlip),
                 ],
               ),
-
               SizedBox(height: 2.h),
+
+              // Title
               Row(
                 children: [
                   Text('Referral Details', style: TTextStyles.ReferralSlip),
@@ -117,10 +79,9 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                   const Icon(Icons.people),
                 ],
               ),
-
               SizedBox(height: 1.5.h),
 
-              // Category toggle
+              // Toggle
               Text('Category:', style: TTextStyles.Category),
               SizedBox(height: 1.h),
               Container(
@@ -132,7 +93,6 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                 ),
                 child: Row(
                   children: [
-                    // GIVEN button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => isReceivedSelected = false),
@@ -155,8 +115,6 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                         ),
                       ),
                     ),
-
-                    // RECEIVED button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => isReceivedSelected = true),
@@ -182,23 +140,36 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                   ],
                 ),
               ),
-
               SizedBox(height: 2.h),
 
-              // Referral List using ListView.builder
+              // List
               Expanded(
-                child: ListView.builder(
-                  itemCount: isReceivedSelected
-                      ? receivedReferrals.length
-                      : givenReferrals.length,
-                  itemBuilder: (context, index) {
-                    final item = isReceivedSelected
-                        ? receivedReferrals[index]
-                        : givenReferrals[index];
-                    return referralTile(item['name']!, item['date']!,
-                        item['image']!, isReceivedSelected);
-                  },
-                ),
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        itemCount: isReceivedSelected
+                            ? receivedReferrals.length
+                            : givenReferrals.length,
+                        itemBuilder: (context, index) {
+                          final item = isReceivedSelected
+                              ? receivedReferrals[index]
+                              : givenReferrals[index];
+
+                          final referralName =
+                              item['referalDetail']?['name'] ?? 'N/A';
+                          final referralDate =
+                              item['createdAt']?.toString().split('T').first ??
+                                  '';
+
+                          return referralTile(
+                            item,
+                            referralName,
+                            referralDate,
+                            'assets/images/profile1.jpg',
+                            isReceivedSelected,
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -207,24 +178,27 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
     );
   }
 
-  // Tile Widget with different routes based on tab
+  // Tile
   Widget referralTile(
-      String name, String date, String imagePath, bool isReceived) {
+    Map<String, dynamic> referral,
+    String name,
+    String date,
+    String imagePath,
+    bool isReceived,
+  ) {
     return GestureDetector(
       onTap: () {
-        // if (isReceived) {
-        //   context.push('/ReceivedTestimonials'); // received route
-        // } else {
-        //   context.push('/GivenTestimonials'); // given route
-        // }
+        if (isReceived) {
+          context.push('/referralDetailReceived', extra: referral);
+        } else {
+          context.push('/referralDetailGiven', extra: referral);
+        }
       },
       child: Card(
         color: Colors.white,
         elevation: 2,
         margin: EdgeInsets.symmetric(vertical: 0.6.h, horizontal: 2.w),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -254,11 +228,8 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                 ],
               ),
               const Spacer(),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: Colors.red,
-              ),
+              const Icon(Icons.arrow_forward_ios_rounded,
+                  size: 16, color: Colors.red),
             ],
           ),
         ),

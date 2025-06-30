@@ -3,8 +3,13 @@ import 'package:sizer/sizer.dart';
 
 class VisitorDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> visitor;
+  final bool hideSensitiveFields;
 
-  const VisitorDetailsScreen({super.key, required this.visitor});
+  const VisitorDetailsScreen({
+    super.key,
+    required this.visitor,
+    this.hideSensitiveFields = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +21,7 @@ class VisitorDetailsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 3.h,
-              ),
+              SizedBox(height: 3.h),
               Row(
                 children: [
                   GestureDetector(
@@ -42,7 +45,7 @@ class VisitorDetailsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(2.w),
                         ),
                         child: Text(
-                          'RECEIVED TESTIMONIAL SLIP',
+                          'VISITORS SLIP',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -55,7 +58,6 @@ class VisitorDetailsScreen extends StatelessWidget {
                   SizedBox(width: 10.w),
                 ],
               ),
-
               SizedBox(height: 2.h),
 
               /// Visitor Details Card
@@ -78,24 +80,36 @@ class VisitorDetailsScreen extends StatelessWidget {
                       _buildLabelValue("Name", visitor['name'] ?? '-'),
                       _buildLabelValue("Company", visitor['company'] ?? '-'),
                       _buildLabelValue("Category", visitor['category'] ?? '-'),
-                      _buildLabelValueWithIcon(
+
+                      if (!hideSensitiveFields) ...[
+                        _buildLabelValueWithIcon(
                           "Mobile",
                           visitor['mobile'] ?? '-',
                           Icons.phone,
-                          Color(0xFFC6221A)),
-                      _buildLabelValue("Email", visitor['email'] ?? '-'),
-                      _buildLabelValueWithIcon(
+                          const Color(0xFFC6221A),
+                        ),
+                        _buildLabelValue("Email", visitor['email'] ?? '-'),
+                        _buildLabelValueWithIcon(
                           "Address",
                           visitor['address'] ?? '-',
                           Icons.location_on,
-                          Color(0xFFC6221A)),
+                          const Color(0xFFC6221A),
+                        ),
+                      ],
+
                       _buildLabelValueWithIcon(
                         "Visit Date",
-                        visitor['visitDate']?.toString().substring(0, 10) ??
-                            '-',
+                        _getSafeDate(visitor['visitDate']),
                         Icons.calendar_today,
                         Colors.red,
                       ),
+
+                      if (visitor['invitedBy'] != null &&
+                          visitor['invitedBy']['name'] != null)
+                        _buildLabelValue(
+                          "Invited By",
+                          visitor['invitedBy']['name'],
+                        ),
                     ],
                   ),
                 ),
@@ -105,6 +119,17 @@ class VisitorDetailsScreen extends StatelessWidget {
         ),
       );
     });
+  }
+
+  String _getSafeDate(dynamic date) {
+    final str = date?.toString() ?? '';
+    if (str.length >= 10) {
+      return str.substring(0, 10);
+    } else if (str.isNotEmpty) {
+      return str;
+    } else {
+      return '-';
+    }
   }
 
   Widget _buildLabelValue(String label, String value) {

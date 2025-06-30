@@ -18,6 +18,7 @@ import 'package:grip/pages/one_to_one/viewone_to_one.dart';
 import 'package:grip/pages/one_to_one/viewmembers.dart';
 import 'package:grip/pages/othersview.dart/otherreferral.dart';
 import 'package:grip/pages/othersview.dart/otherstest.dart';
+import 'package:grip/pages/othersview.dart/othersvisitors.dart';
 import 'package:grip/pages/payment/membershipdetails.dart';
 import 'package:grip/pages/qrscanner.dart';
 import 'package:grip/pages/referrals/receivedreferral.dart';
@@ -280,8 +281,14 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/visiteddetails',
       builder: (context, state) {
-        final visitor = state.extra as Map<String, dynamic>? ?? {};
-        return VisitorDetailsScreen(visitor: visitor);
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        final visitor = extra['visitor'] as Map<String, dynamic>? ?? {};
+        final hideSensitiveFields = extra['hideSensitiveFields'] ?? false;
+
+        return VisitorDetailsScreen(
+          visitor: visitor,
+          hideSensitiveFields: hideSensitiveFields,
+        );
       },
     ),
 
@@ -304,10 +311,27 @@ final GoRouter router = GoRouter(
         path: '/OthersTestimonial',
         builder: (context, state) => OthersTestimonialsViewPage()),
     GoRoute(
-        path: '/Othersreferral',
-        builder: (context, state) => OtherReferralViewPage()),
+      path: '/Othersreferral',
+      builder: (context, state) {
+        final memberId = state.extra as String;
+        return OtherReferralViewPage(memberId: memberId);
+      },
+    ),
+
     GoRoute(
-        path: '/allvisitors',
-        builder: (context, state) => AllVisitorsViewpage()),
+      path: '/allvisitors',
+      builder: (context, state) {
+        final extraData = state.extra;
+
+        // 🔒 Safe type cast
+        final List<Map<String, dynamic>> allVisitors =
+            (extraData as List).map((e) => e as Map<String, dynamic>).toList();
+
+        return AllVisitorsViewpage(allVisitors: allVisitors);
+      },
+    ),
+    GoRoute(
+        path: '/Othersvisitors',
+        builder: (context, state) => OthersVisitorsPage()),
   ],
 );
