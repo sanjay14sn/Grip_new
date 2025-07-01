@@ -17,28 +17,36 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
   @override
   void initState() {
     super.initState();
+    _startSplashSequence();
+  }
 
-    // Start logo fade-in
-    Timer(const Duration(milliseconds: 1000), () {
-      setState(() {
-        _opacity = 1.0;
-      });
-    });
+  Future<void> _startSplashSequence() async {
+    // Fade-in delay
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (mounted) {
+      setState(() => _opacity = 1.0);
+    }
 
-    // After splash delay, check auth and navigate accordingly
-    Timer(const Duration(seconds: 4), () async {
-      if (!mounted) return;
+    // Wait for splash duration
+    await Future.delayed(const Duration(seconds: 3));
 
+    try {
       final token = await storage.read(key: 'auth_token');
       final userData = await storage.read(key: 'user_data');
 
+      if (!mounted) return;
+
       if (token != null && userData != null) {
-        context.go('/homepage'); // ✅ Go to homepage
-        // context.go('/token'); // ✅ Go to homepage
+        context.go('/homepage');
       } else {
-        context.go('/login'); // ❌ Not logged in, go to login
+        context.go('/splashscreen');
       }
-    });
+    } catch (e) {
+      debugPrint("🔴 Storage error: $e");
+      if (mounted) {
+        context.go('/splashscreen'); // Safe fallback
+      }
+    }
   }
 
   @override

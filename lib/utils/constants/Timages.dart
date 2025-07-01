@@ -1,6 +1,6 @@
 class Timages {
   // Common images
-  static const String worldperson = 'assets/images/worldwithperson.png';
+  static const String worldperson = 'assets/images/chennailogo.png';
   static const String griplogo = 'assets/images/logo.png';
   static const String hanadshake = 'assets/images/image 8.png';
   static const String bulb = 'assets/images/image 7.png';

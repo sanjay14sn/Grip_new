@@ -13,6 +13,7 @@ import 'package:grip/backend/gorouter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
 
 // 🔔 Background FCM Handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -141,21 +142,36 @@ class _MyAppState extends State<MyApp> {
     _handleConnectivityChange(result);
   }
 
-  void _handleConnectivityChange(ConnectivityResult result) {
+  Future<void> _handleConnectivityChange(ConnectivityResult result) async {
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;
 
+    final router = GoRouter.of(context);
     final currentUri =
-        GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
+        router.routerDelegate.currentConfiguration.uri.toString();
 
-    if (result == ConnectivityResult.none) {
+    final hasNetwork = result != ConnectivityResult.none;
+    final hasInternet = await _checkInternet();
+
+    if (!hasNetwork || !hasInternet) {
       if (!currentUri.contains('/networkerror')) {
-        context.push('/networkerror');
+        router.go('/networkerror');
       }
     } else {
       if (currentUri.contains('/networkerror')) {
-        context.pop();
+        router.go('/homepage'); // Or your fallback screen
       }
+    }
+  }
+
+  Future<bool> _checkInternet() async {
+    try {
+      final response = await http
+          .get(Uri.parse('https://www.google.com'))
+          .timeout(const Duration(seconds: 5));
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
     }
   }
 
