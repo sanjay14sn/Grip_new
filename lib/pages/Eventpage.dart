@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:sizer/sizer.dart';
 import 'package:shimmer/shimmer.dart';
@@ -379,7 +380,7 @@ class AgentaEvent {
         image['docPath'] != null &&
         image['docName'] != null) {
       imageUrl =
-          "${UrlService.IMAGE_BASE_URL}/${image['docPath']}/${image['docName']}";
+          "${UrlService.imageBaseUrl}/${image['docPath']}/${image['docName']}";
     }
 
     return AgentaEvent(
@@ -390,9 +391,4 @@ class AgentaEvent {
       date: DateTime.parse(json['date']),
     );
   }
-}
-
-class UrlService {
-  static const String IMAGE_BASE_URL =
-      "https://api.grip.oceansoft.online/api/public";
 }

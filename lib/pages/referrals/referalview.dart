@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/components/filter_options.dart';
@@ -110,114 +111,129 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        bottom: false,
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_back),
-                    ),
-                  ),
+                  // 🔙 Header Row
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Referral Details', style: TTextStyles.ReferralSlip),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.people),
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFE0E2E7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.arrow_back),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Text('Referral Details',
+                              style: TTextStyles.ReferralSlip),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.people),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: openFilterDialog,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFE0E2E7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.filter_alt_outlined),
+                        ),
+                      ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: openFilterDialog,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.filter_alt_outlined),
+                  SizedBox(height: 2.h),
+
+                  // 🏷️ Category Toggle
+                  Text('Category:', style: TTextStyles.Category),
+                  SizedBox(height: 1.h),
+                  Container(
+                    width: double.infinity,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                  )
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() {
+                              isReceivedSelected = false;
+                              filter.category = 'Given';
+                              applyFilters();
+                            }),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: !isReceivedSelected
+                                    ? Tcolors.red_button
+                                    : null,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Given',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: !isReceivedSelected
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() {
+                              isReceivedSelected = true;
+                              filter.category = 'Received';
+                              applyFilters();
+                            }),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: isReceivedSelected
+                                    ? Tcolors.red_button
+                                    : null,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Received',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isReceivedSelected
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              SizedBox(height: 2.h),
-              Text('Category:', style: TTextStyles.Category),
-              SizedBox(height: 1.h),
-              Container(
-                width: double.infinity,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() {
-                          isReceivedSelected = false;
-                          filter.category = 'Given';
-                          applyFilters();
-                        }),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient:
-                                !isReceivedSelected ? Tcolors.red_button : null,
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Given',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: !isReceivedSelected
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() {
-                          isReceivedSelected = true;
-                          filter.category = 'Received';
-                          applyFilters();
-                        }),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient:
-                                isReceivedSelected ? Tcolors.red_button : null,
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Received',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isReceivedSelected
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 2.h),
-              Expanded(
+            ),
+
+            // 📋 Referral List
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 1.h),
                 child: isReceivedSelected
                     ? isLoadingReceived
                         ? const Center(child: CircularProgressIndicator())
@@ -226,6 +242,7 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                                 child: Text("No received referrals"),
                               )
                             : ListView.builder(
+                                padding: EdgeInsets.only(top: 2.h),
                                 itemCount: receivedReferrals.length,
                                 itemBuilder: (context, index) {
                                   final item = receivedReferrals[index];
@@ -244,17 +261,18 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                                       "${fromDetails['firstName'] ?? ''} ${fromDetails['lastName'] ?? ''}"
                                           .trim();
                                   return referralTile(
-                                    item,
-                                    fromName.isNotEmpty ? fromName : name,
-                                    date,
-                                    'assets/images/profile_placeholder.png',
-                                    true,
-                                  );
+                                      item,
+                                      fromName.isNotEmpty
+                                          ? fromName
+                                          : name,
+                                      date,
+                                      true);
                                 },
                               )
                     : givenReferrals.isEmpty
                         ? const Center(child: Text("No given referrals"))
                         : ListView.builder(
+                            padding: EdgeInsets.only(top: 2.h),
                             itemCount: givenReferrals.length,
                             itemBuilder: (context, index) {
                               final item = givenReferrals[index];
@@ -272,41 +290,63 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                                   "${toDetails['firstName'] ?? ''} ${toDetails['lastName'] ?? ''}"
                                       .trim();
                               return referralTile(
-                                item,
-                                toName.isNotEmpty ? toName : name,
-                                date,
-                                'assets/images/profile_placeholder.png',
-                                false,
-                              );
+                                  item,
+                                  toName.isNotEmpty ? toName : name,
+                                  date,
+                                  false);
                             },
                           ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
+  // 🔍 Profile Image Extractor
+  Map<String, dynamic>? getProfileImageMap(
+      Map<String, dynamic> item, bool isReceived) {
+    final member = isReceived
+        ? item['fromMember'] as Map<String, dynamic>?
+        : item['toMember'] as Map<String, dynamic>?;
+
+    final personalDetails = member?['personalDetails'] as Map<String, dynamic>?;
+    return personalDetails?['profileImage'] as Map<String, dynamic>?;
+  }
+
+  // 🌐 Image URL Builder
+  String? buildImageUrl(Map<String, dynamic>? imageMap) {
+    final docPath = imageMap?['docPath'];
+    final docName = imageMap?['docName'];
+
+    if (docPath != null && docName != null) {
+      return "${UrlService.imageBaseUrl}/$docPath/$docName";
+    }
+    return null;
+  }
+
+  // 📦 Referral Tile Widget
   Widget referralTile(
     Map<String, dynamic> referral,
     String name,
     String date,
-    String imagePath,
     bool isReceived,
   ) {
+    final profileImageMap = getProfileImageMap(referral, isReceived);
+    final imageUrl = buildImageUrl(profileImageMap);
+
     return GestureDetector(
       onTap: () {
-        if (isReceived) {
-          context.push('/referralDetailReceived', extra: referral);
-        } else {
-          context.push('/referralDetailGiven', extra: referral);
-        }
+        context.push(
+          isReceived ? '/referralDetailReceived' : '/referralDetailGiven',
+          extra: referral,
+        );
       },
       child: Card(
         color: Colors.white,
         elevation: 2,
-        margin: EdgeInsets.symmetric(vertical: 0.6.h, horizontal: 2.w),
+        margin: EdgeInsets.symmetric(vertical: 0.6.h, horizontal: 4.w),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -316,7 +356,10 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: AssetImage(imagePath),
+                backgroundImage: imageUrl != null
+                    ? NetworkImage(imageUrl)
+                    : const AssetImage('assets/images/profile_placeholder.png')
+                        as ImageProvider,
               ),
               SizedBox(width: 3.w),
               Column(

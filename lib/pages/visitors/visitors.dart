@@ -119,8 +119,6 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
 
     final response = await PublicRoutesApiService.registerVisitor(requestBody);
 
-  
-
     if (response.isSuccess) {
       print('Visitor registered successfully.');
       ToastUtil.showToast(

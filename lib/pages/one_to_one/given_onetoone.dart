@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/pages/Eventpage.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -39,7 +40,7 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
     final docName = currentImage?['docName'] ?? '';
 
     final imageUrl = (hasImages && docPath.isNotEmpty && docName.isNotEmpty)
-        ? "${UrlService.IMAGE_BASE_URL}/$docPath/$docName"
+        ? "${UrlService.imageBaseUrl}/$docPath/$docName"
         : null;
 
     final place = widget.data['whereDidYouMeet'] ?? 'No place specified';

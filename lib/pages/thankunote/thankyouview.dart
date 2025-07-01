@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/components/filter_options.dart';
@@ -29,6 +30,14 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
 
   FilterOptions filter = FilterOptions();
 
+  String? buildImageUrl(Map<String, dynamic>? image) {
+    if (image == null) return null;
+    final docPath = image['docPath'];
+    final docName = image['docName'];
+    if (docPath == null || docName == null) return null;
+    return "${UrlService.imageBaseUrl}/$docPath/$docName";
+  }
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +47,7 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
   }
 
   Future<void> _loadReceivedThankYouNotes() async {
-    setState(() => _isLoading = false);
+    setState(() => _isLoading = true);
     final response = await PublicRoutesApiService.fetchReceivedThankYouNotes();
 
     if (response.isSuccess && response.data is List) {
@@ -228,14 +237,13 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
 
               // List
               Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : data.isEmpty
+                child: data.isEmpty
                         ? const Center(child: Text('No data found.'))
                         : ListView.builder(
                             itemCount: data.length,
                             itemBuilder: (context, index) {
                               final item = data[index];
+
                               final name = isReceivedSelected
                                   ? "${item['fromMember']?['personalDetails']?['firstName'] ?? ''} ${item['fromMember']?['personalDetails']?['lastName'] ?? ''}"
                                   : "${item['toMember']?['personalDetails']?['firstName'] ?? ''} ${item['toMember']?['personalDetails']?['lastName'] ?? ''}";
@@ -245,13 +253,17 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
                                   ? DateFormat('dd-MM-yy')
                                       .format(DateTime.parse(rawDate))
                                   : '';
+                              final profileImageMap =
+                                  getProfileImageMap(item, isReceivedSelected);
+                              final imageUrl = buildImageUrl(profileImageMap);
 
                               return referralTile(
-                                  name,
-                                  formattedDate,
-                                  'assets/images/person.png',
-                                  isReceivedSelected,
-                                  item);
+                                name,
+                                formattedDate,
+                                imageUrl,
+                                isReceivedSelected,
+                                item,
+                              );
                             },
                           ),
               ),
@@ -262,7 +274,19 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
     );
   }
 
-  Widget referralTile(String name, String date, String imagePath,
+  Map<String, dynamic>? getProfileImageMap(dynamic item, bool isReceived) {
+    final member = isReceived
+        ? item['fromMember'] as Map<String, dynamic>?
+        : item['toMember'] as Map<String, dynamic>?;
+
+    final personalDetails = member?['personalDetails'] as Map<String, dynamic>?;
+    final profileImage =
+        personalDetails?['profileImage'] as Map<String, dynamic>?;
+
+    return profileImage;
+  }
+
+  Widget referralTile(String name, String date, String? imageUrl,
       bool isReceived, dynamic item) {
     return GestureDetector(
       onTap: () {
@@ -285,7 +309,10 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: AssetImage(imagePath),
+                backgroundImage: imageUrl != null
+                    ? NetworkImage(imageUrl)
+                    : const AssetImage('assets/images/person.png')
+                        as ImageProvider,
               ),
               SizedBox(width: 3.w),
               Column(

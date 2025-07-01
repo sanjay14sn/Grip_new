@@ -115,12 +115,15 @@ class PublicRoutesApi {
   static Future<ApiResponse> Login({
     required String mobileNumber,
     required String pin,
+    String? fcmToken,
   }) async {
     final String apiUrl = '$endPointbaseUrl/api/mobile/member-login';
 
     final Map<String, dynamic> requestBody = {
       "mobileNumber": mobileNumber,
-      "pin":pin,
+      "pin": pin,
+      if (fcmToken != null)
+        "fcmToken": fcmToken, // ✅ Include token if available
     };
 
     return PublicRoutesApiService.makeRequest(
@@ -130,5 +133,4 @@ class PublicRoutesApi {
       body: requestBody,
     );
   }
-  
 }

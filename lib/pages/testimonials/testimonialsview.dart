@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/components/filter_options.dart';
@@ -7,7 +8,6 @@ import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Testimonialsviewpage extends StatefulWidget {
   final List<dynamic> testimonials;
@@ -25,8 +25,6 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
 
   List<dynamic> filteredGivenReferrals = [];
   List<dynamic> filteredReceivedReferrals = [];
-
-  bool isLoading = false;
 
   FilterOptions filter = FilterOptions();
 
@@ -110,7 +108,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.5.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -145,6 +143,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
 
               SizedBox(height: 2.h),
 
+              /// 🧾 Title
               Row(
                 children: [
                   Text('Testimonials Details', style: TTextStyles.ReferralSlip),
@@ -230,7 +229,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
 
               SizedBox(height: 2.h),
 
-              /// Testimonial List
+              /// 📋 Testimonial List
               Expanded(
                 child: activeList.isEmpty
                     ? Center(
@@ -244,24 +243,19 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
                         itemBuilder: (context, index) {
                           final item = activeList[index];
                           final person = isReceivedSelected
-                              ? (item['fromMember'] ??
-                                  {
-                                    'personalDetails': {
-                                      'firstName': 'Unknown',
-                                      'lastName': ''
-                                    }
-                                  })
+                              ? item['fromMember']
                               : item['toMember'];
 
                           final name =
-                              "${person?['personalDetails']?['firstName'] ?? ''} ${person?['personalDetails']?['lastName'] ?? ''}";
+                              "${person?['personalDetails']?['firstName'] ?? ''} ${person?['personalDetails']?['lastName'] ?? ''}"
+                                  .trim();
                           final rawDate = item['createdAt'];
                           DateTime? parsedDate;
                           try {
                             parsedDate = rawDate != null
                                 ? DateTime.parse(rawDate)
                                 : null;
-                          } catch (e) {
+                          } catch (_) {
                             parsedDate = null;
                           }
 
@@ -269,9 +263,13 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
                               ? DateFormat('dd-MM-yy').format(parsedDate)
                               : '';
 
-                          final images = item['images'] as List;
-                          final imageUrl = images.isNotEmpty
-                              ? "${dotenv.env['API_BASE_URL']}${images[0]['docPath']}"
+                          final profile = person?['personalDetails'];
+                          final profileImage = profile?['profileImage'];
+                          final docPath = profileImage?['docPath'];
+                          final docName = profileImage?['docName'];
+
+                          final imageUrl = (docPath != null && docName != null)
+                              ? "${UrlService.imageBaseUrl}/$docPath/$docName"
                               : '';
 
                           return referralTile(
@@ -295,18 +293,15 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
   Widget referralTile(
     String name,
     String date,
-    String imagePath,
+    String fallbackImage,
     bool isReceived,
     String imageUrl,
     Map<String, dynamic> item,
   ) {
     return GestureDetector(
       onTap: () {
-        if (isReceived) {
-          context.push('/Recivedtestimonial', extra: item);
-        } else {
-          context.push('/GivenTestimonials', extra: item);
-        }
+        final route = isReceived ? '/Recivedtestimonial' : '/GivenTestimonials';
+        context.push(route, extra: item);
       },
       child: Card(
         color: Colors.white,
@@ -323,7 +318,7 @@ class _TestimonialsviewpageState extends State<Testimonialsviewpage> {
                 radius: 20,
                 backgroundImage: imageUrl.isNotEmpty
                     ? NetworkImage(imageUrl)
-                    : AssetImage(imagePath) as ImageProvider,
+                    : AssetImage(fallbackImage) as ImageProvider,
               ),
               SizedBox(width: 3.w),
               Column(

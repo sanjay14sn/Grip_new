@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -6,6 +7,24 @@ class GivenReferralSlipPage extends StatelessWidget {
   final Map<String, dynamic> referral;
 
   const GivenReferralSlipPage({super.key, required this.referral});
+
+  // 🔍 Extract profile image info
+  Map<String, dynamic>? getProfileImageMap() {
+    final toMember = referral['toMember'] as Map<String, dynamic>?;
+    final personalDetails = toMember?['personalDetails'] as Map<String, dynamic>?;
+    return personalDetails?['profileImage'] as Map<String, dynamic>?;
+  }
+
+  // 🌐 Construct profile image URL
+  String? buildImageUrl(Map<String, dynamic>? imageMap) {
+    final docPath = imageMap?['docPath'];
+    final docName = imageMap?['docName'];
+
+    if (docPath != null && docName != null) {
+      return "${UrlService.imageBaseUrl}/$docPath/$docName";
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +36,21 @@ class GivenReferralSlipPage extends StatelessWidget {
     final comments = detail['comments'] ?? 'No comments';
     final address = detail['address'] ?? 'No address';
 
+    final imageMap = getProfileImageMap();
+    final imageUrl = buildImageUrl(imageMap);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
+        bottom: false,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+          padding: EdgeInsets.symmetric(horizontal: 5.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🔙 Back & Label
+              SizedBox(height: 2.h),
+
+              // 🔙 Back Button & Title
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -42,6 +67,7 @@ class GivenReferralSlipPage extends StatelessWidget {
                   ),
                 ],
               ),
+              SizedBox(height: 1.5.h),
               Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -59,12 +85,10 @@ class GivenReferralSlipPage extends StatelessWidget {
                   ),
                 ),
               ),
-
               SizedBox(height: 2.h),
 
-              // 📝 Main Content Card
-              SizedBox(
-                height: 67.h,
+              // 📋 Main Content
+              Expanded(
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -73,93 +97,96 @@ class GivenReferralSlipPage extends StatelessWidget {
                   elevation: 4,
                   child: Padding(
                     padding: EdgeInsets.all(4.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Name:", style: TTextStyles.Rivenrefsmall),
-                        SizedBox(height: 1.h),
-                        Row(
-                          children: [
-                            const CircleAvatar(
-                              radius: 24,
-                              backgroundImage: AssetImage('assets/images/person.png'),
-                            ),
-                            SizedBox(width: 3.w),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(name, style: TTextStyles.refname),
-                               // Text("", style: TTextStyles.Rivenrefsmall),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 2.h),
-                        Text('Referral Status:', style: TTextStyles.Rivenrefsmall),
-                        Text(status, style: TTextStyles.reftext),
-                        SizedBox(height: 2.h),
-                        Text('Contact Details:', style: TTextStyles.Rivenrefsmall),
-                        SizedBox(height: 1.h),
-                        Container(
-                          padding: EdgeInsets.all(2.w),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F2F7),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Name:", style: TTextStyles.Rivenrefsmall),
+                          SizedBox(height: 1.h),
+                          Row(
                             children: [
-                              Expanded(
-                                child: Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(text: 'Mobile:\n'),
-                                      const WidgetSpan(
-                                        child: Icon(
-                                          Icons.call,
-                                          size: 16,
-                                          color: Color(0xFFC6221A),
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: mobile,
-                                        style: TTextStyles.Refcontact,
-                                      ),
-                                    ],
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundImage: imageUrl != null
+                                    ? NetworkImage(imageUrl)
+                                    : const AssetImage('assets/images/person.png') as ImageProvider,
+                              ),
+                              SizedBox(width: 3.w),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(name, style: TTextStyles.refname),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 2.h),
+
+                          Text('Referral Status:', style: TTextStyles.Rivenrefsmall),
+                          Text(status, style: TTextStyles.reftext),
+                          SizedBox(height: 2.h),
+
+                          Text('Contact Details:', style: TTextStyles.Rivenrefsmall),
+                          SizedBox(height: 1.h),
+
+                          // 📞 Mobile
+                          Container(
+                            padding: EdgeInsets.all(2.w),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F2F7),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.call, color: Color(0xFFC6221A), size: 16),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  child: Text(
+                                    mobile,
+                                    style: TTextStyles.Refcontact,
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 1.h),
-                        Container(
-                          padding: EdgeInsets.all(2.w),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F2F7),
-                            borderRadius: BorderRadius.circular(10),
+                          SizedBox(height: 1.h),
+
+                          // 📍 Address
+                          Container(
+                            padding: EdgeInsets.all(2.w),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F2F7),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.location_on, color: Color(0xFFC6221A), size: 16),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  child: Text(
+                                    address,
+                                    style: TTextStyles.Refcontact,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.location_on,
-                                  color: Color(0xFFC6221A), size: 16),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: Text(address, style: TTextStyles.Refcontact),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 2.h),
-                     //   Text('Category:', style: TTextStyles.Rivenrefsmall),
-                     //   Text(category, style: TTextStyles.reftext),
-                        SizedBox(height: 2.h),
-                        Text('Comments:', style: TTextStyles.Rivenrefsmall),
-                        Text(comments, style: TTextStyles.reftext),
-                      ],
+                          SizedBox(height: 2.h),
+
+                          // 📝 Category (optional)
+                          // Text('Category:', style: TTextStyles.Rivenrefsmall),
+                          // Text(category, style: TTextStyles.reftext),
+                          // SizedBox(height: 2.h),
+
+                          Text('Comments:', style: TTextStyles.Rivenrefsmall),
+                          Text(comments, style: TTextStyles.reftext),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
+              SizedBox(height: 2.h),
             ],
           ),
         ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/orientation_lock.dart';
 import 'package:grip/backend/providers/location_provider.dart';
@@ -97,7 +98,20 @@ class _MyAppState extends State<MyApp> {
     final fcmToken = await messaging.getToken();
     print("🎯 FCM Token: $fcmToken");
 
-    // 📩 Foreground message listener with local notification
+    if (fcmToken != null) {
+      const storage = FlutterSecureStorage();
+      await storage.write(key: 'fcm_token', value: fcmToken);
+      print("✅ FCM token saved to secure storage");
+    }
+
+    // 🔁 Handle token refresh (optional but recommended)
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      print("🔄 Refreshed FCM Token: $newToken");
+      const storage = FlutterSecureStorage();
+      await storage.write(key: 'fcm_token', value: newToken);
+    });
+
+    // 📩 Foreground message listener
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('📩 Received foreground message: ${message.notification?.title}');
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/components/download.dart';
 import 'package:grip/components/download.dart' as FileDownloader;
 import 'package:grip/pages/Eventpage.dart';
@@ -24,7 +25,7 @@ class _GiventestimonialspageState extends State<Giventestimonialspage> {
     final docPath = image['docPath'];
     final docName = image['docName'];
     if (docPath == null || docName == null) return null;
-    return "${UrlService.IMAGE_BASE_URL}/$docPath/$docName";
+    return "${UrlService.imageBaseUrl}/$docPath/$docName";
   }
 
   @override
@@ -35,8 +36,15 @@ class _GiventestimonialspageState extends State<Giventestimonialspage> {
     final fullName =
         "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
             .trim();
-    final companyName = toMember['companyName'] ?? 'No Company';
+   final companyName = personalDetails['companyName'] ?? toMember['companyName'] ?? 'No Company';
     final comment = widget.data['comments'] ?? '';
+
+    final profileImage =
+        personalDetails['profileImage'] as Map<String, dynamic>?;
+    final profileImageUrl = (profileImage?['docPath'] != null &&
+            profileImage?['docName'] != null)
+        ? "${UrlService.imageBaseUrl}/${profileImage!['docPath']}/${profileImage['docName']}"
+        : null;
 
     final images = widget.data['images'] as List? ?? [];
     final hasImages = images.isNotEmpty;
@@ -118,8 +126,11 @@ class _GiventestimonialspageState extends State<Giventestimonialspage> {
                             CircleAvatar(
                               radius: 24,
                               backgroundColor: Colors.grey[200],
-                              child: Icon(Icons.person,
-                                  size: 24, color: Colors.grey[500]),
+                              backgroundImage: profileImageUrl != null
+                                  ? CachedNetworkImageProvider(profileImageUrl)
+                                  : const AssetImage(
+                                          'assets/images/profile_placeholder.png')
+                                      as ImageProvider,
                             ),
                             SizedBox(width: 3.w),
                             Column(

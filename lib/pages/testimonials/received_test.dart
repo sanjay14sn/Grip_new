@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/pages/Eventpage.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/theme/Textheme.dart';
@@ -27,7 +28,7 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
     final fullName =
         "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
             .trim();
-    final companyName = fromMember['companyName'] ?? 'No Company';
+   final companyName = personalDetails['companyName'] ?? fromMember['companyName'] ?? 'No Company';
     final comment = widget.data['comments'] ?? '';
 
     final images = widget.data['images'] as List? ?? [];
@@ -39,9 +40,17 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
         'No Document';
     final docPath = currentImage?['docPath'] ?? '';
     final docName = currentImage?['docName'] ?? '';
+    final profileImage =
+        personalDetails['profileImage'] as Map<String, dynamic>? ?? {};
+    final profileDocName = profileImage['docName'];
+    final profileDocPath = profileImage['docPath'];
+
+    final profileImageUrl = (profileDocName != null && profileDocPath != null)
+        ? "${UrlService.imageBaseUrl}/$profileDocPath/$profileDocName"
+        : null;
 
     final imageUrl = (hasImages && docPath.isNotEmpty && docName.isNotEmpty)
-        ? "${UrlService.IMAGE_BASE_URL}/$docPath/$docName"
+        ? "${UrlService.imageBaseUrl}/$docPath/$docName"
         : null;
 
     return Scaffold(
@@ -114,8 +123,13 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                             CircleAvatar(
                               radius: 24,
                               backgroundColor: Colors.grey[200],
-                              child: Icon(Icons.person,
-                                  size: 24, color: Colors.grey[500]),
+                              backgroundImage: profileImageUrl != null
+                                  ? NetworkImage(profileImageUrl)
+                                  : null,
+                              child: profileImageUrl == null
+                                  ? Icon(Icons.person,
+                                      size: 24, color: Colors.grey[500])
+                                  : null,
                             ),
                             SizedBox(width: 3.w),
                             Column(
