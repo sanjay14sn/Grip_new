@@ -116,13 +116,8 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                                 .fetchOthersOneToOnes(memberId);
 
                             if (response.isSuccess && response.data != null) {
-                              context.push(
-                                '/OthersOneToOnesPage',
-                                extra: {
-                                  'data': response.data,
-                                  'memberName': widget.member.name,
-                                },
-                              );
+                              context.push('/OthersOneToOnesPage',
+                                  extra: response.data);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

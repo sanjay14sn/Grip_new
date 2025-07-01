@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
+import 'package:grip/components/filter_options.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:grip/components/shimmer.dart';
+
 
 class OthersTestimonialsViewPage extends StatefulWidget {
   final String memberName;
@@ -24,64 +30,127 @@ class _OthersTestimonialsViewPageState
     extends State<OthersTestimonialsViewPage> {
   bool isReceivedSelected = false;
 
-  final List<Map<String, String>> receivedReferrals = [
-    {
-      'name': 'Paul Mauray',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Dinesh',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'Amaran',
-      'date': '15 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Babu',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Mani',
-      'date': '17 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-  ];
+  List<dynamic> givenTestimonials = [];
+  List<dynamic> receivedTestimonials = [];
 
-  final List<Map<String, String>> givenReferrals = [
-    {
-      'name': 'Suresh Kumar',
-      'date': '10 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-    {
-      'name': 'Priya Dharshini',
-      'date': '11 Nov 2024',
-      'image': 'assets/images/profile2.jpg'
-    },
-    {
-      'name': 'John Moses',
-      'date': '12 Nov 2024',
-      'image': 'assets/images/profile3.jpg'
-    },
-    {
-      'name': 'Radha',
-      'date': '13 Nov 2024',
-      'image': 'assets/images/profile4.jpg'
-    },
-    {
-      'name': 'Ajay',
-      'date': '14 Nov 2024',
-      'image': 'assets/images/profile1.jpg'
-    },
-  ];
+  List<dynamic> filteredGivenTestimonials = [];
+  List<dynamic> filteredReceivedTestimonials = [];
+
+  bool isLoading = false;
+
+  FilterOptions filter = FilterOptions();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTestimonials();
+  }
+
+  Future<void> _loadTestimonials({int maxRetries = 3}) async {
+    setState(() => isLoading = true);
+
+    int attempt = 0;
+    bool success = false;
+
+    while (attempt < maxRetries && !success) {
+      attempt++;
+
+      try {
+        final givenRes = await PublicRoutesApiService.fetchGivenTestimonials(
+            widget.memberId);
+        final receivedRes =
+            await PublicRoutesApiService.fetchReceivedTestimonials(
+                widget.memberId);
+
+        if (!mounted) return;
+
+        if (givenRes.isSuccess && receivedRes.isSuccess) {
+          setState(() {
+            givenTestimonials = givenRes.data ?? [];
+            filteredGivenTestimonials = List.from(givenTestimonials);
+
+            receivedTestimonials = receivedRes.data ?? [];
+            filteredReceivedTestimonials = List.from(receivedTestimonials);
+
+            isLoading = false;
+          });
+
+          success = true;
+        } else {
+          if (attempt < maxRetries) {
+            await Future.delayed(
+                const Duration(seconds: 2)); // wait before retry
+          } else {
+            setState(() => isLoading = false);
+          }
+        }
+      } catch (e) {
+        if (attempt >= maxRetries) {
+          if (!mounted) return;
+          setState(() => isLoading = false);
+        } else {
+          await Future.delayed(const Duration(seconds: 2));
+        }
+      }
+    }
+  }
+
+  void applyFilters() {
+    if (filter.category == 'Given') {
+      setState(() {
+        filteredGivenTestimonials = givenTestimonials.where((item) {
+          final date = DateTime.tryParse(item['createdAt'] ?? '');
+          return date != null && filter.isWithinRange(date);
+        }).toList();
+      });
+    } else {
+      setState(() {
+        filteredReceivedTestimonials = receivedTestimonials.where((item) {
+          final date = DateTime.tryParse(item['createdAt'] ?? '');
+          return date != null && filter.isWithinRange(date);
+        }).toList();
+      });
+    }
+  }
+
+  Future<void> openFilterDialog() async {
+    final result = await showGeneralDialog<FilterOptions>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Dismiss",
+      barrierColor: Colors.transparent,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (_, __, ___) {
+        return Stack(
+          children: [
+            Positioned(
+              top: 60,
+              right: 16,
+              child: Material(
+                color: Colors.transparent,
+                child: FilterDialog(initialFilter: filter),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        filter = result;
+        isReceivedSelected = result.category == 'Received';
+      });
+      applyFilters();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final activeList = isReceivedSelected
+        ? filteredReceivedTestimonials
+        : filteredGivenTestimonials;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -90,15 +159,12 @@ class _OthersTestimonialsViewPageState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top bar
+              /// 🔙 Top Bar
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Back Button
                   GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => context.pop(),
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -108,21 +174,29 @@ class _OthersTestimonialsViewPageState
                       child: const Icon(Icons.arrow_back),
                     ),
                   ),
-                  const SizedBox(width: 12), // Space between icon and text
-                  Text(
-                    '${widget.memberName}\'s Testimonials',
-                    style: TTextStyles.ReferralSlip,
+                  GestureDetector(
+                    onTap: openFilterDialog,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE0E2E7),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.filter_alt_outlined),
+                    ),
                   ),
                 ],
               ),
+
               SizedBox(height: 2.h),
 
               Row(
                 children: [
-                  Text('Testimonials Details', style: TTextStyles.ReferralSlip),
+                  Text('${widget.memberName}\'s Testimonials',
+                      style: TTextStyles.ReferralSlip),
                   const SizedBox(width: 8),
                   Image.asset(
-                    'assets/images/fluent_person-feedback-16-filled.png', // Replace with your actual image path
+                    'assets/images/fluent_person-feedback-16-filled.png',
                     width: 34,
                     height: 34,
                   )
@@ -131,9 +205,10 @@ class _OthersTestimonialsViewPageState
 
               SizedBox(height: 1.5.h),
 
-              // Category toggle
               Text('Category:', style: TTextStyles.Category),
               SizedBox(height: 1.h),
+
+              /// Toggle Buttons
               Container(
                 width: double.infinity,
                 height: 40,
@@ -143,10 +218,13 @@ class _OthersTestimonialsViewPageState
                 ),
                 child: Row(
                   children: [
-                    // GIVEN button
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => isReceivedSelected = false),
+                        onTap: () => setState(() {
+                          isReceivedSelected = false;
+                          filter.category = 'Given';
+                          applyFilters();
+                        }),
                         child: Container(
                           decoration: BoxDecoration(
                             gradient:
@@ -166,11 +244,13 @@ class _OthersTestimonialsViewPageState
                         ),
                       ),
                     ),
-
-                    // RECEIVED button
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => isReceivedSelected = true),
+                        onTap: () => setState(() {
+                          isReceivedSelected = true;
+                          filter.category = 'Received';
+                          applyFilters();
+                        }),
                         child: Container(
                           decoration: BoxDecoration(
                             gradient:
@@ -196,20 +276,53 @@ class _OthersTestimonialsViewPageState
 
               SizedBox(height: 2.h),
 
-              // Referral List using ListView.builder
+              /// Testimonial List
               Expanded(
-                child: ListView.builder(
-                  itemCount: isReceivedSelected
-                      ? receivedReferrals.length
-                      : givenReferrals.length,
-                  itemBuilder: (context, index) {
-                    final item = isReceivedSelected
-                        ? receivedReferrals[index]
-                        : givenReferrals[index];
-                    return referralTile(item['name']!, item['date']!,
-                        item['image']!, isReceivedSelected);
-                  },
-                ),
+                child: isLoading
+                    ? buildShimmerList()
+                    : activeList.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No ${isReceivedSelected ? "received" : "given"} testimonials",
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: activeList.length,
+                            itemBuilder: (context, index) {
+                              final item = activeList[index];
+
+                              final member = isReceivedSelected
+                                  ? item['fromMember']
+                                  : item['toMember'];
+
+                              final name =
+                                  "${member?['personalDetails']?['firstName'] ?? ''} ${member?['personalDetails']?['lastName'] ?? ''}";
+
+                              final dateStr = item['createdAt'] ?? '';
+                              final date = DateTime.tryParse(dateStr);
+                              final formattedDate = date != null
+                                  ? DateFormat('dd-MM-yy').format(date)
+                                  : '';
+
+                              final images = item['images'] as List?;
+                              final imageUrl = (images != null &&
+                                      images.isNotEmpty &&
+                                      images[0]['docName'] != null)
+                                  ? '${dotenv.env['API_BASE_URL']}/uploads/${images[0]['docPath']}/${images[0]['docName']}'
+                                  : '';
+
+                              return testimonialTile(
+                                name: name,
+                                date: formattedDate,
+                                imagePath:
+                                    'assets/images/profile_placeholder.png',
+                                networkImage: imageUrl,
+                                isReceived: isReceivedSelected,
+                                data: item,
+                              );
+                            },
+                          ),
               ),
             ],
           ),
@@ -218,19 +331,22 @@ class _OthersTestimonialsViewPageState
     );
   }
 
-  // Tile Widget with different routes based on tab
-  Widget referralTile(
-      String name, String date, String imagePath, bool isReceived) {
+  Widget testimonialTile({
+    required String name,
+    required String date,
+    required String imagePath,
+    required String networkImage,
+    required bool isReceived,
+    required Map<String, dynamic> data,
+  }) {
     return GestureDetector(
       onTap: () {
-        // if (isReceived) {
-        //   context.push('/ReceivedTestimonials'); // received route
-        // } else {
-        //   context.push('/GivenTestimonials'); // given route
-        // }
+        context.push(
+          isReceived ? '/Recivedtestimonial' : '/GivenTestimonials',
+          extra: data,
+        );
       },
       child: Card(
-        color: Colors.white,
         elevation: 2,
         margin: EdgeInsets.symmetric(vertical: 0.6.h, horizontal: 2.w),
         shape: RoundedRectangleBorder(
@@ -242,7 +358,9 @@ class _OthersTestimonialsViewPageState
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: AssetImage(imagePath),
+                backgroundImage: networkImage.isNotEmpty
+                    ? NetworkImage(networkImage)
+                    : AssetImage(imagePath) as ImageProvider,
               ),
               SizedBox(width: 3.w),
               Column(

@@ -5,8 +5,9 @@ import 'package:sizer/sizer.dart';
 
 class OthersOneToOnesPage extends StatelessWidget {
   final List<dynamic> othersList;
+  
 
-  const OthersOneToOnesPage({super.key, required this.othersList});
+  const OthersOneToOnesPage({super.key, required this.othersList,});
 
   String _formatDate(String rawDate) {
     try {

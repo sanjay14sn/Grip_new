@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/components/shimmer.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/pages/chapter_detailes/otherchapter/others_card.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
@@ -44,96 +45,106 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
   }
 
   Future<void> fetchMembers() async {
+    const int maxRetries = 3;
+    int attempt = 0;
+    bool success = false;
+
     setState(() => isLoading = true);
 
-    final response =
-        await PublicRoutesApiService.fetchMembersByChapter(widget.chapterId);
+    while (attempt < maxRetries && !success) {
+      attempt++;
+      debugPrint(
+          "🔁 Attempt $attempt to fetch members for chapter: ${widget.chapterId}");
 
-    if (response.isSuccess && response.data != null) {
-      try {
-        final List<othersMemberModel> members = (response.data as List)
-            .map((e) => othersMemberModel.fromJson(e))
-            .toList();
+      final response =
+          await PublicRoutesApiService.fetchMembersByChapter(widget.chapterId);
 
-        debugPrint('✅ Parsed Members Count: ${members.length}');
+      if (response.isSuccess && response.data != null) {
+        try {
+          final List<othersMemberModel> members = (response.data as List)
+              .map((e) => othersMemberModel.fromJson(e))
+              .toList();
 
-        // Print cidId of the first member (for testing)
-        if (members.isNotEmpty) {
-          final cid = members.first.cidId;
-          debugPrint('📛 CID ID of first member: $cid');
+          debugPrint('✅ Parsed Members Count: ${members.length}');
 
-          // Optional: fetch cid details if you want to show in UI
-          if (cid != null && cid.isNotEmpty) {
-            await _fetchCidDetails(cid);
+          if (members.isNotEmpty) {
+            final cid = members.first.cidId;
+            debugPrint('📛 CID ID of first member: $cid');
+
+            if (cid != null && cid.isNotEmpty) {
+              await _fetchCidDetailsWithRetry(cid);
+            }
           }
-        }
 
-        setState(() {
-          allMembers = members;
-          filteredMembers = members;
-          isLoading = false;
-        });
-      } catch (e) {
-        setState(() => isLoading = false);
-        debugPrint('❌ Error parsing members: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error parsing member list: $e')),
-        );
+          setState(() {
+            allMembers = members;
+            filteredMembers = members;
+            isLoading = false;
+          });
+
+          success = true;
+        } catch (e) {
+          debugPrint('❌ Error parsing members: $e');
+          break;
+        }
+      } else {
+        debugPrint('❌ Attempt $attempt failed: ${response.message}');
+        if (attempt >= maxRetries) {
+          setState(() => isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(response.message ?? 'Failed to load members')),
+          );
+        }
       }
-    } else {
-      setState(() => isLoading = false);
-      debugPrint('❌ Fetch failed: ${response.message}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.message ?? 'Failed to load members')),
-      );
     }
   }
 
-  Future<void> _fetchCidDetails(String cidId) async {
-    debugPrint('🔄 Fetching CID details for ID: $cidId');
+  Future<void> _fetchCidDetailsWithRetry(String cidId) async {
+    const int maxRetries = 3;
+    int attempt = 0;
+    bool success = false;
 
-    try {
-      // Optional: You can set a loading flag here if needed
-      // setState(() => _isCidLoading = true);
+    while (attempt < maxRetries && !success) {
+      attempt++;
+      debugPrint("🔁 Attempt $attempt to fetch CID details for ID: $cidId");
 
-      final response = await PublicRoutesApiService.fetchCidDetails(
-          cidId); // ✅ No 'cid/' prefix
+      try {
+        final response = await PublicRoutesApiService.fetchCidDetails(cidId);
 
-      debugPrint(
-          '📥 CID API response: ${response.isSuccess}, data: ${response.data}');
+        if (response.isSuccess && response.data != null) {
+          final data = response.data;
 
-      if (response.isSuccess && response.data != null) {
-        final data = response.data;
+          final member = othersMemberModel(
+            id: data['_id'] ?? '',
+            name: data['username'] ?? '',
+            company: data['companyName'] ?? '',
+            phone: data['mobileNumber'] ?? '',
+            role: data['role']?['name'] ?? '',
+            website: data['website'],
+            chapterName: data['chapterName'],
+            businessDescription: data['businessDescription'],
+            email: data['email'] ?? '',
+            address: data['address'],
+          );
 
-        final member = othersMemberModel(
-          id: data['_id'] ?? '', // ✅ Extract the ID from the root object
-          name: data['username'] ?? '',
-          company: data['companyName'] ?? '',
-          phone: data['mobileNumber'] ?? '',
-          role: data['role']?['name'] ?? '',
-          website: data['website'],
-          chapterName: data['chapterName'],
-          businessDescription: data['businessDescription'],
-          email: data['email'] ?? '',
-          address: data['address'],
-          //cidId: data['cidId'], // ✅ Add this if it exists in root
-        );
+          setState(() {
+            _cidMember = member;
+          });
 
-        setState(() {
-          _cidMember = member;
-          // _isCidLoading = false;
-        });
-
-        debugPrint(
-            '✅ CIDothers details fetched: ${member.name}, ${member.company}');
-      } else {
-        debugPrint(
-            '❌ Failed to fetch CID details. Message: ${response.message}');
-        // setState(() => _isCidLoading = false);
+          debugPrint(
+              '✅ CID details fetched: ${member.name}, ${member.company}');
+          success = true;
+        } else {
+          debugPrint('❌ Failed attempt $attempt for CID ID $cidId');
+        }
+      } catch (e) {
+        debugPrint('❌ Exception on CID fetch (attempt $attempt): $e');
       }
-    } catch (e) {
-      debugPrint('❌ Error fetching CID details: $e');
-      // setState(() => _isCidLoading = false);
+    }
+
+    if (!success) {
+      debugPrint('❌ All retry attempts failed for CID ID: $cidId');
     }
   }
 
@@ -268,35 +279,42 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                     ),
                     SizedBox(height: 2.h),
 
-                    /// Search
-                    _buildSearchBar(),
+                    isLoading
+                        ? buildSearchBarExactShimmer()
+                        : _buildSearchBar(),
+
                     SizedBox(height: 2.h),
 
                     /// CID Member (if exists)
                     if (_cidMember != null) ...[
-                      Container(
-                        width: 73.w,
-                        height: 3.3.h,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 3.w, vertical: 1.h),
-                        alignment: Alignment.centerLeft,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF2C2B2B),
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(10),
-                            bottomRight: Radius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          "CID MEMBER",
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12.sp,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+                      // ✅ CID Member Header
+                      isLoading
+                          ? buildAllMembersTitleShimmer()
+                          : Container(
+                              width: 73.w,
+                              height: 3.3.h,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 3.w, vertical: 1.h),
+                              alignment: Alignment.centerLeft,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF2C2B2B),
+                                borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(10),
+                                  bottomRight: Radius.circular(10),
+                                ),
+                              ),
+                              child: Text(
+                                "CID MEMBER",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12.sp,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                       SizedBox(height: 1.h),
+
+                      // ✅ CID Member Grid
                       GridView.builder(
                         itemCount: 1,
                         shrinkWrap: true,
@@ -314,36 +332,70 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                         },
                       ),
                       SizedBox(height: 2.h),
+                    ] else if (isLoading) ...[
+                      isLoading
+                          ? buildAllMembersTitleShimmer() // 🔄 Show shimmer placeholder while loading CID member
+                          : Container(
+                              width: 73.w,
+                              height: 3.3.h,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 3.w, vertical: 1.h),
+                              alignment: Alignment.centerLeft,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF2C2B2B),
+                                borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(10),
+                                  bottomRight: Radius.circular(10),
+                                ),
+                              ),
+                              child: Text(
+                                "CID MEMBER",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12.sp,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                      SizedBox(height: 1.h),
+
+                      // 🌀 CID Shimmer
+                      buildShimmerGrid(itemCount: 1),
+
+                      SizedBox(height: 2.h),
                     ],
 
                     /// All Members Label
-                    Container(
-                      width: 73.w,
-                      height: 3.3.h,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-                      alignment: Alignment.centerLeft,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF2C2B2B),
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(10),
-                          bottomRight: Radius.circular(10),
-                        ),
-                      ),
-                      child: Text(
-                        "ALL MEMBERS",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    isLoading
+                        ? buildAllMembersTitleShimmer()
+                        : Container(
+                            width: 73.w,
+                            height: 3.3.h,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 3.w, vertical: 1.h),
+                            alignment: Alignment.centerLeft,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF2C2B2B),
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(10),
+                                bottomRight: Radius.circular(10),
+                              ),
+                            ),
+                            child: Text(
+                              "ALL MEMBERS",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                     SizedBox(height: 1.h),
 
                     /// Members Grid
+                    /// Members Gridr
                     isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? buildShimmerGrid(itemCount: 6)
                         : _buildMemberGrid(),
 
                     SizedBox(height: 10.h),

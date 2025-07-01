@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -18,6 +19,66 @@ class _HomeDashboardState extends State<HomeDashboard> {
   ];
   int selectedIndex = 0;
 
+  Map<String, dynamic> dashboardData = {
+    'referralGiven': 0,
+    'referralReceived': 0,
+    'thankyouGiven': 0,
+    'thankyouReceived': 0,
+    'testimonialGiven': 0,
+    'testimonialReceived': 0,
+    'onetoones': 0,
+    'visitors': 0,
+    'revenueGiven': 0,
+    'revenueReceived': 0,
+  };
+
+  final Map<int, String> filterMap = {
+    0: 'this-month',
+    1: '6-months',
+    2: '12-months',
+    3: '', // Life time = default (no filter param)
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDashboardData();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    final filterType = filterMap[selectedIndex]!;
+    print('🔄 Fetching dashboard data for: $filterType');
+
+    final response = await PublicRoutesApiService.fetchDashboardCount(
+        filterType: filterType);
+
+    if (response.isSuccess && response.data != null) {
+      final raw = response.data;
+
+      setState(() {
+        dashboardData = {
+          'referralGiven': raw['referralGivenCount'] ?? 0,
+          'referralReceived': raw['referralReceivedCount'] ?? 0,
+          'thankyouGiven': raw['thankYouGivenCount'] ?? 0,
+          'thankyouReceived': raw['thankYouReceivedCount'] ?? 0,
+          'testimonialGiven': raw['testimonialGivenCount'] ?? 0,
+          'testimonialReceived': raw['testimonialReceivedCount'] ?? 0,
+          'onetoones': raw['oneToOneCount'] ?? 0,
+          'visitors': raw['visitorCount'] ?? 0,
+          'revenueGiven': raw['thankYouGivenAmount'] ?? 0,
+          'revenueReceived': raw['thankYouReceivedAmount'] ?? 0,
+        };
+      });
+
+      print('✅ Dashboard data: $dashboardData');
+    } else {
+      print('❌ Dashboard fetch error: ${response.message}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ ${response.message}')),
+      );
+    }
+  }
+
   Widget _buildTimeFilter() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 4.w),
@@ -26,7 +87,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
         children: List.generate(timeFilters.length, (index) {
           final isSelected = selectedIndex == index;
           return GestureDetector(
-            onTap: () => setState(() => selectedIndex = index),
+            onTap: () {
+              setState(() => selectedIndex = index);
+              _fetchDashboardData();
+            },
             child: Column(
               children: [
                 Container(
@@ -48,7 +112,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   height: 0.35.h,
                   width: 8.w,
                   decoration: BoxDecoration(
-                    color: isSelected ? Color(0xFFC6221A) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFFC6221A)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -65,16 +131,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Color(0xFFC6221A),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0xFFC6221A), width: 1),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
         ],
       ),
       padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
@@ -86,21 +145,15 @@ class _HomeDashboardState extends State<HomeDashboard> {
               Icon(icon, size: 14.sp, color: Colors.black87),
               SizedBox(width: 2.w),
               Expanded(
-                child: Text(
-                  title,
-                  style: TTextStyles.month,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                child: Text(title,
+                    style: TTextStyles.month, overflow: TextOverflow.ellipsis),
               ),
             ],
           ),
           SizedBox(height: 1.5.h),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              value,
-              style: TTextStyles.CatNUM,
-            ),
+            child: Text(value, style: TTextStyles.CatNUM),
           )
         ],
       ),
@@ -112,42 +165,51 @@ class _HomeDashboardState extends State<HomeDashboard> {
     final List<Map<String, dynamic>> statData = [
       {
         'title': 'Referral',
-        'value': 'Given 5 / Received 8',
-        'icon': Icons.compare_arrows
+        'value':
+            'Given ${dashboardData['referralGiven']} / Received ${dashboardData['referralReceived']}',
+        'icon': Icons.compare_arrows,
       },
       {
         'title': 'Thank u Notes',
-        'value': 'Given 5 / Received 8',
-        'icon': Icons.person
+        'value':
+            'Given ${dashboardData['thankyouGiven']} / Received ${dashboardData['thankyouReceived']}',
+        'icon': Icons.person,
       },
       {
         'title': 'Testimonials',
-        'value': 'Given 5 / Received 8',
-        'icon': Icons.swap_horiz
+        'value':
+            'Given ${dashboardData['testimonialGiven']} / Received ${dashboardData['testimonialReceived']}',
+        'icon': Icons.swap_horiz,
       },
-      {'title': 'One to Ones', 'value': 'Total 5', 'icon': Icons.group},
-      {'title': 'Visitors', 'value': 'Total 2', 'icon': Icons.desktop_windows},
+      {
+        'title': 'One to Ones',
+        'value': 'Total ${dashboardData['onetoones']}',
+        'icon': Icons.group,
+      },
+      {
+        'title': 'Visitors',
+        'value': 'Total ${dashboardData['visitors']}',
+        'icon': Icons.desktop_windows,
+      },
       {
         'title': 'Revenue',
-        'value': 'Given 5898 / Received 86534',
-        'icon': Icons.currency_rupee_sharp
+        'value':
+            'Given ₹${dashboardData['revenueGiven']} / Received ₹${dashboardData['revenueReceived']}',
+        'icon': Icons.currency_rupee_sharp,
       },
     ];
 
     return Padding(
-      padding: EdgeInsets.only(top: 1.h), // Only top padding; no horizontal
+      padding: EdgeInsets.only(top: 1.h),
       child: Container(
-        width: double.infinity, // Makes container stretch full width
+        width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black12,
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
+                color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
           ],
         ),
         child: Column(
@@ -158,7 +220,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
             GridView.builder(
               shrinkWrap: true,
               itemCount: statData.length,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 2.w,

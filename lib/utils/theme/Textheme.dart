@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
-
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:sizer/sizer.dart';
 
 class TTextStyles {
@@ -177,7 +174,7 @@ class TTextStyles {
   );
   static final TextStyle refname = GoogleFonts.roboto(
     color: Colors.black,
-    fontSize: 23.sp,
+    fontSize: 18.sp,
     fontWeight: FontWeight.w700,
   );
   static final TextStyle networkerror = GoogleFonts.roboto(

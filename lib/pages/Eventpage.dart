@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grip/pages/toastutill.dart';
 import 'package:sizer/sizer.dart';
 import 'package:shimmer/shimmer.dart';
@@ -24,14 +27,32 @@ class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
 
   // Fetch events from the API
   Future<void> _fetchEvents() async {
+    const storage = FlutterSecureStorage();
+    final userDataString = await storage.read(key: 'user_data');
+
+    if (userDataString == null) {
+      setState(() => _isLoading = false);
+      ToastUtil.showToast(context, 'User not logged in');
+      return;
+    }
+
+    final userData = jsonDecode(userDataString);
+    final userChapterId = userData['chapterId'];
+
     final response = await PublicRoutesApiService.fetchAgentaEvents();
 
     if (mounted) {
       if (response.isSuccess && response.data is List) {
+        final filteredEvents = (response.data as List)
+            .where((e) {
+              final chapterIds = e['chapterId'] as List<dynamic>? ?? [];
+              return chapterIds.any((c) => c['_id'] == userChapterId);
+            })
+            .map((e) => AgentaEvent.fromJson(e))
+            .toList();
+
         setState(() {
-          _events = (response.data as List)
-              .map((e) => AgentaEvent.fromJson(e))
-              .toList();
+          _events = filteredEvents;
           _isLoading = false;
         });
       } else {

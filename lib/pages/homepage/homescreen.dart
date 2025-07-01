@@ -40,6 +40,21 @@ class _HomescreenState extends State<Homescreen> {
   bool _isThankYouLoading = true;
   String? _memberId;
   Map<String, dynamic>? _memberData; // at top of your state class
+  // Loading flags
+
+  bool _isOneToOneLoading = true;
+  bool _isTestimonialLoading = true;
+
+  bool _isVisitorLoading = true;
+  bool _isSevenDayVisitorLoading = true;
+
+// Error flags
+  bool _hasReferralError = false;
+  bool _hasOneToOneError = false;
+  bool _hasTestimonialError = false;
+  bool _hasThankYouError = false;
+  bool _hasVisitorError = false;
+  bool _hasSevenDayVisitorError = false;
 
   @override
   void initState() {
@@ -51,22 +66,25 @@ class _HomescreenState extends State<Homescreen> {
   }
 
 // Add this helper method to your state class
-  Future<void> _runWithRetry(Future<void> Function() apiCall,
-      {String apiName = ''}) async {
-    const maxRetries = 2;
+  Future<void> _runWithRetry(
+    Future<void> Function() apiCall, {
+    String apiName = '',
+    void Function(bool)? setLoading,
+  }) async {
+    const maxRetries = 3;
     const retryDelay = Duration(seconds: 1);
 
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
+        if (setLoading != null) setLoading(true);
         await apiCall();
-        return; // Success - exit loop
+        return;
       } catch (e) {
         print("⚠️ $apiName attempt $attempt failed: $e");
-        if (attempt == maxRetries) {
-          print("❌ All retries exhausted for $apiName");
-          rethrow;
-        }
+        if (attempt == maxRetries) rethrow;
         await Future.delayed(retryDelay);
+      } finally {
+        if (setLoading != null) setLoading(false);
       }
     }
   }
@@ -81,129 +99,136 @@ class _HomescreenState extends State<Homescreen> {
     await _runWithRetry(_loadTestimonials, apiName: 'Testimonials');
     await Future.delayed(const Duration(milliseconds: 300));
 
-    await _runWithRetry(_loadReferralSlips, apiName: 'Referrals');
+    await _runWithRetry(() async {
+      await _loadReferralSlips();
+    }, apiName: 'Referrals');
     await Future.delayed(const Duration(milliseconds: 300));
 
-    await _runWithRetry(_loadThankYouNotes, apiName: 'Thank You Notes');
+    await _runWithRetry(() async {
+      await _loadThankYouNotes();
+    }, apiName: 'Thank You Notes');
     await Future.delayed(const Duration(milliseconds: 300));
 
-    await _runWithRetry(_loadVisitorsData, apiName: 'Seven Days Visitor');
+    await _runWithRetry(() async {
+      await _loadVisitorsData();
+    }, apiName: 'Seven Days Visitor');
   }
 
-  void _loadChapterDetails() async {
-    const storage = FlutterSecureStorage();
+  void _loadChapterDetails() {
+    _runWithRetry(() async {
+      const storage = FlutterSecureStorage();
 
-    // 🔓 Read user_data from secure storage
-    final userDataString = await storage.read(key: 'user_data');
+      // 🔓 Read user_data from secure storage
+      final userDataString = await storage.read(key: 'user_data');
 
-    if (userDataString == null) {
-      print('❌ No user data found in secure storage.');
-      return;
-    }
-
-    final Map<String, dynamic> userData = jsonDecode(userDataString);
-    final chapterId = userData['chapterId'];
-
-    if (chapterId == null) {
-      print('❌ No chapterId found in user data.');
-      return;
-    }
-
-    print('📥 Fetched chapterId from storage: $chapterId');
-
-    // 📡 Fetch chapter details
-    final provider = Provider.of<ChapterProvider>(context, listen: false);
-    await provider.fetchChapterDetails(chapterId);
-
-    final details = provider.chapterDetails;
-    final members = provider.members;
-
-    if (details != null) {
-      print('📘 Chapter Name: ${details.chapterName}');
-      print(
-          '🌍 Location: ${details.meetingVenue}, ${details.stateName}, ${details.countryName}');
-      print('📅 Meeting Time: ${details.meetingDayAndTime}');
-      print('📌 Meeting Type: ${details.meetingType}');
-      print('🧭 Zone: ${details.zoneName}');
-      print('👤 CID: ${details.cidName} (${details.cidEmail})');
-      print('👥 Members:');
-      for (var member in members) {
-        print(
-            '  🔹 ${member.name} | ${member.email} | ${member.mobileNumber} | ${member.id}');
+      if (userDataString == null) {
+        print('❌ No user data found in secure storage.');
+        return;
       }
-    } else {
-      print('⚠️ No chapter details available.');
-    }
+
+      final Map<String, dynamic> userData = jsonDecode(userDataString);
+      final chapterId = userData['chapterId'];
+
+      if (chapterId == null) {
+        print('❌ No chapterId found in user data.');
+        return;
+      }
+
+      print('📥 Fetched chapterId from storage: $chapterId');
+
+      // 📡 Fetch chapter details
+      final provider = Provider.of<ChapterProvider>(context, listen: false);
+      await provider.fetchChapterDetails(chapterId);
+
+      final details = provider.chapterDetails;
+      final members = provider.members;
+
+      if (details != null) {
+        print('📘 Chapter Name: ${details.chapterName}');
+        print(
+            '🌍 Location: ${details.meetingVenue}, ${details.stateName}, ${details.countryName}');
+        print('📅 Meeting Time: ${details.meetingDayAndTime}');
+        print('📌 Meeting Type: ${details.meetingType}');
+        print('🧭 Zone: ${details.zoneName}');
+        print('👤 CID: ${details.cidName} (${details.cidEmail})');
+        print('👥 Members:');
+        for (var member in members) {
+          print(
+              '  🔹 ${member.name} | ${member.email} | ${member.mobileNumber} | ${member.id}');
+        }
+      } else {
+        print('⚠️ No chapter details available.');
+      }
+    }, apiName: 'Fetch Chapter Details');
   }
 
   Future<void> _loadOneToOneList() async {
     print('📡 Fetching One-to-One list from API...');
-
     try {
+      if (mounted) setState(() => _isOneToOneLoading = true); // ✅ start
+
       final response = await PublicRoutesApiService.getOneToOneList();
 
       if (!mounted) return;
 
       if (response.isSuccess && response.data != null) {
-        print('✅ One-to-One list fetched successfully.');
-        print('📦 Total records (from extra): ${response.extra?['total']}');
-        print('📦 Total records (from data.length): ${response.data.length}');
-
-        for (var item in response.data) {
-          print(
-              '👥 From: ${item['fromMember']?['personalDetails']?['firstName']} '
-              'To: ${item['toMember']?['personalDetails']?['firstName']}');
-        }
-
         setState(() {
           _oneToOneList = response.data;
           _oneToOneCount = response.extra?['total'] ?? response.data.length;
-          _isLoading = false;
+          _hasOneToOneError = false;
         });
       } else {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        setState(() {
+          _oneToOneList = [];
+          _oneToOneCount = 0;
+          _hasOneToOneError = true;
+        });
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _oneToOneList = [];
+          _oneToOneCount = 0;
+          _hasOneToOneError = true;
+        });
       }
+    } finally {
+      if (mounted) setState(() => _isOneToOneLoading = false); // ✅ finish
     }
   }
 
   Future<void> _loadVisitors() async {
     print('📡 Fetching visitor list from API...');
-
     try {
+      if (mounted) setState(() => _isVisitorLoading = true); // ✅ set loading
+
       final response = await PublicRoutesApiService.getVisitorsList();
 
       if (!mounted) return;
 
       if (response.isSuccess && response.data != null) {
-        print('✅ Visitor list fetched successfully.');
-        print('📦 Total Visitors from pagination: ${response.extra?['total']}');
-
         setState(() {
           _visitors = response.data;
           _visitorCount = response.extra?['total'] ?? response.data.length;
-          _isLoading = false;
+          _hasVisitorError = false;
         });
       } else {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      }
-    } catch (e) {
-      print("🚨 Critical error in _loadVisitors: $e");
-      if (mounted) {
         setState(() {
-          _visitors = [];
           _visitorCount = 0;
-          _isLoading = false;
+          _visitors = [];
+          _hasVisitorError = true;
         });
       }
-      rethrow; // Important for retry mechanism
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _visitorCount = 0;
+          _visitors = [];
+          _hasVisitorError = true;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isVisitorLoading = false); // ✅ done
     }
   }
 
@@ -228,9 +253,9 @@ class _HomescreenState extends State<Homescreen> {
 
   Future<void> _loadTestimonials() async {
     print('📡 Fetching testimonials...');
-
     try {
-      if (mounted) setState(() => _isLoading = true);
+      if (mounted)
+        setState(() => _isTestimonialLoading = true); // ✅ use correct flag
 
       final response = await PublicRoutesApiService.getTestimonialGivenList();
 
@@ -238,7 +263,6 @@ class _HomescreenState extends State<Homescreen> {
 
       if (response.isSuccess && response.data != null) {
         final data = response.data;
-
         if (data is List) {
           setState(() {
             _testimonialList = data;
@@ -255,6 +279,7 @@ class _HomescreenState extends State<Homescreen> {
         setState(() {
           _testimonialList = [];
           _testimonialCount = 0;
+          _hasTestimonialError = true;
         });
       }
     } catch (e) {
@@ -262,10 +287,11 @@ class _HomescreenState extends State<Homescreen> {
         setState(() {
           _testimonialList = [];
           _testimonialCount = 0;
+          _hasTestimonialError = true;
         });
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() => _isTestimonialLoading = false); // ✅ reset
     }
   }
 
@@ -339,25 +365,29 @@ class _HomescreenState extends State<Homescreen> {
     }
   }
 
-  void fetchMember() async {
-    const storage = FlutterSecureStorage();
-    final userDataJson = await storage.read(key: 'user_data');
+  void fetchMember() {
+    _runWithRetry(() async {
+      const storage = FlutterSecureStorage();
+      final userDataJson = await storage.read(key: 'user_data');
 
-    if (userDataJson != null) {
-      final userData = jsonDecode(userDataJson);
-      final String memberId = userData['id'];
+      if (userDataJson != null) {
+        final userData = jsonDecode(userDataJson);
+        final String memberId = userData['id'];
 
-      final response =
-          await PublicRoutesApiService.fetchMemberDetailsById(memberId);
+        final response =
+            await PublicRoutesApiService.fetchMemberDetailsById(memberId);
 
-      if (response.isSuccess && response.data != null) {
-        setState(() {
-          _memberData = response.data;
-        });
+        if (response.isSuccess && response.data != null) {
+          setState(() {
+            _memberData = response.data;
+          });
+        } else {
+          ToastUtil.showToast(context, 'Network error loading member details');
+        }
       } else {
-        ToastUtil.showToast(context, 'Network error loading Thank You Notes');
+        print('❌ No user data found for member fetch');
       }
-    }
+    }, apiName: 'Fetch Member Details');
   }
 
   Future<void> _loadVisitorsData() async {
@@ -474,42 +504,41 @@ class _HomescreenState extends State<Homescreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Referrals',
-                      style: TTextStyles.customcard,
-                      textAlign: TextAlign.left,
-                    ),
+                    Text('Referrals',
+                        style: TTextStyles.customcard,
+                        textAlign: TextAlign.left),
                     SizedBox(height: 8),
                     Customcard(
                       title: "Total Referral",
-                      value: _isReferralLoading ? '0' : '$_referralCount',
+                      value: _isReferralLoading
+                          ? '...'
+                          : _hasReferralError
+                              ? '0'
+                              : '$_referralCount',
                       onTapAddView: () async {
                         final result = await context.push('/addreferalpage');
-                        if (result == true) {
-                          await _loadReferralSlips(); // Refresh count if new added
-                        }
+                        if (result == true) await _loadReferralSlips();
                       },
                       onTapView: () {
-                        context.push('/referralview',
-                            extra: _referralList); // 👈 pass data
+                        context.push('/referralview', extra: _referralList);
                       },
                       imagePath: 'assets/images/referralmain.png',
                     ),
                     SizedBox(height: 16),
-                    Text(
-                      'Thank U Notes',
-                      style: TTextStyles.customcard,
-                      textAlign: TextAlign.left,
-                    ),
+                    Text('Thank U Notes',
+                        style: TTextStyles.customcard,
+                        textAlign: TextAlign.left),
                     SizedBox(height: 8),
                     Customcard(
                       title: "Thank U Notes",
-                      value: _isThankYouLoading ? '0' : '$_thankYouCount',
+                      value: _isThankYouLoading
+                          ? '...'
+                          : _hasThankYouError
+                              ? '0'
+                              : '$_thankYouCount',
                       onTapAddView: () async {
                         final result = await context.push('/thankyounote');
-                        if (result == true) {
-                          await _loadThankYouNotes(); // 👈 reload after adding
-                        }
+                        if (result == true) await _loadThankYouNotes();
                       },
                       onTapView: () {
                         context.push('/thankyouview', extra: _givenNotes);
@@ -517,20 +546,20 @@ class _HomescreenState extends State<Homescreen> {
                       imagePath: 'assets/images/handshake.png',
                     ),
                     SizedBox(height: 16),
-                    Text(
-                      'Testimonials',
-                      style: TTextStyles.customcard,
-                      textAlign: TextAlign.left,
-                    ),
+                    Text('Testimonials',
+                        style: TTextStyles.customcard,
+                        textAlign: TextAlign.left),
                     SizedBox(height: 8),
                     Customcard(
                       title: "Testimonials",
-                      value: _isLoading ? '0' : '$_testimonialCount',
+                      value: _isTestimonialLoading
+                          ? '...'
+                          : _hasTestimonialError
+                              ? '0'
+                              : '$_testimonialCount',
                       onTapAddView: () async {
                         final result = await context.push('/addtestimonials');
-                        if (result == true) {
-                          await _loadTestimonials(); // 👈 reload after adding
-                        }
+                        if (result == true) await _loadTestimonials();
                       },
                       onTapView: () {
                         context.push('/viewtestimonials',
@@ -539,21 +568,21 @@ class _HomescreenState extends State<Homescreen> {
                       imagePath:
                           'assets/images/fluent_person-feedback-16-filled.png',
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'One-to-Ones',
-                      style: TTextStyles.customcard,
-                      textAlign: TextAlign.left,
-                    ),
+                    SizedBox(height: 16),
+                    Text('One-to-Ones',
+                        style: TTextStyles.customcard,
+                        textAlign: TextAlign.left),
                     SizedBox(height: 8),
                     Customcard(
                       title: "One-to-Ones",
-                      value: _isLoading ? '0' : '$_oneToOneCount',
+                      value: _isOneToOneLoading
+                          ? '...'
+                          : _hasOneToOneError
+                              ? '0'
+                              : '$_oneToOneCount',
                       onTapAddView: () async {
                         final result = await context.push('/onetoone');
-                        if (result == true) {
-                          await _loadOneToOneList();
-                        }
+                        if (result == true) await _loadOneToOneList();
                       },
                       onTapView: () {
                         context.push('/viewone', extra: _oneToOneList);
@@ -561,43 +590,39 @@ class _HomescreenState extends State<Homescreen> {
                       imagePath: 'assets/images/testimonials.png',
                     ),
                     SizedBox(height: 16),
-                    Text(
-                      'Visitors',
-                      style: TTextStyles.customcard,
-                      textAlign: TextAlign.left,
-                    ),
+                    Text('Visitors',
+                        style: TTextStyles.customcard,
+                        textAlign: TextAlign.left),
                     SizedBox(height: 8),
                     Customcard(
                       title: "Visitors",
-                      value: _isLoading ? '0' : '$_visitorCount',
+                      value: _isVisitorLoading
+                          ? '...'
+                          : _hasVisitorError
+                              ? '0'
+                              : '$_visitorCount',
                       onTapAddView: () async {
                         final result = await context.push('/visitors');
-                        if (result == true) {
-                          await _loadVisitors(); // 👈 triggers update
-                        }
+                        if (result == true) await _loadVisitors();
                       },
                       onTapView: () {
                         context.push('/visitorsview', extra: _visitors);
                       },
                       imagePath: 'assets/images/visitors.png',
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Chapter Visitors',
-                      style: TTextStyles.customcard,
-                      textAlign: TextAlign.left,
-                    ),
+                    SizedBox(height: 16),
+                    Text('Chapter Visitors',
+                        style: TTextStyles.customcard,
+                        textAlign: TextAlign.left),
                     SizedBox(height: 8),
                     Customcard(
                       title: "Chapter Visitors – ( Last 7 Days )",
-                      value: '${_allvisitors.length}', // ✅ Dynamic value
+                      value: '${_allvisitors.length}',
                       onTapAddView: () {},
                       onTapView: () async {
                         final result = await context.push('/allvisitors',
                             extra: _allvisitors);
-                        if (result == true) {
-                          await _loadVisitorsData(); // reload if returned
-                        }
+                        if (result == true) await _loadVisitorsData();
                       },
                       imagePath: 'assets/images/visitors.png',
                       viewOnly: true,

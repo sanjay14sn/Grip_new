@@ -25,7 +25,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     fetchNotificationList();
   }
 
-  Future<void> fetchNotificationList() async {
+  Future<void> fetchNotificationList({int retries = 2}) async {
     try {
       final response = await PublicRoutesApiService.fetchNotifications();
       if (response.isSuccess) {
@@ -34,10 +34,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           isLoading = false;
         });
       } else {
-        setState(() => isLoading = false);
+        if (retries > 0) {
+          await Future.delayed(const Duration(seconds: 1));
+          return fetchNotificationList(retries: retries - 1);
+        } else {
+          setState(() => isLoading = false);
+        }
       }
     } catch (e) {
-      setState(() => isLoading = false);
+      if (retries > 0) {
+        await Future.delayed(const Duration(seconds: 1));
+        return fetchNotificationList(retries: retries - 1);
+      } else {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -143,7 +153,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ? _buildShimmerLoader()
                   : Expanded(
                       child: notifications.isEmpty
-                          ? const Center(child: Text('No notifications found'))
+                          ? Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text('No notifications found'),
+                                  SizedBox(height: 2.h),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() => isLoading = true);
+                                      fetchNotificationList();
+                                    },
+                                    child: const Text('Retry'),
+                                  ),
+                                ],
+                              ),
+                            )
                           : ListView.builder(
                               itemCount: notifications.length,
                               padding: EdgeInsets.only(bottom: 1.h),

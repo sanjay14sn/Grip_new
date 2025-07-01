@@ -973,7 +973,8 @@ class PublicRoutesApiService {
 
     try {
       final response = await makeRequest(
-        url: '$endPointbaseUrl/api/mobile/onetoone/others/list/$memberId',
+        url:
+            '$endPointbaseUrl/api/mobile/onetoone/list/$memberId', // ✅ Fixed here
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -987,7 +988,7 @@ class PublicRoutesApiService {
         return ApiResponse(
           statusCode: response.statusCode,
           isSuccess: true,
-          data: response.data['data'], // adjust if needed
+          data: response.data['data'],
           message: response.data['message'] ?? 'Success',
         );
       }
@@ -1268,43 +1269,164 @@ class PublicRoutesApiService {
     }
   }
 
-static Future<ApiResponse> fetchVisitorsByMember(String memberId) async {
-  const storage = FlutterSecureStorage();
-  final token = await storage.read(key: 'auth_token');
+  static Future<ApiResponse> fetchVisitorsByMember(String memberId) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
 
-  if (token == null || token.isEmpty) {
-    return ApiResponse(
-      statusCode: 401,
-      isSuccess: false,
-      data: null,
-      message: 'User not authenticated',
-    );
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url: '$endPointbaseUrl/api/mobile/visitors/list/$memberId',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.isSuccess,
+        data: response.data['data'], // API returns a `data` field
+        message: response.data['message'],
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
   }
 
-  try {
-    final response = await makeRequest(
-      url: '$endPointbaseUrl/api/mobile/visitors/list/$memberId',
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+  static Future<ApiResponse> fetchGivenTestimonials(String userId) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
 
-    return ApiResponse(
-      statusCode: response.statusCode,
-      isSuccess: response.isSuccess,
-      data: response.data['data'], // API returns a `data` field
-      message: response.data['message'],
-    );
-  } catch (e) {
-    return ApiResponse(
-      statusCode: 500,
-      isSuccess: false,
-      data: null,
-      message: 'Error: $e',
-    );
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url: '$endPointbaseUrl/api/mobile/testimonialslips/given/list/$userId',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.isSuccess,
+        data: response.data['data'],
+        message: response.data['message'],
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
   }
-}
 
+  static Future<ApiResponse> fetchReceivedTestimonials(String userId) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url:
+            '$endPointbaseUrl/api/mobile/testimonialslips/received/list/$userId',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.isSuccess,
+        data: response.data['data'],
+        message: response.data['message'],
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
+  }
+
+  static Future<ApiResponse> fetchDashboardCount(
+      {required String filterType}) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url:
+            '$endPointbaseUrl/api/mobile/dashboard/count-summary?filterType=$filterType',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final parsedData = response.data['data'] ?? {};
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.isSuccess,
+        data: parsedData is Map<String, dynamic> ? parsedData : {},
+        message: response.data['message'] ?? 'Success',
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: {},
+        message: 'Error: $e',
+      );
+    }
+  }
 }

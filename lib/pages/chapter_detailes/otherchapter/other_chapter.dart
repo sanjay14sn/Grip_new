@@ -41,38 +41,70 @@ class _ChapterSelectorState extends State<ChapterSelector> {
     await fetchZones();
   }
 
-  Future<void> fetchZones() async {
-    final response = await PublicRoutesApiService.fetchZoneList();
-    if (response.isSuccess && response.data != null) {
-      setState(() {
-        zones = response.data;
-        isLoading = false;
-      });
-    } else {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to load zones: ${response.message}")),
-      );
+  Future<void> fetchZones({int maxRetries = 3}) async {
+    int attempt = 0;
+    bool success = false;
+
+    while (attempt < maxRetries && !success) {
+      attempt++;
+      debugPrint('🌍 Attempt $attempt to fetch zones');
+
+      final response = await PublicRoutesApiService.fetchZoneList();
+
+      if (response.isSuccess && response.data != null) {
+        setState(() {
+          zones = response.data;
+          isLoading = false;
+        });
+        success = true;
+        debugPrint('✅ Zones fetched successfully');
+      } else {
+        debugPrint(
+            '❌ Failed attempt $attempt to fetch zones: ${response.message}');
+        if (attempt == maxRetries) {
+          setState(() => isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text("Failed to load zones: ${response.message}")),
+          );
+        }
+      }
     }
   }
 
-  Future<void> fetchChaptersByZone(String zoneId) async {
+  Future<void> fetchChaptersByZone(String zoneId, {int maxRetries = 3}) async {
     setState(() {
       chaptersInZone = [];
       selectedChapterId = null;
     });
 
-    final response = await PublicRoutesApiService.fetchChaptersByZone(zoneId);
-    if (response.isSuccess && response.data != null) {
-      final List<dynamic> filteredChapters =
-          response.data.where((c) => c['_id'] != userChapterId).toList();
-      setState(() {
-        chaptersInZone = filteredChapters;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to load chapters: ${response.message}")),
-      );
+    int attempt = 0;
+    bool success = false;
+
+    while (attempt < maxRetries && !success) {
+      attempt++;
+      debugPrint('🏘️ Attempt $attempt to fetch chapters for zone: $zoneId');
+
+      final response = await PublicRoutesApiService.fetchChaptersByZone(zoneId);
+
+      if (response.isSuccess && response.data != null) {
+        final List<dynamic> filteredChapters =
+            response.data.where((c) => c['_id'] != userChapterId).toList();
+        setState(() {
+          chaptersInZone = filteredChapters;
+        });
+        success = true;
+        debugPrint('✅ Chapters fetched successfully');
+      } else {
+        debugPrint(
+            '❌ Failed attempt $attempt to fetch chapters: ${response.message}');
+        if (attempt == maxRetries) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text("Failed to load chapters: ${response.message}")),
+          );
+        }
+      }
     }
   }
 

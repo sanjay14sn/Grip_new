@@ -165,11 +165,6 @@ class _ReferralPageState extends State<ReferralPage> {
   }
 
   Future<void> _openAndFillContact() async {
-    if (!await FlutterContacts.requestPermission()) {
-      ToastUtil.showToast(context, '📛 Permission denied for contacts');
-      return;
-    }
-
     try {
       final List<Contact> contacts =
           await FlutterContacts.getContacts(withProperties: true);
@@ -179,7 +174,6 @@ class _ReferralPageState extends State<ReferralPage> {
         return;
       }
 
-      // Show bottom sheet picker
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -188,32 +182,73 @@ class _ReferralPageState extends State<ReferralPage> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         builder: (context) {
-          return SizedBox(
-            height: 60.h,
-            child: ListView.builder(
-              itemCount: contacts.length,
-              itemBuilder: (context, index) {
-                final contact = contacts[index];
-                final phone = contact.phones.isNotEmpty
-                    ? contact.phones.first.number
-                    : '';
+          TextEditingController searchController = TextEditingController();
+          List<Contact> filteredContacts = List.from(contacts);
 
-                return ListTile(
-                  title: Text(contact.displayName),
-                  subtitle: Text(phone),
-                  onTap: () {
-                    nameController.text = contact.displayName;
-                    if (phone.isNotEmpty) {
-                      mobileController.text = phone
-                          .replaceAll(RegExp(r'\D'), '')
-                          .padLeft(10, '0')
-                          .substring(0, 10);
-                    }
-                    Navigator.pop(context); // Close bottom sheet
-                  },
-                );
-              },
-            ),
+          return StatefulBuilder(
+            builder: (context, setModalState) {
+              void filterContacts(String query) {
+                final lowerQuery = query.toLowerCase();
+                setModalState(() {
+                  filteredContacts = contacts.where((contact) {
+                    final name = contact.displayName.toLowerCase();
+                    final phone = contact.phones.isNotEmpty
+                        ? contact.phones.first.number.toLowerCase()
+                        : '';
+                    return name.contains(lowerQuery) ||
+                        phone.contains(lowerQuery);
+                  }).toList();
+                });
+              }
+
+              return SizedBox(
+                height: 60.h,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: TextField(
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search by name or phone',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onChanged: filterContacts,
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filteredContacts.length,
+                        itemBuilder: (context, index) {
+                          final contact = filteredContacts[index];
+                          final phone = contact.phones.isNotEmpty
+                              ? contact.phones.first.number
+                              : '';
+
+                          return ListTile(
+                            title: Text(contact.displayName),
+                            subtitle: Text(phone),
+                            onTap: () {
+                              nameController.text = contact.displayName;
+                              if (phone.isNotEmpty) {
+                                mobileController.text = phone
+                                    .replaceAll(RegExp(r'\D'), '')
+                                    .padLeft(10, '0')
+                                    .substring(0, 10);
+                              }
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           );
         },
       );

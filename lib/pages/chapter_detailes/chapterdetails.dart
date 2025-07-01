@@ -57,6 +57,26 @@ class _MyChapterPageState extends State<MyChapterPage> {
     });
   }
 
+  Future<T?> retry<T>(
+    Future<T> Function() task, {
+    int retries = 3,
+    Duration delay = const Duration(seconds: 1),
+    required String logLabel,
+  }) async {
+    for (int attempt = 1; attempt <= retries; attempt++) {
+      try {
+        debugPrint('🔁 [$logLabel] Attempt $attempt');
+        final result = await task();
+        return result;
+      } catch (e) {
+        debugPrint('❌ [$logLabel] Attempt $attempt failed: $e');
+        if (attempt < retries) await Future.delayed(delay);
+      }
+    }
+    debugPrint('🚫 [$logLabel] All $retries attempts failed.');
+    return null;
+  }
+
   Future<void> _fetchAllMemberDetails() async {
     debugPrint("🔄 Fetching all member details...");
     setState(() {
@@ -82,8 +102,6 @@ class _MyChapterPageState extends State<MyChapterPage> {
 
     final chapterProvider =
         Provider.of<ChapterProvider>(context, listen: false);
-
-    // ✅ Get and print the CID ID from ChapterDetails
     final cidId = chapterProvider.chapterDetails?.cidId;
     debugPrint("📛 CID ID from chapter: $cidId");
 
@@ -98,17 +116,19 @@ class _MyChapterPageState extends State<MyChapterPage> {
         continue;
       }
 
-      debugPrint("🌐 Fetching details for member: ${member.id}");
-      final response =
-          await PublicRoutesApiService.fetchMemberDetailsById(member.id);
+      final response = await retry(
+        () => PublicRoutesApiService.fetchMemberDetailsById(member.id),
+        retries: 3,
+        delay: const Duration(seconds: 1),
+        logLabel: "Member ${member.id}",
+      );
 
-      if (response.isSuccess && response.data != null) {
-        debugPrint("✅ Successfully fetched details for member: ${member.id}");
+      if (response != null && response.isSuccess && response.data != null) {
+        debugPrint("✅ Successfully fetched: ${member.id}");
         final detailed = DetailedMember.fromJson(response.data);
         _detailedMembers.add(detailed);
       } else {
-        debugPrint(
-            "❌ Failed to fetch details for member: ${member.id}, Status: ${response.isSuccess}");
+        debugPrint("⚠️ Failed permanently for: ${member.id}");
       }
     }
 
@@ -122,46 +142,36 @@ class _MyChapterPageState extends State<MyChapterPage> {
   Future<void> _fetchCidDetails(String cidId) async {
     debugPrint('🔄 Fetching CID details for ID: $cidId');
 
-    try {
-      // Optional: You can set a loading flag here if needed
-      // setState(() => _isCidLoading = true);
+    final response = await retry(
+      () => PublicRoutesApiService.fetchCidDetails(cidId),
+      retries: 3,
+      delay: const Duration(seconds: 1),
+      logLabel: "CID $cidId",
+    );
 
-      final response = await PublicRoutesApiService.fetchCidDetails(
-          cidId); // ✅ No 'cid/' prefix
+    if (response != null && response.isSuccess && response.data != null) {
+      final data = response.data;
 
-      debugPrint(
-          '📥 CID API response: ${response.isSuccess}, data: ${response.data}');
+      final member = MemberModel(
+        id: data['_id'] ?? '',
+        name: data['username'] ?? '',
+        company: data['companyName'] ?? '',
+        phone: data['mobileNumber'] ?? '',
+        role: data['role']?['name'] ?? '',
+        website: data['website'],
+        chapterName: data['chapterName'],
+        businessDescription: data['businessDescription'],
+        email: data['email'] ?? '',
+        address: data['address'],
+      );
 
-      if (response.isSuccess && response.data != null) {
-        final data = response.data;
+      setState(() {
+        _cidMember = member;
+      });
 
-        final member = MemberModel(
-          id: data['_id'] ?? '', // ✅ Extract the ID from the root object
-          name: data['username'] ?? '',
-          company: data['companyName'] ?? '',
-          phone: data['mobileNumber'] ?? '',
-          role: data['role']?['name'] ?? '',
-          website: data['website'], // or null if not provided
-          chapterName: data['chapterName'], // or null if not provided
-          businessDescription: data['businessDescription'], // or null
-          email: data['email'] ?? '',
-          address: data['address'], // or null if not provided
-        );
-
-        setState(() {
-          _cidMember = member;
-          // _isCidLoading = false;
-        });
-
-        debugPrint('✅ CID details fetched: ${member.name}, ${member.company}');
-      } else {
-        debugPrint(
-            '❌ Failed to fetch CID details. Message: ${response.message}');
-        // setState(() => _isCidLoading = false);
-      }
-    } catch (e) {
-      debugPrint('❌ Error fetching CID details: $e');
-      // setState(() => _isCidLoading = false);
+      debugPrint('✅ CID details fetched: ${member.name}, ${member.company}');
+    } else {
+      debugPrint('❌ Failed to fetch CID details after retries');
     }
   }
 

@@ -236,10 +236,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/OthersOneToOnesPage',
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>;
+        final othersList = state.extra as List<dynamic>;
+
         return OthersOneToOnesPage(
-          othersList: extra['data'],
-          //memberName: extra['memberName'],
+          othersList: othersList,
         );
       },
     ),

@@ -71,6 +71,7 @@ dependencies:
   dio: ^5.8.0+1
   device_info_plus: ^11.5.0
   timeago: ^3.7.1
+  external_path: ^2.2.0
   
   
 
