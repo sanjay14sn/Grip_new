@@ -10,7 +10,6 @@ import 'package:sizer/sizer.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:grip/components/shimmer.dart';
 
-
 class OthersTestimonialsViewPage extends StatefulWidget {
   final String memberName;
   final String memberId;
@@ -347,6 +346,7 @@ class _OthersTestimonialsViewPageState
         );
       },
       child: Card(
+        color: Colors.white,
         elevation: 2,
         margin: EdgeInsets.symmetric(vertical: 0.6.h, horizontal: 2.w),
         shape: RoundedRectangleBorder(

@@ -4,6 +4,7 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
+import 'package:grip/components/download.dart' as FileDownloader;
 
 class Givenonetoonepage extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -197,12 +198,32 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
                                           Icon(Icons.download,
                                               size: 14.sp, color: Colors.blue),
                                           SizedBox(width: 1.w),
-                                          Text(
-                                            'Download',
-                                            style: TextStyle(
-                                              fontSize: 12.sp,
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.w500,
+                                          GestureDetector(
+                                            onTap: () {
+                                              if (imageUrl != null &&
+                                                  imageUrl.isNotEmpty) {
+                                                final fileName =
+                                                    imageUrl.split('/').last;
+                                                FileDownloader.FileDownloader
+                                                    .downloadImage(
+                                                  url: imageUrl,
+                                                  fileName: fileName,
+                                                  context: context,
+                                                );
+                                              }
+                                            },
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 1.w),
+                                                Text(
+                                                  'Download',
+                                                  style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: Colors.blue,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],

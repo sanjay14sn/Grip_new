@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sizer/sizer.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:sizer/sizer.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 
 class CustomInputField extends StatefulWidget {
@@ -37,6 +38,25 @@ class _CustomInputFieldState extends State<CustomInputField> {
   String? memberChapter;
   bool _isLoading = false;
   bool memberFound = false;
+  String? loggedInMobile;
+  bool isSameUser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLoggedInMobile();
+  }
+
+  Future<void> _loadLoggedInMobile() async {
+    final storage = FlutterSecureStorage();
+    final userDataString = await storage.read(key: 'user_data');
+    if (userDataString != null) {
+      final userData = jsonDecode(userDataString);
+      setState(() {
+        loggedInMobile = userData['mobileNumber'];
+      });
+    }
+  }
 
   Future<void> _pickContact() async {
     var status = await Permission.contacts.status;
@@ -51,7 +71,6 @@ class _CustomInputFieldState extends State<CustomInputField> {
         String phone =
             contact.phones.first.number.replaceAll(RegExp(r'\D'), '');
 
-        // 🧹 Remove leading +91 or 91 if exists and ensure it's 10 digits
         if (phone.startsWith('91') && phone.length > 10) {
           phone = phone.substring(phone.length - 10);
         }
@@ -60,29 +79,41 @@ class _CustomInputFieldState extends State<CustomInputField> {
           widget.controller.text = phone;
           _onChanged(phone);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text("Please select a valid 10-digit number.")),
-          );
+          _showError("Please select a valid 10-digit number.");
         }
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Permission denied.")),
-      );
+      _showError("Permission denied.");
     }
   }
 
   void _onChanged(String value) {
     String cleaned = value.replaceAll(RegExp(r'\D'), '');
 
-    // 🧼 Remove leading country code if present
     if (cleaned.startsWith('91') && cleaned.length > 10) {
       cleaned = cleaned.substring(cleaned.length - 10);
     }
 
+    widget.controller.text = cleaned;
+
+    if (cleaned == loggedInMobile) {
+      setState(() {
+        isSameUser = true;
+        memberName = null;
+        memberUid = null;
+        memberChapter = null;
+        memberFound = false;
+      });
+
+      widget.controller.clear();
+      widget.onUidFetched?.call(null);
+      _showError("You cannot use your own number.");
+      return;
+    } else {
+      setState(() => isSameUser = false);
+    }
+
     if (cleaned.length == 10) {
-      widget.controller.text = cleaned;
       _fetchMemberDetails(cleaned);
     } else {
       setState(() {
@@ -150,6 +181,12 @@ class _CustomInputFieldState extends State<CustomInputField> {
     }
   }
 
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -165,9 +202,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
               maxLines: 1,
               onChanged: _onChanged,
               inputFormatters: [
-                LengthLimitingTextInputFormatter(10), // ⛔️ Max 10 digits
-                FilteringTextInputFormatter
-                    .digitsOnly, // ⛔️ Only digits allowed
+                LengthLimitingTextInputFormatter(10),
+                FilteringTextInputFormatter.digitsOnly,
               ],
               decoration: InputDecoration(
                 hintText: widget.isRequired ? "${widget.label}" : widget.label,
@@ -184,7 +220,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
                     ? IconButton(
                         icon: const Icon(Icons.contacts,
                             color: Colors.black, size: 22),
-                        onPressed: () => _pickContact(),
+                        onPressed: _pickContact,
                       )
                     : null,
               ),

@@ -221,22 +221,32 @@ class _ChapterSelectorState extends State<ChapterSelector> {
     );
   }
 
-  Widget _dropdownField(String hint, List<String> items, String? selectedValue,
-      void Function(String?)? onChanged) {
+  Widget _dropdownField(
+    String hint,
+    List<String> items,
+    String? selectedValue,
+    void Function(String?)? onChanged,
+  ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 3.w),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: Colors.white, // ✅ Dropdown field background
         borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButtonFormField<String>(
         decoration: InputDecoration(
           fillColor: Colors.white,
+          filled: true, // ✅ Must be true to apply fillColor
           hintText: hint,
-          border: InputBorder.none,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         ),
         value: selectedValue,
         icon: const Icon(Icons.keyboard_arrow_down),
+        dropdownColor: Colors.white, // ✅ Dropdown menu background
         items: items
             .map((e) => DropdownMenuItem(value: e, child: Text(e)))
             .toList(),

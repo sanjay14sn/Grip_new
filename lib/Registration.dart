@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
 class PaymentScreen extends StatelessWidget {
   final List<PaymentItem> items = [
+    PaymentItem("Membership", "assets/images/registration.png",
+        Colors.green, "15 June 2025"),
     PaymentItem("Hotel Registration", "assets/images/registration.png",
         Colors.blue, "15 June 2025"),
     PaymentItem("Training Registration", "assets/images/tropy.png",
@@ -51,7 +54,18 @@ class PaymentScreen extends StatelessWidget {
             separatorBuilder: (_, __) => SizedBox(height: 2.h),
             itemBuilder: (context, index) {
               final item = items[index];
-              return PaymentCard(item: item);
+              return PaymentCard(
+                item: item,
+                onTap: () {
+                  if (item.title == "Membership") {
+                    context.push('/membershipdetails');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Tapped: ${item.title}')),
+                    );
+                  }
+                },
+              );
             },
           ),
         ),
@@ -70,75 +84,80 @@ class PaymentItem {
 
 class PaymentCard extends StatelessWidget {
   final PaymentItem item;
+  final VoidCallback onTap;
 
-  const PaymentCard({required this.item});
+  const PaymentCard({required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(3.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(3.w),
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(2, 2)),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(3.w),
-            decoration: BoxDecoration(
-              color: item.iconColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(3.w),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(3.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(3.w),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black12, blurRadius: 6, offset: Offset(2, 2)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(3.w),
+              decoration: BoxDecoration(
+                color: item.iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(3.w),
+              ),
+              child: Image.asset(item.iconPath,
+                  width: 10.w, height: 10.w, color: item.iconColor),
             ),
-            child: Image.asset(item.iconPath,
-                width: 10.w, height: 10.w, color: item.iconColor),
-          ),
-          SizedBox(width: 4.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            SizedBox(width: 4.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.title,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14.sp)),
+                  SizedBox(height: 0.5.h),
+                  Text(item.date,
+                      style:
+                          TextStyle(fontSize: 12.sp, color: Colors.grey[700])),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(item.title,
+                Text("₹ 750",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 14.sp)),
-                SizedBox(height: 0.5.h),
-                Text(item.date,
-                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[700])),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text("₹ 750",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.sp,
-                      color: Colors.black)),
-              SizedBox(height: 1.h),
-              SizedBox(
-                height: 3.h, // Set the desired height
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 4.w), // No vertical padding
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(2.w),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.sp,
+                        color: Colors.black)),
+                SizedBox(height: 1.h),
+                SizedBox(
+                  height: 3.h,
+                  child: ElevatedButton(
+                    onPressed: () {}, // Handle payment button if needed
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: EdgeInsets.symmetric(horizontal: 4.w),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(2.w),
+                      ),
+                    ),
+                    child: Text(
+                      "Pay Now",
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
                     ),
                   ),
-                  child: Text(
-                    "Pay Now",
-                    style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

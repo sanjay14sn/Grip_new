@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/components/shimmer.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class OtherReferralViewPage extends StatefulWidget {
   final String memberId;
-  final String memberName; // <-- Add this line
+  final String memberName;
 
   const OtherReferralViewPage({
     super.key,
     required this.memberId,
-    required this.memberName, // <-- Add this line
+    required this.memberName,
   });
 
   @override
@@ -57,7 +60,6 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
             children: [
               // Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -99,6 +101,7 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                 ),
                 child: Row(
                   children: [
+                    // GIVEN
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => isReceivedSelected = false),
@@ -121,6 +124,7 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                         ),
                       ),
                     ),
+                    // RECEIVED
                     Expanded(
                       child: GestureDetector(
                         onTap: () => setState(() => isReceivedSelected = true),
@@ -148,10 +152,10 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
               ),
               SizedBox(height: 2.h),
 
-              // List
+              // List or shimmer
               Expanded(
                 child: isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? buildShimmerList()
                     : ListView.builder(
                         itemCount: isReceivedSelected
                             ? receivedReferrals.length
@@ -162,15 +166,16 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                               : givenReferrals[index];
 
                           final referralName =
-                              item['referalDetail']?['name'] ?? 'N/A';
-                          final referralDate =
-                              item['createdAt']?.toString().split('T').first ??
-                                  '';
+                              '${item['toMember']?['personalDetails']?['firstName'] ?? ''} ${item['toMember']?['personalDetails']?['lastName'] ?? ''}'
+                                  .trim();
+
+                          final dateRaw = item['createdAt'];
+                          final date = _formatDate(dateRaw);
 
                           return referralTile(
                             item,
                             referralName,
-                            referralDate,
+                            date,
                             'assets/images/profile1.jpg',
                             isReceivedSelected,
                           );
@@ -183,6 +188,19 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
       ),
     );
   }
+
+  /// Format ISO date to dd-MM-yy
+  String _formatDate(String? isoString) {
+    if (isoString == null || isoString.isEmpty) return '';
+    try {
+      final dt = DateTime.parse(isoString);
+      return DateFormat('dd-MM-yy').format(dt);
+    } catch (_) {
+      return '';
+    }
+  }
+
+  /// Shimmer loading widget
 
   // Tile
   Widget referralTile(
@@ -217,20 +235,11 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    date,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
+                  Text(name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(date,
+                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
               ),
               const Spacer(),

@@ -233,12 +233,32 @@ class _ReferralPageState extends State<ReferralPage> {
                             subtitle: Text(phone),
                             onTap: () {
                               nameController.text = contact.displayName;
+
                               if (phone.isNotEmpty) {
-                                mobileController.text = phone
-                                    .replaceAll(RegExp(r'\D'), '')
-                                    .padLeft(10, '0')
-                                    .substring(0, 10);
+                                // Remove all non-digit characters
+                                String cleanedPhone =
+                                    phone.replaceAll(RegExp(r'\D'), '');
+
+                                // If the number starts with '91' and is 12 digits long, remove the prefix
+                                if (cleanedPhone.length == 12 &&
+                                    cleanedPhone.startsWith('91')) {
+                                  cleanedPhone = cleanedPhone.substring(2);
+                                }
+
+                                // If the number starts with '0' and is 11 digits long, remove '0'
+                                if (cleanedPhone.length == 11 &&
+                                    cleanedPhone.startsWith('0')) {
+                                  cleanedPhone = cleanedPhone.substring(1);
+                                }
+
+                                // Take only first 10 digits safely
+                                cleanedPhone = cleanedPhone.length >= 10
+                                    ? cleanedPhone.substring(0, 10)
+                                    : cleanedPhone;
+
+                                mobileController.text = cleanedPhone;
                               }
+
                               Navigator.pop(context);
                             },
                           );

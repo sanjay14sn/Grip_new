@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/components/shimmer.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
@@ -94,7 +95,7 @@ class _OthersVisitorsPageState extends State<OthersVisitorsPage> {
               // List
               Expanded(
                 child: isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? buildShimmerList()
                     : visitors.isEmpty
                         ? const Center(child: Text('No visitors found.'))
                         : ListView.builder(

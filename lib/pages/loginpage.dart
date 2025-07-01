@@ -74,24 +74,23 @@ class _LoginScreenState extends State<LoginScreen> {
               '🔑 Token: ${token.toString().substring(0, 30)}... [truncated]');
           print('👤 User Info: $userJson');
 
-          // ✅ Store token and user data in secure storage
           const storage = FlutterSecureStorage();
           await storage.write(key: 'auth_token', value: token);
           await storage.write(key: 'user_data', value: jsonEncode(userJson));
 
-          // ✅ Show success toast
           ToastUtil.showToast(context, '✅ Login successful!');
-
-          // ✅ Navigate to homepage
           context.go('/homepage');
         } else {
-          final message = response.data?['message'] ?? response.message;
-          ToastUtil.showToast(context, 'Login failed. Message: $message');
+          final rawMessage = response.data?['message'] ?? response.message;
+          final message = (rawMessage == 'Invalid PIN' ||
+                  rawMessage == 'Invalid mobile number')
+              ? rawMessage
+              : 'Please Try Again';
+
+          ToastUtil.showToast(context, message);
         }
       } catch (e) {
-        print('❌ Login error: $e');
-        ToastUtil.showToast(
-            context, 'An unexpected error occurred. Please try again.');
+        ToastUtil.showToast(context, 'Please Try Again');
       }
     }
   }
@@ -149,9 +148,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: passwordController,
                           hinttext: 'PIN',
                           obscureText: true,
+                          keyboardType:
+                              TextInputType.number, // ✅ only number input
+                          maxLength: 6, // optional: set your PIN length
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter password';
+                              return 'Please enter PIN';
+                            }
+                            if (value.length < 4) {
+                              return 'PIN must be at least 4 digits';
                             }
                             return null;
                           },

@@ -67,7 +67,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildShimmerLoader() {
     return Expanded(
       child: ListView.builder(
-        itemCount: 6,
+        itemCount:9,
         padding: EdgeInsets.only(bottom: 1.h),
         itemBuilder: (_, index) {
           return Container(
