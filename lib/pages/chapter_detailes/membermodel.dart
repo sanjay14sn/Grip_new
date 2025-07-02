@@ -1,5 +1,7 @@
+import 'package:grip/backend/api-requests/imageurl.dart';
+
 class MemberModel {
-  final String id; // ✅ Add this
+  final String id;
   final String name;
   final String company;
   final String phone;
@@ -9,9 +11,10 @@ class MemberModel {
   final String? businessDescription;
   final String? email;
   final String? address;
+  final String? profileImageUrl; // ✅ Add this
 
   MemberModel({
-    required this.id, // ✅ Include in constructor
+    required this.id,
     required this.name,
     required this.company,
     required this.phone,
@@ -21,27 +24,38 @@ class MemberModel {
     this.businessDescription,
     this.email,
     this.address,
+    this.profileImageUrl, // ✅ Add to constructor
   });
 
   factory MemberModel.fromJson(Map<String, dynamic> json) {
+    final personal = json['personalDetails'] ?? {};
+    final contact = json['contactDetails'] ?? {};
+    final chapterInfo = json['chapterInfo']?['chapterId'] ?? {};
+    final business = json['businessDetails'] ?? {};
+    final address = json['businessAddress'] ?? {};
+    final profile = personal['profileImage'];
+
     return MemberModel(
-      id: json['_id'] ?? '', // ✅ Read ID from backend
-      name: json['name'] ?? '',
-      company: json['company'] ?? '',
-      phone: json['phone'] ?? '',
-      role: json['role'],
-      website: json['website'],
-      chapterName: json['chapterName'],
-      businessDescription: json['businessDescription'],
-      email: json['email'],
-      address: json['address'],
+      id: json['_id'] ?? '',
+      name:
+          '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}'.trim(),
+      company: personal['companyName'] ?? '',
+      phone: contact['mobileNumber'] ?? '',
+      role: personal['categoryRepresented'],
+      website: contact['website'],
+      chapterName: chapterInfo['chapterName'],
+      businessDescription: business['businessDescription'],
+      email: contact['email'],
+      address: address['addressLine1'],
+      profileImageUrl: (profile != null)
+          ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
+          : null,
     );
   }
 }
 
-
 class othersMemberModel {
-  final String id; // ✅ Add this
+  final String id;
   final String name;
   final String company;
   final String phone;
@@ -52,9 +66,10 @@ class othersMemberModel {
   final String? email;
   final String? address;
   final String? cidId;
+  final String? profileImageUrl; // ✅ Add this
 
   othersMemberModel({
-    required this.id, // ✅ Include in constructor
+    required this.id,
     required this.name,
     required this.company,
     required this.phone,
@@ -65,6 +80,7 @@ class othersMemberModel {
     this.email,
     this.address,
     this.cidId,
+    this.profileImageUrl, // ✅ Add to constructor
   });
 
   factory othersMemberModel.fromJson(Map<String, dynamic> json) {
@@ -73,9 +89,18 @@ class othersMemberModel {
     final chapterInfo = json['chapterInfo']?['chapterId'] ?? {};
     final business = json['businessDetails'] ?? {};
     final address = json['businessAddress'] ?? {};
+    final profile = personal['profileImage'];
+
+    String? profileImageUrl;
+    if (profile != null &&
+        profile['docPath'] != null &&
+        profile['docName'] != null) {
+      profileImageUrl =
+          "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}";
+    }
 
     return othersMemberModel(
-      id: json['_id'] ?? '', // ✅ Extract the ID from root level
+      id: json['_id'] ?? '',
       name:
           '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}'.trim(),
       company: personal['companyName'] ?? '',
@@ -87,6 +112,7 @@ class othersMemberModel {
       email: contact['email'],
       address: address['addressLine1'],
       cidId: chapterInfo['cidId'],
+      profileImageUrl: profileImageUrl, // ✅ Assign built URL
     );
   }
 }

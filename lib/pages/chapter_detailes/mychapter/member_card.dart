@@ -43,8 +43,12 @@ class MemberCard extends StatelessWidget {
                         height: 6.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          image: const DecorationImage(
-                            image: AssetImage("assets/images/profile.png"),
+                          image: DecorationImage(
+                            image: (member.profileImageUrl != null &&
+                                    member.profileImageUrl!.isNotEmpty)
+                                ? NetworkImage(member.profileImageUrl!)
+                                : const AssetImage("assets/images/profile.png")
+                                    as ImageProvider,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -78,7 +82,6 @@ class MemberCard extends StatelessWidget {
                   ),
                 ),
               ),
-
               if (isRoleCard)
                 Container(
                   width: double.infinity,
@@ -97,7 +100,6 @@ class MemberCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                
             ],
           ),
         ),

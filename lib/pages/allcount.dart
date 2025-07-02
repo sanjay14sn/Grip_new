@@ -11,12 +11,7 @@ class HomeDashboard extends StatefulWidget {
 }
 
 class _HomeDashboardState extends State<HomeDashboard> {
-  final List<String> timeFilters = [
-    '1 Month',
-    '6 Month',
-    '1 Year',
-    'Life Time'
-  ];
+  final List<String> timeFilters = ['3 Months', '6 Months', '1 Year', 'Overall'];
   int selectedIndex = 0;
 
   Map<String, dynamic> dashboardData = {
@@ -30,13 +25,14 @@ class _HomeDashboardState extends State<HomeDashboard> {
     'visitors': 0,
     'revenueGiven': 0,
     'revenueReceived': 0,
+    'training': 0,
   };
 
   final Map<int, String> filterMap = {
     0: 'this-month',
     1: '6-months',
     2: '12-months',
-    3: '', // Life time = default (no filter param)
+    3: '', // Life time
   };
 
   @override
@@ -49,8 +45,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
     final filterType = filterMap[selectedIndex]!;
     print('🔄 Fetching dashboard data for: $filterType');
 
-    final response = await PublicRoutesApiService.fetchDashboardCount(
-        filterType: filterType);
+    final response =
+        await PublicRoutesApiService.fetchDashboardCount(filterType: filterType);
 
     if (response.isSuccess && response.data != null) {
       final raw = response.data;
@@ -67,6 +63,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
           'visitors': raw['visitorCount'] ?? 0,
           'revenueGiven': raw['thankYouGivenAmount'] ?? 0,
           'revenueReceived': raw['thankYouReceivedAmount'] ?? 0,
+          'training': raw['trainingCount'] ?? 0,
         };
       });
 
@@ -76,6 +73,18 @@ class _HomeDashboardState extends State<HomeDashboard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('❌ ${response.message}')),
       );
+    }
+  }
+
+  String formatIndianNumber(num number) {
+    if (number >= 10000000) {
+      return '${(number / 10000000).toStringAsFixed(1)}Cr';
+    } else if (number >= 100000) {
+      return '${(number / 100000).toStringAsFixed(1)}L';
+    } else if (number >= 1000) {
+      return '${(number / 1000).toStringAsFixed(1)}K';
+    } else {
+      return number.toString();
     }
   }
 
@@ -94,27 +103,19 @@ class _HomeDashboardState extends State<HomeDashboard> {
             child: Column(
               children: [
                 Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? Colors.red.withOpacity(0.1)
-                        : Colors.transparent,
+                    color: isSelected ? Colors.red.withOpacity(0.1) : Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  child: Text(
-                    timeFilters[index],
-                    style: TTextStyles.month,
-                  ),
+                  child: Text(timeFilters[index], style: TTextStyles.month),
                 ),
                 SizedBox(height: 0.3.h),
                 Container(
                   height: 0.35.h,
                   width: 8.w,
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? const Color(0xFFC6221A)
-                        : Colors.transparent,
+                    color: isSelected ? const Color(0xFFC6221A) : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -170,10 +171,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
         'icon': Icons.compare_arrows,
       },
       {
-        'title': 'Thank u Notes',
+        'title': 'Revenue',
         'value':
-            'Given ${dashboardData['thankyouGiven']} / Received ${dashboardData['thankyouReceived']}',
-        'icon': Icons.person,
+            'Given ₹${formatIndianNumber(dashboardData['revenueGiven'])} / '
+                'Received ₹${formatIndianNumber(dashboardData['revenueReceived'])}',
+        'icon': Icons.currency_rupee_sharp,
       },
       {
         'title': 'Testimonials',
@@ -182,7 +184,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
         'icon': Icons.swap_horiz,
       },
       {
-        'title': 'One to Ones',
+        'title': 'One to One',
         'value': 'Total ${dashboardData['onetoones']}',
         'icon': Icons.group,
       },
@@ -192,10 +194,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
         'icon': Icons.desktop_windows,
       },
       {
-        'title': 'Revenue',
-        'value':
-            'Given ₹${dashboardData['revenueGiven']} / Received ₹${dashboardData['revenueReceived']}',
-        'icon': Icons.currency_rupee_sharp,
+        'title': 'Training',
+        'value': 'Total ${dashboardData['training']}',
+        'icon': Icons.person,
       },
     ];
 
@@ -208,8 +209,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-                color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
+            BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
           ],
         ),
         child: Column(

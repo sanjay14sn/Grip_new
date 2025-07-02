@@ -1,3 +1,5 @@
+import 'package:grip/backend/api-requests/imageurl.dart';
+
 class DetailedMember {
   final String id;
   final String name;
@@ -8,7 +10,8 @@ class DetailedMember {
   final String website;
   final String address;
   final String chapterName;
-  final String? cid; // <-- add this
+  final String? cid;
+  final String? profileImageUrl; // ✅ added
 
   DetailedMember({
     required this.id,
@@ -20,7 +23,8 @@ class DetailedMember {
     required this.website,
     required this.address,
     required this.chapterName,
-    this.cid, // <-- optional
+    this.cid,
+    this.profileImageUrl, // ✅ constructor
   });
 
   factory DetailedMember.fromJson(Map<String, dynamic> json) {
@@ -30,6 +34,7 @@ class DetailedMember {
     final addressData = json['businessAddress'] ?? {};
     final chapterInfo = json['chapterInfo'] ?? {};
     final chapterId = chapterInfo['chapterId'] ?? {};
+    final profile = personal['profileImage'];
 
     return DetailedMember(
       id: json['_id']?.toString() ?? '',
@@ -47,7 +52,10 @@ class DetailedMember {
         addressData['postalCode'],
       ].whereType<String>().map((e) => e.trim()).where((e) => e.isNotEmpty).join(', '),
       chapterName: chapterId['chapterName']?.toString() ?? '',
-      cid: chapterInfo['cidId']?.toString(), // <-- here
+      cid: chapterInfo['cidId']?.toString(),
+      profileImageUrl: (profile != null)
+          ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
+          : null, // ✅ added
     );
   }
 }

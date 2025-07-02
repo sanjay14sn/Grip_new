@@ -1,95 +1,155 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/utils/constants/Tcolors.dart';
+import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
+import 'package:intl/intl.dart';
 
-class PaymentScreen extends StatelessWidget {
-  final List<PaymentItem> items = [
-    PaymentItem("Membership", "assets/images/registration.png",
-        Colors.green, "15 June 2025"),
-    PaymentItem("Hotel Registration", "assets/images/registration.png",
-        Colors.blue, "15 June 2025"),
-    PaymentItem("Training Registration", "assets/images/tropy.png",
-        Colors.purple, "15 June 2025"),
-    PaymentItem("Dinner Registration", "assets/images/dinning.png",
-        Colors.orange, "15 June 2025"),
-  ];
+class PaymentScreen extends StatefulWidget {
+  const PaymentScreen({super.key});
+
+  @override
+  State<PaymentScreen> createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  List<PaymentItem> _items = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPaymentItems();
+  }
+
+  Future<void> fetchPaymentItems() async {
+    final response = await PublicRoutesApiService.fetchPayments();
+
+    if (response.isSuccess && response.data != null) {
+      final dataList = response.data as List<dynamic>;
+      final items = dataList.map((e) => PaymentItem.fromJson(e)).toList();
+      setState(() {
+        _items = items;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+        _error = response.message;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFC6221A),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          "Payment",
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold),
-        ),
-      ),
+            backgroundColor: Tcolors.title_color,
+            title: Text(
+              'Payment',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
       backgroundColor: Colors.grey.shade100,
       body: Padding(
         padding: EdgeInsets.all(3.w),
-        child: Container(
-          padding: EdgeInsets.all(3.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(4.w),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 4,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: ListView.separated(
-            itemCount: items.length,
-            separatorBuilder: (_, __) => SizedBox(height: 2.h),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return PaymentCard(
-                item: item,
-                onTap: () {
-                  if (item.title == "Membership") {
-                    context.push('/membershipdetails');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Tapped: ${item.title}')),
-                    );
-                  }
-                },
-              );
-            },
-          ),
-        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+                ? Center(child: Text(_error!))
+                : _items.isEmpty
+                    ? const Center(child: Text("No payments available."))
+                    : Container(
+                        padding: EdgeInsets.all(3.w),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4.w),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: ListView.separated(
+                          itemCount: _items.length,
+                          separatorBuilder: (_, __) => SizedBox(height: 2.h),
+                          itemBuilder: (context, index) {
+                            final item = _items[index];
+                            return PaymentCard(
+                              item: item,
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Tapped: ${item.title}')),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
       ),
     );
   }
 }
 
 class PaymentItem {
+  final String id;
   final String title;
-  final String iconPath;
-  final Color iconColor;
-  final String date;
-  PaymentItem(this.title, this.iconPath, this.iconColor, this.date);
+  final String? imageUrl;
+  final int amount;
+  final DateTime date;
+  final bool paymentRequired;
+
+  PaymentItem({
+    required this.id,
+    required this.title,
+    required this.imageUrl,
+    required this.amount,
+    required this.date,
+    required this.paymentRequired,
+  });
+
+  factory PaymentItem.fromJson(Map<String, dynamic> json) {
+    final imageObj = json['image'];
+    final imagePath = (imageObj != null)
+        ? "${UrlService.imageBaseUrl}/${imageObj['docPath']}/${imageObj['docName']}"
+        : null;
+
+    return PaymentItem(
+      id: json['_id'],
+      title: json['topic'] ?? json['purpose'],
+      imageUrl: imagePath,
+      amount: json['amount'] ?? 0,
+      date: DateTime.parse(json['date']),
+      paymentRequired: json['paymentRequired'] ?? false,
+    );
+  }
 }
 
 class PaymentCard extends StatelessWidget {
   final PaymentItem item;
   final VoidCallback onTap;
 
-  const PaymentCard({required this.item, required this.onTap});
+  const PaymentCard({super.key, required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final formattedDate = DateFormat('dd MMM yyyy').format(item.date);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -99,7 +159,9 @@ class PaymentCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(3.w),
           boxShadow: [
             BoxShadow(
-                color: Colors.black12, blurRadius: 6, offset: Offset(2, 2)),
+                color: Colors.black12,
+                blurRadius: 6,
+                offset: const Offset(2, 2)),
           ],
         ),
         child: Row(
@@ -107,11 +169,12 @@ class PaymentCard extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(3.w),
               decoration: BoxDecoration(
-                color: item.iconColor.withOpacity(0.1),
+                color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(3.w),
               ),
-              child: Image.asset(item.iconPath,
-                  width: 10.w, height: 10.w, color: item.iconColor),
+              child: item.imageUrl != null
+                  ? Image.network(item.imageUrl!, width: 10.w, height: 10.w)
+                  : Icon(Icons.receipt_long, size: 10.w, color: Colors.grey),
             ),
             SizedBox(width: 4.w),
             Expanded(
@@ -122,7 +185,7 @@ class PaymentCard extends StatelessWidget {
                       style: TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 14.sp)),
                   SizedBox(height: 0.5.h),
-                  Text(item.date,
+                  Text(formattedDate,
                       style:
                           TextStyle(fontSize: 12.sp, color: Colors.grey[700])),
                 ],
@@ -131,29 +194,29 @@ class PaymentCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text("₹ 750",
+                Text("₹ ${item.amount}",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
-                        color: Colors.black)),
+                        fontWeight: FontWeight.bold, fontSize: 14.sp)),
                 SizedBox(height: 1.h),
-                SizedBox(
-                  height: 3.h,
-                  child: ElevatedButton(
-                    onPressed: () {}, // Handle payment button if needed
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: EdgeInsets.symmetric(horizontal: 4.w),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(2.w),
+                if (item.paymentRequired)
+                  SizedBox(
+                    height: 3.5.h,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Implement payment logic here
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(horizontal: 4.w),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(2.w),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      "Pay Now",
-                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                      child: Text("Pay Now",
+                          style:
+                              TextStyle(fontSize: 12.sp, color: Colors.white)),
                     ),
                   ),
-                ),
               ],
             ),
           ],

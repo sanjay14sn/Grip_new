@@ -28,7 +28,9 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
     final fullName =
         "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
             .trim();
-   final companyName = personalDetails['companyName'] ?? fromMember['companyName'] ?? 'No Company';
+    final companyName = personalDetails['companyName'] ??
+        fromMember['companyName'] ??
+        'No Company';
     final comment = widget.data['comments'] ?? '';
 
     final images = widget.data['images'] as List? ?? [];

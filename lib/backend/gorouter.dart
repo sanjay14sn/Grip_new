@@ -206,7 +206,7 @@ final GoRouter router = GoRouter(
         if (extra is MemberModel) {
           return ChapterDetails(member: extra);
         } else if (extra is othersMemberModel) {
-          // ✅ Convert othersMemberModel to MemberModel including 'id'
+          // ✅ Convert othersMemberModel to MemberModel including profileImageUrl
           final converted = MemberModel(
             id: extra.id,
             name: extra.name,
@@ -218,6 +218,7 @@ final GoRouter router = GoRouter(
             businessDescription: extra.businessDescription,
             email: extra.email,
             address: extra.address,
+            profileImageUrl: extra.profileImageUrl, // ✅ include this line
           );
           return ChapterDetails(member: converted);
         } else {

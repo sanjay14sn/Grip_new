@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/utils/theme/Textheme.dart';
-import 'package:grip/backend/handle.dart';
 import 'package:sizer/sizer.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:shimmer/shimmer.dart';
+import 'package:grip/backend/api-requests/imageurl.dart'; // for UrlService
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({Key? key}) : super(key: key);
@@ -67,7 +66,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildShimmerLoader() {
     return Expanded(
       child: ListView.builder(
-        itemCount:9,
+        itemCount: 9,
         padding: EdgeInsets.only(bottom: 1.h),
         itemBuilder: (_, index) {
           return Container(
@@ -183,6 +182,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     DateTime.parse(notification['createdAt']);
                                 final formattedTime = timeago.format(createdAt);
 
+                                // Construct profile image URL
+                                final profileImage =
+                                    from['personalDetails']['profileImage'];
+                                final imageUrl =
+                                    '${UrlService.imageBaseUrl}/${profileImage['docPath']}/${profileImage['docName']}';
+
                                 return Container(
                                   margin: EdgeInsets.only(bottom: 1.h),
                                   decoration: BoxDecoration(
@@ -192,8 +197,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   child: ListTile(
                                     leading: CircleAvatar(
                                       radius: 22,
-                                      backgroundImage: AssetImage(
-                                          'assets/images/profile1.jpg'),
+                                      backgroundColor: Colors.grey.shade200,
+                                      backgroundImage: NetworkImage(imageUrl),
                                     ),
                                     title: RichText(
                                       text: TextSpan(

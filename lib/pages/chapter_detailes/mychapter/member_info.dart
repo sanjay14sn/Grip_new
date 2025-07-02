@@ -37,6 +37,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
       'chairman event',
       'chairman business resource',
       'public image chairman',
+      'cid'
     ];
     final shouldHideMenu =
         hideMenuRoles.contains(widget.member.role?.toLowerCase() ?? '');
@@ -161,10 +162,14 @@ class _ChapterDetailsState extends State<ChapterDetails> {
               Center(
                 child: CircleAvatar(
                   radius: 10.w,
-                  backgroundImage:
-                      const AssetImage('assets/images/profile.png'),
+                  backgroundImage: widget.member.profileImageUrl != null &&
+                          widget.member.profileImageUrl!.isNotEmpty
+                      ? NetworkImage(widget.member.profileImageUrl!)
+                      : const AssetImage('assets/images/profile.png')
+                          as ImageProvider,
                 ),
               ),
+
               SizedBox(height: 1.5.h),
 
               // Name & Role

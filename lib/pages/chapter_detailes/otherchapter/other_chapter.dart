@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/components/numbersearch.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -17,6 +18,8 @@ class ChapterSelector extends StatefulWidget {
 
 class _ChapterSelectorState extends State<ChapterSelector> {
   final _storage = const FlutterSecureStorage();
+
+  final TextEditingController numberController = TextEditingController();
 
   List<dynamic> zones = [];
   List<dynamic> chaptersInZone = [];
@@ -59,13 +62,11 @@ class _ChapterSelectorState extends State<ChapterSelector> {
         success = true;
         debugPrint('✅ Zones fetched successfully');
       } else {
-        debugPrint(
-            '❌ Failed attempt $attempt to fetch zones: ${response.message}');
+        debugPrint('❌ Failed attempt $attempt to fetch zones: ${response.message}');
         if (attempt == maxRetries) {
           setState(() => isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text("Failed to load zones: ${response.message}")),
+            SnackBar(content: Text("Failed to load zones: ${response.message}")),
           );
         }
       }
@@ -96,12 +97,10 @@ class _ChapterSelectorState extends State<ChapterSelector> {
         success = true;
         debugPrint('✅ Chapters fetched successfully');
       } else {
-        debugPrint(
-            '❌ Failed attempt $attempt to fetch chapters: ${response.message}');
+        debugPrint('❌ Failed attempt $attempt to fetch chapters: ${response.message}');
         if (attempt == maxRetries) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text("Failed to load chapters: ${response.message}")),
+            SnackBar(content: Text("Failed to load chapters: ${response.message}")),
           );
         }
       }
@@ -115,27 +114,36 @@ class _ChapterSelectorState extends State<ChapterSelector> {
         : Column(
             children: [
               SizedBox(height: 2.h),
+
+              // ✅ Fully implemented NumberSearch widget
+              NumberSearch(
+                label: 'Enter Member Number',
+                isRequired: true,
+                controller: numberController,
+                enableContactPicker: true,
+              ),
+
+              SizedBox(height: 2.h),
+
               _dropdownField(
                 "Select Zone",
                 zones.map((z) => z['zoneName'].toString()).toList(),
                 selectedZoneId == null
                     ? null
-                    : zones.firstWhere(
-                        (z) => z['_id'] == selectedZoneId)['zoneName'],
+                    : zones.firstWhere((z) => z['_id'] == selectedZoneId)['zoneName'],
                 (val) {
-                  final selected =
-                      zones.firstWhere((z) => z['zoneName'] == val);
+                  final selected = zones.firstWhere((z) => z['zoneName'] == val);
                   selectedZoneId = selected['_id'];
                   fetchChaptersByZone(selectedZoneId!);
                 },
               ),
+
               SizedBox(height: 2.h),
+
               if (selectedZoneId != null && chaptersInZone.isNotEmpty)
                 _dropdownField(
                   "Select Chapter",
-                  chaptersInZone
-                      .map((c) => c['chapterName'].toString())
-                      .toList(),
+                  chaptersInZone.map((c) => c['chapterName'].toString()).toList(),
                   selectedChapterId == null
                       ? null
                       : chaptersInZone.firstWhere(
@@ -152,19 +160,18 @@ class _ChapterSelectorState extends State<ChapterSelector> {
                     }
                   },
                 ),
+
               SizedBox(height: 4.h),
+
               GestureDetector(
                 onTap: () {
                   if (selectedZoneId != null && selectedChapterId != null) {
                     final chapterName = chaptersInZone.firstWhere(
                         (c) => c['_id'] == selectedChapterId)['chapterName'];
-                    context.push(
-                        '/Otherschapter/$selectedChapterId?name=$chapterName');
+                    context.push('/Otherschapter/$selectedChapterId?name=$chapterName');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content:
-                              Text("Please select both zone and chapter.")),
+                      const SnackBar(content: Text("Please select both zone and chapter.")),
                     );
                   }
                 },
@@ -230,13 +237,13 @@ class _ChapterSelectorState extends State<ChapterSelector> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 3.w),
       decoration: BoxDecoration(
-        color: Colors.white, // ✅ Dropdown field background
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButtonFormField<String>(
         decoration: InputDecoration(
           fillColor: Colors.white,
-          filled: true, // ✅ Must be true to apply fillColor
+          filled: true,
           hintText: hint,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
@@ -246,10 +253,8 @@ class _ChapterSelectorState extends State<ChapterSelector> {
         ),
         value: selectedValue,
         icon: const Icon(Icons.keyboard_arrow_down),
-        dropdownColor: Colors.white, // ✅ Dropdown menu background
-        items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-            .toList(),
+        dropdownColor: Colors.white,
+        items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
         onChanged: onChanged,
       ),
     );

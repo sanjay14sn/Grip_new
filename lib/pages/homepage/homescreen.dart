@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/bottomappbartemp.dart';
@@ -112,6 +113,25 @@ class _HomescreenState extends State<Homescreen> {
     await _runWithRetry(() async {
       await _loadVisitorsData();
     }, apiName: 'Seven Days Visitor');
+  }
+
+  void _loadUserData() async {
+    const storage = FlutterSecureStorage();
+    final userDataJson = await storage.read(key: 'user_data');
+
+    if (userDataJson != null) {
+      final userData = jsonDecode(userDataJson);
+      final memberId = userData['id']; // 👈 Member ID
+
+      setState(() {
+        _username = userData['username']; // e.g., Kumar R
+        // Store memberId to state variable if needed
+        _memberId = memberId;
+      });
+
+      print('👤 Username: $_username');
+      print('🆔 Member ID: $memberId');
+    } else {}
   }
 
   void _loadChapterDetails() {
@@ -230,25 +250,6 @@ class _HomescreenState extends State<Homescreen> {
     } finally {
       if (mounted) setState(() => _isVisitorLoading = false); // ✅ done
     }
-  }
-
-  void _loadUserData() async {
-    const storage = FlutterSecureStorage();
-    final userDataJson = await storage.read(key: 'user_data');
-
-    if (userDataJson != null) {
-      final userData = jsonDecode(userDataJson);
-      final memberId = userData['id']; // 👈 Member ID
-
-      setState(() {
-        _username = userData['username']; // e.g., Kumar R
-        // Store memberId to state variable if needed
-        _memberId = memberId;
-      });
-
-      print('👤 Username: $_username');
-      print('🆔 Member ID: $memberId');
-    } else {}
   }
 
   Future<void> _loadTestimonials() async {
@@ -377,12 +378,18 @@ class _HomescreenState extends State<Homescreen> {
         final response =
             await PublicRoutesApiService.fetchMemberDetailsById(memberId);
 
+        // ✅ Print individual fields of the response
+        print('📡 isSuccess: ${response.isSuccess}');
+        print('📝 message: ${response.message}');
+        print('📦 datamember1: ${response.data}');
+
         if (response.isSuccess && response.data != null) {
           setState(() {
             _memberData = response.data;
           });
         } else {
           ToastUtil.showToast(context, 'Network error loading member details');
+          print('❌ API returned failure or null data');
         }
       } else {
         print('❌ No user data found for member fetch');
@@ -423,9 +430,65 @@ class _HomescreenState extends State<Homescreen> {
                   height: 2.h,
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      0, 8.0, 8.0, 8.0), // Left: 0, Top/Right/Bottom: 8
-                  child: Image.asset(Timages.griplogo, height: 40, width: 100),
+                  padding: const EdgeInsets.fromLTRB(0, 8.0, 8.0, 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 👤 Profile + 🔔 Notification on the Left
+                      Row(
+                        children: [
+                          // Profile
+                          GestureDetector(
+                            onTap: () {
+                              context.push('/profilepage', extra: _memberData);
+                            },
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: (_memberData?['personalDetails']
+                                          ?['profileImage'] !=
+                                      null)
+                                  ? NetworkImage(
+                                      "${UrlService.imageBaseUrl}/${_memberData?['personalDetails']['profileImage']['docPath']}/${_memberData?['personalDetails']['profileImage']['docName']}",
+                                    )
+                                  : const AssetImage(
+                                          'assets/images/profile.png')
+                                      as ImageProvider,
+                            ),
+                          ),
+                          SizedBox(width: 3.w),
+
+                          // Notification Icon
+                          GestureDetector(
+                            onTap: () {
+                              context.push('/notifications');
+                            },
+                            child: Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Image.asset(
+                                  Timages.noficationicon,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // 🅶 Grip Logo on the Right
+                      Image.asset(
+                        Timages.griplogo,
+                        height: 40,
+                        width: 100,
+                      ),
+                    ],
+                  ),
                 ),
 
                 // Top section with user info, avatar, and notification icon
@@ -444,7 +507,18 @@ class _HomescreenState extends State<Homescreen> {
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),
-                          const SizedBox(height: 4),
+                          Text(
+                            "${_memberData?['chapterInfo']?['chapterId']?['chapterName'] ?? 'Chapter'}",
+                            style: TTextStyles.usersubtitle,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          Text(
+                            "Renewal date : 18th July 2026",
+                            style: TTextStyles.usersubtitle,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           Text(
                             "Let's connect, communicate and collaborate",
                             style: TTextStyles.usersubtitle,
@@ -455,42 +529,6 @@ class _HomescreenState extends State<Homescreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-
-                    GestureDetector(
-                      onTap: () {
-                        context.push('/profilepage', extra: _memberData);
-                      },
-                      child: CircleAvatar(
-                        backgroundImage:
-                            AssetImage('assets/images/profile.png'),
-                        radius: 25,
-                      ),
-                    ),
-
-                    SizedBox(
-                      width: 3.w,
-                    ),
-                    // Notification Icon
-                    GestureDetector(
-                      onTap: () {
-                        context.push('/notifications');
-                      },
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Image.asset(
-                            Timages.noficationicon,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    )
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -509,7 +547,7 @@ class _HomescreenState extends State<Homescreen> {
                         textAlign: TextAlign.left),
                     SizedBox(height: 8),
                     Customcard(
-                      title: "Total Referral",
+                      title: "Referrals",
                       value: _isReferralLoading
                           ? '...'
                           : _hasReferralError
@@ -523,6 +561,27 @@ class _HomescreenState extends State<Homescreen> {
                         context.push('/referralview', extra: _referralList);
                       },
                       imagePath: 'assets/images/referralmain.png',
+                    ),
+                    SizedBox(height: 16),
+                    Text('One-to-One',
+                        style: TTextStyles.customcard,
+                        textAlign: TextAlign.left),
+                    SizedBox(height: 8),
+                    Customcard(
+                      title: "One-to-One",
+                      value: _isOneToOneLoading
+                          ? '...'
+                          : _hasOneToOneError
+                              ? '0'
+                              : '$_oneToOneCount',
+                      onTapAddView: () async {
+                        final result = await context.push('/onetoone');
+                        if (result == true) await _loadOneToOneList();
+                      },
+                      onTapView: () {
+                        context.push('/viewone', extra: _oneToOneList);
+                      },
+                      imagePath: 'assets/images/testimonials.png',
                     ),
                     SizedBox(height: 16),
                     Text('Thank U Notes',
@@ -567,27 +626,6 @@ class _HomescreenState extends State<Homescreen> {
                       },
                       imagePath:
                           'assets/images/fluent_person-feedback-16-filled.png',
-                    ),
-                    SizedBox(height: 16),
-                    Text('One-to-Ones',
-                        style: TTextStyles.customcard,
-                        textAlign: TextAlign.left),
-                    SizedBox(height: 8),
-                    Customcard(
-                      title: "One-to-Ones",
-                      value: _isOneToOneLoading
-                          ? '...'
-                          : _hasOneToOneError
-                              ? '0'
-                              : '$_oneToOneCount',
-                      onTapAddView: () async {
-                        final result = await context.push('/onetoone');
-                        if (result == true) await _loadOneToOneList();
-                      },
-                      onTapView: () {
-                        context.push('/viewone', extra: _oneToOneList);
-                      },
-                      imagePath: 'assets/images/testimonials.png',
                     ),
                     SizedBox(height: 16),
                     Text('Visitors',

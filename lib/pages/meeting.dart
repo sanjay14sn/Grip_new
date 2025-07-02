@@ -104,7 +104,7 @@ class MeetingDetailsPage extends StatelessWidget {
                               meetingDetail('Date:', dateStr),
                               meetingDetail('Time:', timeStr),
                               meetingDetail('Mode:', details.meetingType),
-                              meetingDetail('Location:', details.meetingVenue),
+                              meetingDetail('Venue:', details.meetingVenue),
                             ],
                           ),
                         ),
@@ -124,7 +124,12 @@ class MeetingDetailsPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       attendanceCard('23', 'Present', Colors.green),
-                      attendanceCard('5', 'Late', Color(0xFFB07DFF)),
+                      attendanceCard('5', 'Late', const Color(0xFFB07DFF)),
+                      attendanceCard(
+                          '2', 'Substitute', const Color(0xFF00BFA5)), // Teal
+                      attendanceCard(
+                          '1', 'Medical', const Color(0xFFFFAB00)), // Amber
+
                       attendanceCard('8', 'Absent', Colors.red),
                     ],
                   ),

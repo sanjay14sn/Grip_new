@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/shimmer.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
@@ -115,6 +116,8 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
         if (response.isSuccess && response.data != null) {
           final data = response.data;
 
+          final profile = data['personalDetails']?['profileImage'];
+
           final member = othersMemberModel(
             id: data['_id'] ?? '',
             name: data['username'] ?? '',
@@ -126,6 +129,9 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
             businessDescription: data['businessDescription'],
             email: data['email'] ?? '',
             address: data['address'],
+            profileImageUrl: (profile != null)
+                ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
+                : null,
           );
 
           setState(() {

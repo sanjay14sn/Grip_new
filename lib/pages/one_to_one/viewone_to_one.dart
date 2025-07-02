@@ -6,6 +6,7 @@ import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 
 class onetooneviewpage extends StatefulWidget {
   final List<dynamic> oneToOneList;
@@ -54,7 +55,7 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
                 color: Colors.transparent,
                 child: FilterDialog(
                   initialFilter: filter,
-                  showCategory: false, // ✅ hides Given/Received toggle
+                  showCategory: false,
                 ),
               ),
             ),
@@ -75,154 +76,167 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Back Button
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_back),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 5.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 6.h),
+
+            // Top bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE0E2E7),
+                      shape: BoxShape.circle,
                     ),
+                    child: const Icon(Icons.arrow_back),
                   ),
-                  GestureDetector(
-                    onTap: openFilterDialog,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.filter_alt_outlined),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 2.h),
-
-              // Title
-              Row(
-                children: [
-                  Text('One to Ones', style: TTextStyles.ReferralSlip),
-                  const SizedBox(width: 8),
-                  Image.asset(
-                    'assets/images/testimonials.png',
-                    width: 34,
-                    height: 34,
-                  )
-                ],
-              ),
-
-              SizedBox(height: 1.5.h),
-
-              // Category Toggle
-              Text('Category:', style: TTextStyles.Category),
-              SizedBox(height: 1.h),
-              Container(
-                width: double.infinity,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(24),
                 ),
-                child: Row(
-                  children: [
-                    // My One to Ones
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() {
-                          isReceivedSelected = false;
-                        }),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient:
-                                !isReceivedSelected ? Tcolors.red_button : null,
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'My One to Ones',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: !isReceivedSelected
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
+                GestureDetector(
+                  onTap: openFilterDialog,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE0E2E7),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.filter_alt_outlined),
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 2.h),
+
+            // Title
+            Row(
+              children: [
+                Text('One to Ones', style: TTextStyles.ReferralSlip),
+                const SizedBox(width: 8),
+                Image.asset(
+                  'assets/images/testimonials.png',
+                  width: 34,
+                  height: 34,
+                )
+              ],
+            ),
+
+            SizedBox(height: 1.5.h),
+
+            // Category Toggle
+            Text('Category:', style: TTextStyles.Category),
+            SizedBox(height: 1.h),
+            Container(
+              width: double.infinity,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() {
+                        isReceivedSelected = false;
+                      }),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient:
+                              !isReceivedSelected ? Tcolors.red_button : null,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'My One to Ones',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: !isReceivedSelected
+                                ? Colors.white
+                                : Colors.black,
                           ),
                         ),
                       ),
                     ),
-
-                    // View Others
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => context.push('/ViewOthers'),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient:
-                                isReceivedSelected ? Tcolors.red_button : null,
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'View Others',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isReceivedSelected
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => context.push('/ViewOthers'),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient:
+                              isReceivedSelected ? Tcolors.red_button : null,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'View Others',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isReceivedSelected
+                                ? Colors.white
+                                : Colors.black,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
 
-              SizedBox(height: 2.h),
+            // SizedBox(height: 2.h),
 
-              // One to One List
-              Expanded(
-                child: filteredList.isEmpty
-                    ? const Center(child: Text('No data found.'))
-                    : ListView.builder(
-                        itemCount: filteredList.length,
-                        itemBuilder: (context, index) {
-                          final item = filteredList[index];
-                          final name = item['toMember']?['personalDetails']
-                                  ?['firstName'] ??
-                              'Unknown';
-                          final rawDate = item['date'];
-                          final formattedDate = rawDate != null
-                              ? DateFormat('dd-MM-yyyy')
-                                  .format(DateTime.parse(rawDate))
-                              : '';
-                          return referralTile(
-                            item,
-                            name,
-                            formattedDate,
-                            'assets/images/profile1.jpg',
-                            isReceivedSelected,
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
+            // One to One List
+            Expanded(
+              child: filteredList.isEmpty
+                  ? const Center(child: Text('No data found.'))
+                  : ListView.builder(
+                      itemCount: filteredList.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredList[index];
+                        final toMember = item['toMember'] ?? {};
+                        final personalDetails =
+                            toMember['personalDetails'] ?? {};
+                        final name =
+                            "${personalDetails['firstName'] ?? 'Unknown'} ${personalDetails['lastName'] ?? ''}"
+                                .trim();
+
+                        final profileImage = personalDetails['profileImage']
+                                as Map<String, dynamic>? ??
+                            {};
+                        final profileDocName = profileImage['docName'];
+                        final profileDocPath = profileImage['docPath'];
+                        final profileImageUrl = (profileDocName != null &&
+                                profileDocPath != null)
+                            ? "${UrlService.imageBaseUrl}/$profileDocPath/$profileDocName"
+                            : null;
+
+                        final rawDate = item['date'];
+                        final formattedDate = rawDate != null
+                            ? DateFormat('dd-MM-yyyy')
+                                .format(DateTime.parse(rawDate))
+                            : '';
+
+                        return referralTile(
+                          item,
+                          name,
+                          formattedDate,
+                          profileImageUrl,
+                          isReceivedSelected,
+                        );
+                      },
+                    ),
+            ),
+
+            SizedBox(height: 1.h),
+          ],
         ),
       ),
     );
@@ -232,7 +246,7 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
     Map<String, dynamic> item,
     String name,
     String date,
-    String imagePath,
+    String? imageUrl,
     bool isReceivedSelected,
   ) {
     return GestureDetector(
@@ -256,7 +270,9 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: AssetImage(imagePath),
+                backgroundImage: imageUrl != null
+                    ? NetworkImage(imageUrl)
+                    : AssetImage('assets/images/profile1.jpg') as ImageProvider,
               ),
               SizedBox(width: 3.w),
               Column(

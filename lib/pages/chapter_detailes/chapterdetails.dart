@@ -496,8 +496,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
                 itemBuilder: (context, index) {
                   final detailed = _filteredMembers[index];
                   final memberModel = MemberModel(
-                    id: detailed
-                        .id, // ✅ Add this line to provide the required ID
+                    id: detailed.id,
                     name: detailed.name,
                     company: detailed.company,
                     phone: detailed.mobile,
@@ -507,6 +506,8 @@ class _MyChapterPageState extends State<MyChapterPage> {
                     businessDescription: detailed.description,
                     email: detailed.email,
                     address: detailed.address,
+                    profileImageUrl:
+                        detailed.profileImageUrl, // ✅ ADD THIS LINE
                   );
 
                   return MemberCard(member: memberModel);
