@@ -11,7 +11,12 @@ class HomeDashboard extends StatefulWidget {
 }
 
 class _HomeDashboardState extends State<HomeDashboard> {
-  final List<String> timeFilters = ['3 Months', '6 Months', '1 Year', 'Overall'];
+  final List<String> timeFilters = [
+    '3 Months',
+    '6 Months',
+    '1 Year',
+    'Overall'
+  ];
   int selectedIndex = 0;
 
   Map<String, dynamic> dashboardData = {
@@ -45,8 +50,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
     final filterType = filterMap[selectedIndex]!;
     print('🔄 Fetching dashboard data for: $filterType');
 
-    final response =
-        await PublicRoutesApiService.fetchDashboardCount(filterType: filterType);
+    final response = await PublicRoutesApiService.fetchDashboardCount(
+        filterType: filterType);
 
     if (response.isSuccess && response.data != null) {
       final raw = response.data;
@@ -78,11 +83,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
   String formatIndianNumber(num number) {
     if (number >= 10000000) {
-      return '${(number / 10000000).toStringAsFixed(1)}Cr';
+      return '${(number / 10000000).toStringAsFixed(1)}Cr'; // Crore
     } else if (number >= 100000) {
-      return '${(number / 100000).toStringAsFixed(1)}L';
+      return '${(number / 100000).toStringAsFixed(1)}L'; // Lakh
     } else if (number >= 1000) {
-      return '${(number / 1000).toStringAsFixed(1)}K';
+      return '${(number / 1000).toStringAsFixed(1)}K'; // Thousand
     } else {
       return number.toString();
     }
@@ -103,9 +108,12 @@ class _HomeDashboardState extends State<HomeDashboard> {
             child: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.red.withOpacity(0.1) : Colors.transparent,
+                    color: isSelected
+                        ? Colors.red.withOpacity(0.1)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(timeFilters[index], style: TTextStyles.month),
@@ -115,7 +123,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   height: 0.35.h,
                   width: 8.w,
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFC6221A) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFFC6221A)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -161,6 +171,12 @@ class _HomeDashboardState extends State<HomeDashboard> {
     );
   }
 
+  String truncateValue(String text, [int maxLength = 28]) {
+    return (text.length > maxLength)
+        ? '${text.substring(0, maxLength)}…'
+        : text;
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> statData = [
@@ -171,10 +187,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
         'icon': Icons.compare_arrows,
       },
       {
-        'title': 'Revenue',
-        'value':
-            'Given ₹${formatIndianNumber(dashboardData['revenueGiven'])} / '
-                'Received ₹${formatIndianNumber(dashboardData['revenueReceived'])}',
+        'title': 'Business',
+        'value': truncateValue(
+          'Given ₹${formatIndianNumber(dashboardData['revenueGiven'])} / '
+          'Received ₹${formatIndianNumber(dashboardData['revenueReceived'])}',
+        ),
         'icon': Icons.currency_rupee_sharp,
       },
       {
@@ -209,7 +226,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
+            BoxShadow(
+                color: Colors.black12, blurRadius: 8, offset: Offset(0, 2))
           ],
         ),
         child: Column(

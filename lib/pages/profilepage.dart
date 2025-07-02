@@ -23,7 +23,19 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _handleLogout(BuildContext context) async {
     const storage = FlutterSecureStorage();
+
+    // ✅ Preserve FCM token
+    final fcmToken = await storage.read(key: 'fcm_token');
+
+    // 🔐 Delete everything
     await storage.deleteAll();
+
+    // ✅ Restore FCM token
+    if (fcmToken != null) {
+      await storage.write(key: 'fcm_token', value: fcmToken);
+    }
+
+    // 🔄 Navigate to login
     context.go('/login');
   }
 

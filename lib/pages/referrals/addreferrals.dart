@@ -36,7 +36,7 @@ class _ReferralPageState extends State<ReferralPage> {
 
   void _handleSubmitReferral() async {
     if (isSubmitting) return; // Prevent double submits
-    setState(() => isSubmitting = true);
+
     final name = nameController.text.trim();
     final mobile = mobileController.text.trim();
     final address = addressController.text.trim();
@@ -83,6 +83,9 @@ class _ReferralPageState extends State<ReferralPage> {
       return;
     }
 
+    // ✅ Set submitting only after validation passes
+    setState(() => isSubmitting = true);
+
     final referalDetail = {
       'name': name,
       'category': 'Plumber',
@@ -103,6 +106,7 @@ class _ReferralPageState extends State<ReferralPage> {
     } else {
       ToastUtil.showToast(context, "❌ ${response.message}");
     }
+
     setState(() => isSubmitting = false);
   }
 

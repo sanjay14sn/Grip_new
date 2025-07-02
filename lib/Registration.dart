@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
-import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
 
@@ -48,20 +45,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-            backgroundColor: Tcolors.title_color,
-            title: Text(
-              'Payment',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.pop(context),
-            ),
+        backgroundColor: Tcolors.title_color,
+        title: Text(
+          'Payment',
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       backgroundColor: Colors.grey.shade100,
       body: Padding(
         padding: EdgeInsets.all(3.w),
@@ -167,14 +164,20 @@ class PaymentCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(3.w),
+              width: 15.w,
+              height: 7.h,
               decoration: BoxDecoration(
                 color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(3.w),
               ),
+              clipBehavior:
+                  Clip.antiAlias, // Ensures rounded corners clip content
               child: item.imageUrl != null
-                  ? Image.network(item.imageUrl!, width: 10.w, height: 10.w)
-                  : Icon(Icons.receipt_long, size: 10.w, color: Colors.grey),
+                  ? Image.network(
+                      item.imageUrl!,
+                      fit: BoxFit.cover,
+                    )
+                  : Icon(Icons.receipt_long, size: 6.w, color: Colors.grey),
             ),
             SizedBox(width: 4.w),
             Expanded(
@@ -198,25 +201,24 @@ class PaymentCard extends StatelessWidget {
                     style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 14.sp)),
                 SizedBox(height: 1.h),
-                if (item.paymentRequired)
-                  SizedBox(
-                    height: 3.5.h,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Implement payment logic here
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(horizontal: 4.w),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(2.w),
-                        ),
+                //   if (item.paymentRequired)
+                SizedBox(
+                  height: 3.5.h,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Implement payment logic here
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: EdgeInsets.symmetric(horizontal: 4.w),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(2.w),
                       ),
-                      child: Text("Pay Now",
-                          style:
-                              TextStyle(fontSize: 12.sp, color: Colors.white)),
                     ),
+                    child: Text("Pay Now",
+                        style: TextStyle(fontSize: 12.sp, color: Colors.white)),
                   ),
+                ),
               ],
             ),
           ],

@@ -249,17 +249,17 @@ class TTextStyles {
   );
   static final TextStyle month = GoogleFonts.roboto(
     color: Colors.black,
-    fontSize: 14.sp,
+    fontSize: 14.5.sp,
     fontWeight: FontWeight.bold,
   );
   static final TextStyle Catname = GoogleFonts.roboto(
     color: Colors.black,
-    fontSize: 14.sp,
+    fontSize: 14.5.sp,
     fontWeight: FontWeight.bold,
   );
   static final TextStyle CatNUM = GoogleFonts.roboto(
     color: Colors.black,
-    fontSize: 12.sp,
+    fontSize: 12.5.sp,
     fontWeight: FontWeight.w700,
   );
 }

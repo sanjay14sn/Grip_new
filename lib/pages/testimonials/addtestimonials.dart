@@ -54,7 +54,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
   Future<void> _submitTestimonial() async {
     if (isSubmitting) return;
 
-    setState(() => isSubmitting = true);
+    // setState(() => isSubmitting = true);
     final toMember =
         showMyChapter ? selectedPersonId : selectedPersonIdFromNumber;
     final comment = commentController.text.trim();
@@ -80,6 +80,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
       return;
     }
 
+    setState(() => isSubmitting = true);
     final response = await PublicRoutesApiService.submitTestimonialSlip(
       toMember: toMember,
       comments: comment,

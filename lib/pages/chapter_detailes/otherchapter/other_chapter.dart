@@ -117,7 +117,7 @@ class _ChapterSelectorState extends State<ChapterSelector> {
 
               // ✅ Fully implemented NumberSearch widget
               NumberSearch(
-                label: 'Enter Member Number',
+                label: 'Enter Contact Number',
                 isRequired: true,
                 controller: numberController,
                 enableContactPicker: true,

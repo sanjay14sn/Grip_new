@@ -218,42 +218,44 @@ class _NumberSearchState extends State<NumberSearch> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 2.h,
-            child: TextFormField(
-              controller: widget.controller,
-              keyboardType: widget.keyboardType,
-              maxLines: 1,
-              onChanged: _onChanged,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(10),
-                FilteringTextInputFormatter.digitsOnly,
-              ],
-              style: TTextStyles.visitorsdetails,
-              textAlignVertical: TextAlignVertical.center,
-              decoration: InputDecoration(
-                isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0.4.h, horizontal: 4.w),
-                hintText: widget.label,
-                hintStyle: TTextStyles.visitorsdetails,
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                suffixIcon: widget.enableContactPicker
-                    ? IconButton(
+          TextFormField(
+            controller: widget.controller,
+            keyboardType: widget.keyboardType,
+            maxLines: 1,
+            onChanged: _onChanged,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(10),
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            style: TTextStyles.visitorsdetails
+                .copyWith(color: Colors.black), // 🔹 Text color
+            textAlignVertical: TextAlignVertical.center,
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
+              hintText: widget.label,
+              hintStyle: TTextStyles.visitorsdetails
+                  .copyWith(color: Colors.black), // 🔹 Hint color
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: widget.enableContactPicker
+                  ? Padding(
+                      padding: EdgeInsets.only(right: 8),
+                      child: IconButton(
                         icon: const Icon(Icons.contacts,
-                            color: Colors.black, size: 18),
+                            color: Colors.black, size: 20),
                         onPressed: _pickContact,
-                      )
-                    : null,
-                suffixIconConstraints: const BoxConstraints(
-                  minHeight: 24,
-                  minWidth: 24,
-                ),
+                      ),
+                    )
+                  : null,
+              suffixIconConstraints: BoxConstraints(
+                minHeight: 36,
+                minWidth: 36,
               ),
             ),
           ),
