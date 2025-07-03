@@ -148,7 +148,7 @@ class _VisitorsViewpageState extends State<VisitorsViewpage> {
                             visitor,
                             name,
                             formattedDate,
-                            'assets/images/profile1.jpg',
+                            'assets/images/profile.png',
                           );
                         },
                       ),
@@ -182,6 +182,7 @@ class _VisitorsViewpageState extends State<VisitorsViewpage> {
           child: Row(
             children: [
               CircleAvatar(
+                backgroundColor: Colors.white,
                 radius: 20,
                 backgroundImage: AssetImage(imagePath),
               ),

@@ -27,7 +27,7 @@ class _BottomAppBarMenuState extends State<BottomAppBarMenu> {
                   _menuItem(Icons.group, "Referrals"),
                   _menuItem(Icons.handshake, "Thank U Notes"),
                   _menuItem(Icons.chat, "Testimonials"),
-                  _menuItem(Icons.group_work, "One-To-Ones"),
+                  _menuItem(Icons.group_work, "One-To-One"),
                 ],
               ),
             ),

@@ -82,7 +82,7 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
                           borderRadius: BorderRadius.circular(2.w),
                         ),
                         child: Text(
-                          'GIVEN ONE TO ONE SLIP',
+                          'ONE TO ONE SLIP',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

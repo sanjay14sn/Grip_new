@@ -9,7 +9,6 @@ import 'package:grip/components/bottomappbartemp.dart';
 import 'package:grip/pages/allcount.dart';
 import 'package:grip/pages/homepage/customcard.dart';
 import 'package:grip/pages/homepage/slider.dart';
-import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Timages.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:provider/provider.dart';
@@ -47,7 +46,6 @@ class _HomescreenState extends State<Homescreen> {
   bool _isTestimonialLoading = true;
 
   bool _isVisitorLoading = true;
-  bool _isSevenDayVisitorLoading = true;
 
 // Error flags
   bool _hasReferralError = false;
@@ -55,7 +53,6 @@ class _HomescreenState extends State<Homescreen> {
   bool _hasTestimonialError = false;
   bool _hasThankYouError = false;
   bool _hasVisitorError = false;
-  bool _hasSevenDayVisitorError = false;
 
   @override
   void initState() {
@@ -81,7 +78,6 @@ class _HomescreenState extends State<Homescreen> {
         await apiCall();
         return;
       } catch (e) {
-        print("⚠️ $apiName attempt $attempt failed: $e");
         if (attempt == maxRetries) rethrow;
         await Future.delayed(retryDelay);
       } finally {
@@ -128,9 +124,6 @@ class _HomescreenState extends State<Homescreen> {
         // Store memberId to state variable if needed
         _memberId = memberId;
       });
-
-      print('👤 Username: $_username');
-      print('🆔 Member ID: $memberId');
     } else {}
   }
 
@@ -142,7 +135,6 @@ class _HomescreenState extends State<Homescreen> {
       final userDataString = await storage.read(key: 'user_data');
 
       if (userDataString == null) {
-        print('❌ No user data found in secure storage.');
         return;
       }
 
@@ -150,11 +142,8 @@ class _HomescreenState extends State<Homescreen> {
       final chapterId = userData['chapterId'];
 
       if (chapterId == null) {
-        print('❌ No chapterId found in user data.');
         return;
       }
-
-      print('📥 Fetched chapterId from storage: $chapterId');
 
       // 📡 Fetch chapter details
       final provider = Provider.of<ChapterProvider>(context, listen: false);
@@ -164,26 +153,15 @@ class _HomescreenState extends State<Homescreen> {
       final members = provider.members;
 
       if (details != null) {
-        print('📘 Chapter Name: ${details.chapterName}');
-        print(
-            '🌍 Location: ${details.meetingVenue}, ${details.stateName}, ${details.countryName}');
-        print('📅 Meeting Time: ${details.meetingDayAndTime}');
-        print('📌 Meeting Type: ${details.meetingType}');
-        print('🧭 Zone: ${details.zoneName}');
-        print('👤 CID: ${details.cidName} (${details.cidEmail})');
-        print('👥 Members:');
         for (var member in members) {
           print(
               '  🔹 ${member.name} | ${member.email} | ${member.mobileNumber} | ${member.id}');
         }
-      } else {
-        print('⚠️ No chapter details available.');
-      }
+      } else {}
     }, apiName: 'Fetch Chapter Details');
   }
 
   Future<void> _loadOneToOneList() async {
-    print('📡 Fetching One-to-One list from API...');
     try {
       if (mounted) setState(() => _isOneToOneLoading = true); // ✅ start
 
@@ -218,7 +196,6 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Future<void> _loadVisitors() async {
-    print('📡 Fetching visitor list from API...');
     try {
       if (mounted) setState(() => _isVisitorLoading = true); // ✅ set loading
 
@@ -253,7 +230,6 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Future<void> _loadTestimonials() async {
-    print('📡 Fetching testimonials...');
     try {
       if (mounted)
         setState(() => _isTestimonialLoading = true); // ✅ use correct flag
@@ -274,7 +250,6 @@ class _HomescreenState extends State<Homescreen> {
             _testimonialList = [];
             _testimonialCount = 0;
           });
-          ToastUtil.showToast(context, "⚠️ Unexpected data format.");
         }
       } else {
         setState(() {
@@ -297,14 +272,8 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   Future<void> _loadReferralSlips() async {
-    print("🔄 Loading referral slips...");
-
     try {
       final response = await PublicRoutesApiService.getReferralGivenList();
-
-      print("✅ API Response received.");
-      print("➡️ Success: ${response.isSuccess}");
-      print("➡️ Message: ${response.message}");
 
       if (!mounted) return;
 
@@ -314,31 +283,23 @@ class _HomescreenState extends State<Homescreen> {
         if (response.isSuccess) {
           _referralList = response.data ?? [];
           _referralCount = response.extra?['total'] ?? _referralList.length;
-          print(
-              "📦 Referrals loaded: ${_referralList.length} shown, total: $_referralCount");
         } else {
           _referralList = [];
           _referralCount = 0;
-
-          print("Failed to load referrals: ${response.message}");
         }
       });
     } catch (e) {
-      print("🚨 Exception while loading referrals: $e");
       if (mounted) {
         setState(() {
           _isReferralLoading = false;
           _referralList = [];
           _referralCount = 0;
         });
-        ToastUtil.showToast(context, "Network error. Please try again later.");
       }
     }
   }
 
   Future<void> _loadThankYouNotes() async {
-    print('📦 Loading Thank You Notes...');
-
     try {
       final response = await PublicRoutesApiService.fetchGivenThankYouNotes();
 
@@ -349,20 +310,13 @@ class _HomescreenState extends State<Homescreen> {
         final notes = response.data as List<dynamic>;
         final int total = response.extra?['total'] ?? notes.length;
 
-        print('✅ Successfully fetched ${notes.length} notes (total: $total)');
-
         setState(() {
           _givenNotes = notes;
           _thankYouCount = total;
         });
-      } else {
-        print(' Failed to fetch Thank You Notes: ${response.message}');
-      }
+      } else {}
     } catch (e) {
-      print("Error loading thank you notes: $e");
-      if (mounted) {
-        ToastUtil.showToast(context, "Network error loading Thank You Notes");
-      }
+      if (mounted) {}
     }
   }
 
@@ -378,22 +332,12 @@ class _HomescreenState extends State<Homescreen> {
         final response =
             await PublicRoutesApiService.fetchMemberDetailsById(memberId);
 
-        // ✅ Print individual fields of the response
-        print('📡 isSuccess: ${response.isSuccess}');
-        print('📝 message: ${response.message}');
-        print('📦 datamember1: ${response.data}');
-
         if (response.isSuccess && response.data != null) {
           setState(() {
             _memberData = response.data;
           });
-        } else {
-          ToastUtil.showToast(context, 'Network error loading member details');
-          print('❌ API returned failure or null data');
-        }
-      } else {
-        print('❌ No user data found for member fetch');
-      }
+        } else {}
+      } else {}
     }, apiName: 'Fetch Member Details');
   }
 
@@ -407,13 +351,10 @@ class _HomescreenState extends State<Homescreen> {
 
     final response = await PublicRoutesApiService.fetchVisitors(chapterId);
     if (response.isSuccess) {
-      print('🟢 Visitors fetched: ${response.data}');
       setState(() {
         _allvisitors = response.data; // ✅ Store it here
       });
-    } else {
-      print('🔴 Visitors fetch failed: ${response.message}');
-    }
+    } else {}
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -63,7 +64,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       body: Padding(
         padding: EdgeInsets.all(3.w),
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? _buildShimmerList()
             : _error != null
                 ? Center(child: Text(_error!))
                 : _items.isEmpty
@@ -98,6 +99,66 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           },
                         ),
                       ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerList() {
+    return ListView.separated(
+      itemCount: 6,
+      separatorBuilder: (_, __) => SizedBox(height: 2.h),
+      itemBuilder: (_, __) => Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Container(
+          height: 10.h,
+          padding: EdgeInsets.all(3.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(3.w),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 15.w,
+                height: 7.h,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(3.w),
+                ),
+              ),
+              SizedBox(width: 4.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 50.w,
+                      height: 2.h,
+                      color: Colors.grey[300],
+                    ),
+                    SizedBox(height: 1.h),
+                    Container(
+                      width: 30.w,
+                      height: 2.h,
+                      color: Colors.grey[300],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 2.w),
+              Container(
+                width: 18.w,
+                height: 3.5.h,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2.w),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -170,8 +231,7 @@ class PaymentCard extends StatelessWidget {
                 color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(3.w),
               ),
-              clipBehavior:
-                  Clip.antiAlias, // Ensures rounded corners clip content
+              clipBehavior: Clip.antiAlias,
               child: item.imageUrl != null
                   ? Image.network(
                       item.imageUrl!,
@@ -197,11 +257,10 @@ class PaymentCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text("₹ ${item.amount}",
+                Text("\u20B9 ${item.amount}",
                     style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 14.sp)),
                 SizedBox(height: 1.h),
-                //   if (item.paymentRequired)
                 SizedBox(
                   height: 3.5.h,
                   child: ElevatedButton(
@@ -216,7 +275,8 @@ class PaymentCard extends StatelessWidget {
                       ),
                     ),
                     child: Text("Pay Now",
-                        style: TextStyle(fontSize: 12.sp, color: Colors.white)),
+                        style:
+                            TextStyle(fontSize: 12.sp, color: Colors.white)),
                   ),
                 ),
               ],

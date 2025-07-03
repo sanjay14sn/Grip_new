@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/Tab_button.dart';
@@ -152,6 +153,12 @@ class _MyChapterPageState extends State<MyChapterPage> {
     if (response != null && response.isSuccess && response.data != null) {
       final data = response.data;
 
+      // 👇 Construct profile image URL if available
+      final profileImageObj = data['profileImage'];
+      final String? imageUrl = (profileImageObj != null)
+          ? "${UrlService.imageBaseUrl}/${profileImageObj['docPath']}/${profileImageObj['docName']}"
+          : null;
+
       final member = MemberModel(
         id: data['_id'] ?? '',
         name: data['username'] ?? '',
@@ -163,6 +170,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
         businessDescription: data['businessDescription'],
         email: data['email'] ?? '',
         address: data['address'],
+        profileImageUrl: imageUrl, // ✅ This line fixes the image
       );
 
       setState(() {

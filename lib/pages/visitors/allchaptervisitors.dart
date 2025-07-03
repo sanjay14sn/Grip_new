@@ -98,7 +98,7 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
                             visitor,
                             invitedByName,
                             formattedDate,
-                            'assets/images/profile1.jpg',
+                            'assets/images/profile.png',
                           );
                         },
                       ),
@@ -131,7 +131,7 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              CircleAvatar(radius: 20, backgroundImage: AssetImage(imagePath)),
+              CircleAvatar(radius: 20, backgroundImage: AssetImage(imagePath),backgroundColor: Colors.white,),
               SizedBox(width: 3.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

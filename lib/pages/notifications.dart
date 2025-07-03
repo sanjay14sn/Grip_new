@@ -158,13 +158,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 children: [
                                   const Text('No notifications found'),
                                   SizedBox(height: 2.h),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      setState(() => isLoading = true);
-                                      fetchNotificationList();
-                                    },
-                                    child: const Text('Retry'),
-                                  ),
                                 ],
                               ),
                             )

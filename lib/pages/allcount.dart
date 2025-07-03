@@ -171,7 +171,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
     );
   }
 
-  String truncateValue(String text, [int maxLength = 28]) {
+  String truncateValue(String text, [int maxLength = 22]) {
     return (text.length > maxLength)
         ? '${text.substring(0, maxLength)}…'
         : text;

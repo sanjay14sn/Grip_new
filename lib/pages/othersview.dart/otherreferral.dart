@@ -5,8 +5,8 @@ import 'package:grip/components/shimmer.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:intl/intl.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 
 class OtherReferralViewPage extends StatefulWidget {
   final String memberId;
@@ -165,18 +165,32 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
                               ? receivedReferrals[index]
                               : givenReferrals[index];
 
-                          final referralName =
-                              '${item['toMember']?['personalDetails']?['firstName'] ?? ''} ${item['toMember']?['personalDetails']?['lastName'] ?? ''}'
-                                  .trim();
+                          final userMember = isReceivedSelected
+                              ? item['fromMember']
+                              : item['toMember'];
+
+                          final personalDetails =
+                              userMember?['personalDetails'];
+                          final firstName = personalDetails?['firstName'] ?? '';
+                          final lastName = personalDetails?['lastName'] ?? '';
+                          final name = "$firstName $lastName".trim();
+
+                          // ✅ Correctly access profile image
+                          final profile = personalDetails?['profileImage'];
+                          final imageUrl = (profile != null &&
+                                  profile['docPath'] != null &&
+                                  profile['docName'] != null)
+                              ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
+                              : null;
 
                           final dateRaw = item['createdAt'];
                           final date = _formatDate(dateRaw);
 
                           return referralTile(
                             item,
-                            referralName,
+                            name,
                             date,
-                            'assets/images/profile1.jpg',
+                            imageUrl,
                             isReceivedSelected,
                           );
                         },
@@ -200,23 +214,19 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
     }
   }
 
-  /// Shimmer loading widget
-
-  // Tile
+  /// Referral Card Widget
   Widget referralTile(
     Map<String, dynamic> referral,
     String name,
     String date,
-    String imagePath,
+    String? imageUrl,
     bool isReceived,
   ) {
     return GestureDetector(
       onTap: () {
-        if (isReceived) {
-          context.push('/referralDetailReceived', extra: referral);
-        } else {
-          context.push('/referralDetailGiven', extra: referral);
-        }
+        final route =
+            isReceived ? '/referralDetailReceived' : '/referralDetailGiven';
+        context.push(route, extra: referral);
       },
       child: Card(
         color: Colors.white,
@@ -229,7 +239,10 @@ class _OtherReferralViewPageState extends State<OtherReferralViewPage> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: AssetImage(imagePath),
+                backgroundImage: imageUrl != null
+                    ? NetworkImage(imageUrl)
+                    : const AssetImage('assets/images/profile1.jpg')
+                        as ImageProvider,
               ),
               SizedBox(width: 3.w),
               Column(

@@ -176,7 +176,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                           width: 29.sp,
                         ),
                         SizedBox(width: 2.w),
-                        Text('One-To-Ones Slip',
+                        Text('One-To-One Slip',
                             style: TTextStyles.ReferralSlip),
                       ],
                     ),

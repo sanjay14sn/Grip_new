@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
-
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 

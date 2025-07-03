@@ -85,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(width: 3.w),
                   Text("My Profile", style: TTextStyles.myprofile),
                   const Spacer(),
-                  Text("Edit", style: TTextStyles.Editprofile),
+                  // Text("Edit", style: TTextStyles.Editprofile),
                 ],
               ),
               SizedBox(height: 2.h),

@@ -19,7 +19,6 @@ import 'package:http/http.dart' as http;
 // 🔔 Background FCM Handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("🔔 Handling a background message: ${message.messageId}");
 }
 
 // 🔔 Local Notifications Plugin and Channel
@@ -37,11 +36,9 @@ void main() async {
 
   // ✅ Load .env file
   await dotenv.load();
-  print("🌐 Loaded API_BASE_URL: ${dotenv.env['API_BASE_URL']}");
   await Firebase.initializeApp();
   await lockOrientationToPortrait(); // 🔐 Lock orientation
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  print("✅ Firebase initialized successfully");
 
   // 🔧 Local Notifications Initialization
   await flutterLocalNotificationsPlugin
@@ -92,29 +89,22 @@ class _MyAppState extends State<MyApp> {
       sound: true,
     );
 
-    print('📲 User granted permission: ${settings.authorizationStatus}');
-
     // 🔗 Get FCM Token
     final fcmToken = await messaging.getToken();
-    print("🎯 FCM Token: $fcmToken");
 
     if (fcmToken != null) {
       const storage = FlutterSecureStorage();
       await storage.write(key: 'fcm_token', value: fcmToken);
-      print("✅ FCM token saved to secure storage");
     }
 
     // 🔁 Handle token refresh (optional but recommended)
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-      print("🔄 Refreshed FCM Token: $newToken");
       const storage = FlutterSecureStorage();
       await storage.write(key: 'fcm_token', value: newToken);
     });
 
     // 📩 Foreground message listener
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('📩 Received foreground message: ${message.notification?.title}');
-
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
 
@@ -138,16 +128,11 @@ class _MyAppState extends State<MyApp> {
 
     // 📲 App launched by tapping notification
     FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) {
-        print(
-            '🚀 App launched by tapping notification: ${message.notification?.title}');
-      }
+      if (message != null) {}
     });
 
     // 🔁 App resumed from background by tapping notification
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('🔄 App resumed from background: ${message.notification?.title}');
-    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
   }
 
   // 📶 Connectivity handling
@@ -189,13 +174,9 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void _handleError(Object error) {
-    print('Connectivity error: $error');
-  }
+  void _handleError(Object error) {}
 
-  void _handleDone() {
-    print('Connectivity stream closed.');
-  }
+  void _handleDone() {}
 
   @override
   void dispose() {

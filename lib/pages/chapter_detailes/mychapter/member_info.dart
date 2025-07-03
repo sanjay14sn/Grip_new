@@ -107,12 +107,10 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                             },
                           );
                         }),
-                        _menuItem(Icons.group_work, "One-To-Ones", () async {
+                        _menuItem(Icons.group_work, "One-To-One", () async {
                           final memberId = widget.member.id;
 
                           if (memberId != null && memberId.isNotEmpty) {
-                            print("Fetching One-To-Ones for ID: $memberId");
-
                             final response = await PublicRoutesApiService
                                 .fetchOthersOneToOnes(memberId);
 

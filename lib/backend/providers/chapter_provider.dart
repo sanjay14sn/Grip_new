@@ -13,19 +13,15 @@ class ChapterProvider extends ChangeNotifier {
   ChapterDetails? get chapterDetails => _chapterDetails;
 
   Future<void> fetchChapterDetails(String chapterId) async {
-    print('🔄 Fetching chapter details for chapterId: $chapterId');
     _isLoading = true;
     notifyListeners();
 
     final response =
         await PublicRoutesApiService.fetchChapterDetailsById(chapterId);
 
-    print(
-        '📥 API Response: ${response.isSuccess}, message: ${response.message}');
     if (response.isSuccess && response.data != null) {
       try {
         final data = response.data['data'];
-        print('📦 Chapter data: $data');
 
         _chapterDetails = ChapterDetails.fromJson(data);
         print('✅ Parsed ChapterDetails: ${_chapterDetails!.chapterName}');
@@ -113,7 +109,8 @@ class ChapterDetails {
       meetingDayAndTime: json['meetingDayAndTime'] ?? '',
       meetingType: json['meetingType'] ?? '',
       zoneName: json['zoneId']?['zoneName'] ?? '',
-      cidId: json['cidId']?['_id'] ?? '', // <-- Extract cidId from nested object
+      cidId:
+          json['cidId']?['_id'] ?? '', // <-- Extract cidId from nested object
       cidName: json['cidId']?['name'] ?? '',
       cidEmail: json['cidId']?['email'] ?? '',
       stateName: json['stateName'] ?? '',
@@ -121,4 +118,3 @@ class ChapterDetails {
     );
   }
 }
-

@@ -79,7 +79,7 @@ class OthersOneToOnesPage extends StatelessWidget {
                                 size: 50, color: Colors.grey.shade400),
                             SizedBox(height: 1.h),
                             const Text(
-                              "No One-to-Ones found.",
+                              "No One-to-One found.",
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,

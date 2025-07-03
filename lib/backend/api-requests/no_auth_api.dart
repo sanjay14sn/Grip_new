@@ -1430,43 +1430,42 @@ class PublicRoutesApiService {
     }
   }
 
-static Future<ApiResponse> fetchPayments() async {
-  const storage = FlutterSecureStorage();
-  final token = await storage.read(key: 'auth_token');
+  static Future<ApiResponse> fetchPayments() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
 
-  if (token == null || token.isEmpty) {
-    return ApiResponse(
-      statusCode: 401,
-      isSuccess: false,
-      data: null,
-      message: 'User not authenticated',
-    );
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url: '$endPointbaseUrl/api/mobile/agenta/list',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.isSuccess,
+        data: response.data['data'],
+        message: response.data['message'],
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
   }
-
-  try {
-    final response = await makeRequest(
-      url: '$endPointbaseUrl/api/mobile/agenta/list',
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    return ApiResponse(
-      statusCode: response.statusCode,
-      isSuccess: response.isSuccess,
-      data: response.data['data'],
-      message: response.data['message'],
-    );
-  } catch (e) {
-    return ApiResponse(
-      statusCode: 500,
-      isSuccess: false,
-      data: null,
-      message: 'Error: $e',
-    );
-  }
-}
-
 }

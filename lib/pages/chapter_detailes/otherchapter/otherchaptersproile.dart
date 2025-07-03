@@ -116,7 +116,7 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
         if (response.isSuccess && response.data != null) {
           final data = response.data;
 
-          final profile = data['personalDetails']?['profileImage'];
+          final profile = data['profileImage']; // ✅ correct key
 
           final member = othersMemberModel(
             id: data['_id'] ?? '',
@@ -433,7 +433,7 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                     }),
                     Transform.translate(
                       offset: const Offset(0, 30),
-                      child: _menuItem(Icons.group_work, "One-To-Ones", () {
+                      child: _menuItem(Icons.group_work, "One-To-One", () {
                         context.push('/onetoone');
                       }),
                     ),
