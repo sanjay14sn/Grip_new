@@ -384,6 +384,7 @@ class _HomescreenState extends State<Homescreen> {
                               context.push('/profilepage', extra: _memberData);
                             },
                             child: CircleAvatar(
+                              backgroundColor: Colors.white,
                               radius: 30,
                               backgroundImage: (_memberData?['personalDetails']
                                           ?['profileImage'] !=
@@ -425,7 +426,7 @@ class _HomescreenState extends State<Homescreen> {
                       // 🅶 Grip Logo on the Right
                       Image.asset(
                         Timages.griplogo,
-                        height: 40,
+                        height: 80,
                         width: 100,
                       ),
                     ],

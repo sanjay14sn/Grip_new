@@ -56,7 +56,7 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
           } else {
             print('❌ Token has expired. Clearing storage...');
             await storage.deleteAll();
-            context.go('/login');
+            context.go('/splashscreen');
             return;
           }
         } else {
@@ -65,11 +65,11 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
       }
 
       print('🚪 Token or user info missing. Redirecting to /login');
-      context.go('/login');
+      context.go('/splashscreen');
     } catch (e) {
       print("❌ Storage error occurred: $e");
       if (mounted) {
-        context.go('/login');
+        context.go('/splashscreen');
       }
     }
   }
@@ -83,7 +83,7 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
           opacity: _opacity,
           duration: const Duration(seconds: 2),
           child: Image.asset(
-            'assets/images/logo.png',
+            'assets/images/Griplogo.png',
             width: 200,
           ),
         ),
@@ -91,3 +91,4 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
     );
   }
 }
+

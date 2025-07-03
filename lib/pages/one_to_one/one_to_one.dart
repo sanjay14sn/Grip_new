@@ -5,6 +5,7 @@ import 'package:dashed_circle/dashed_circle.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/location_provider.dart';
 import 'package:grip/components/Associate_number.dart';
@@ -358,7 +359,38 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                               width: 260,
                               height: 44,
                               child: ElevatedButton.icon(
-                                onPressed: () {
+                                onPressed: () async {
+                                  // Step 1: Check if location services are ON
+                                  bool serviceEnabled = await Geolocator
+                                      .isLocationServiceEnabled();
+                                  if (!serviceEnabled) {
+                                    ToastUtil.showToast(context,
+                                        '⚠️ Please enable location services.');
+                                    return;
+                                  }
+
+                                  // Step 2: Check permission status
+                                  LocationPermission permission =
+                                      await Geolocator.checkPermission();
+                                  if (permission == LocationPermission.denied) {
+                                    permission =
+                                        await Geolocator.requestPermission();
+                                    if (permission ==
+                                        LocationPermission.denied) {
+                                      ToastUtil.showToast(context,
+                                          '❌ Location permission denied.Please enable it from settings.');
+                                      return;
+                                    }
+                                  }
+
+                                  if (permission ==
+                                      LocationPermission.deniedForever) {
+                                    ToastUtil.showToast(context,
+                                        '❌ Location permission permanently denied. Please enable it from settings.');
+                                    return;
+                                  }
+
+                                  // Step 3: All checks passed → call fetchLocation
                                   context
                                       .read<LocationProvider>()
                                       .fetchLocation();

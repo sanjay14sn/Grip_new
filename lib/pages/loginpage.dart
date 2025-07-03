@@ -145,6 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true, // <--- Important
       body: Stack(
         children: [
           Positioned.fill(
@@ -167,15 +168,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                child: SingleChildScrollView(
+                  // <--- Wrap with scroll
+                  padding: EdgeInsets.only(
+                    left: 50,
+                    right: 50,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
                   child: Form(
-                    key: _formKey, // ✅ Wrap with Form
+                    key: _formKey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.asset(Timages.griplogo),
-                        const SizedBox(height: 50),
                         _InputBox(
                           controller: usernameController,
                           hinttext: 'Mobile Number',
@@ -195,9 +200,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: passwordController,
                           hinttext: 'PIN',
                           obscureText: true,
-                          keyboardType:
-                              TextInputType.number, // ✅ only number input
-                          maxLength: 6, // optional: set your PIN length
+                          keyboardType: TextInputType.number,
+                          maxLength: 6,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter PIN';
@@ -211,8 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 20),
                         Center(
                           child: GestureDetector(
-                            onTap:
-                                _handleLogin, // ✅ Use validation before navigation
+                            onTap: _handleLogin,
                             child: Container(
                               height: 6.h,
                               width: 36.w,

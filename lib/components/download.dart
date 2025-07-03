@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -48,17 +49,20 @@ class FileDownloader {
         // Android <10 - Use legacy public storage
         final permissionStatus = await Permission.storage.request();
         if (!permissionStatus.isGranted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('❌ Storage permission denied')),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   const SnackBar(content: Text('Storage permission Required')),
+          // );
+          ToastUtil.showToast(context, 'Storage permission Required');
+
           return;
         }
-        
+
         final directory = await getExternalStorageDirectory();
         if (directory == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('❌ Unable to access storage')),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   const SnackBar(content: Text(' Unable to access storage')),
+          // );
+          ToastUtil.showToast(context, 'Unable to access storage');
           return;
         }
         savePath = '${directory.path}/$fileName';
@@ -117,17 +121,7 @@ class FileDownloader {
       );
 
       // Show save location info
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('✅ File saved to: $savePath'),
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    } catch (e) {
-      debugPrint('❌ Download failed: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Download failed: ${e.toString()}')),
-      );
-    }
+      ToastUtil.showToast(context, ' File saved Successfully');
+    } catch (e) {}
   }
 }

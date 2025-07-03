@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
@@ -67,38 +68,51 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ? _buildShimmerList()
             : _error != null
                 ? Center(child: Text(_error!))
-                : _items.isEmpty
-                    ? const Center(child: Text("No payments available."))
-                    : Container(
-                        padding: EdgeInsets.all(3.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4.w),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: ListView.separated(
-                          itemCount: _items.length,
-                          separatorBuilder: (_, __) => SizedBox(height: 2.h),
-                          itemBuilder: (context, index) {
-                            final item = _items[index];
-                            return PaymentCard(
-                              item: item,
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Tapped: ${item.title}')),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                : Column(
+                    children: [
+                      Expanded(
+                        child: _items.isEmpty
+                            ? const Center(
+                                child: Text("No payments available."))
+                            : Container(
+                                padding: EdgeInsets.all(3.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4.w),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 4,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: ListView.separated(
+                                  itemCount: _items.length,
+                                  separatorBuilder: (_, __) =>
+                                      SizedBox(height: 2.h),
+                                  itemBuilder: (context, index) {
+                                    final item = _items[index];
+                                    return PaymentCard(
+                                      item: item,
+                                      onTap: () {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content:
+                                                Text('Tapped: ${item.title}'),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
                       ),
+                      SizedBox(height: 2.h),
+                      _buildSubscriptionCard(context)
+                    ],
+                  ),
       ),
     );
   }
@@ -162,6 +176,63 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
   }
+
+  Widget _buildSubscriptionCard(BuildContext context) {
+    final isActive = true; // Replace this with real logic
+
+    return GestureDetector(
+      onTap: () {
+        context.push('/membershipdetails');
+      },
+      child: Container(
+        padding: EdgeInsets.all(3.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(3.w),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: const Offset(2, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 15.w,
+              height: 7.h,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(3.w),
+              ),
+              child: Icon(Icons.verified_user, size: 6.w, color: Colors.grey),
+            ),
+            SizedBox(width: 4.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Subscription",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14.sp)),
+                  SizedBox(height: 0.5.h),
+                  Text(
+                    isActive ? "Active" : "Inactive",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: isActive ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class PaymentItem {
@@ -217,9 +288,10 @@ class PaymentCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(3.w),
           boxShadow: [
             BoxShadow(
-                color: Colors.black12,
-                blurRadius: 6,
-                offset: const Offset(2, 2)),
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: const Offset(2, 2),
+            ),
           ],
         ),
         child: Row(
@@ -233,10 +305,7 @@ class PaymentCard extends StatelessWidget {
               ),
               clipBehavior: Clip.antiAlias,
               child: item.imageUrl != null
-                  ? Image.network(
-                      item.imageUrl!,
-                      fit: BoxFit.cover,
-                    )
+                  ? Image.network(item.imageUrl!, fit: BoxFit.cover)
                   : Icon(Icons.receipt_long, size: 6.w, color: Colors.grey),
             ),
             SizedBox(width: 4.w),
@@ -275,8 +344,7 @@ class PaymentCard extends StatelessWidget {
                       ),
                     ),
                     child: Text("Pay Now",
-                        style:
-                            TextStyle(fontSize: 12.sp, color: Colors.white)),
+                        style: TextStyle(fontSize: 12.sp, color: Colors.white)),
                   ),
                 ),
               ],

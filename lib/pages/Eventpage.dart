@@ -251,7 +251,7 @@ class EventCard extends StatelessWidget {
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -272,19 +272,19 @@ class EventCard extends StatelessWidget {
                 Row(
                   children: [
                     const Icon(Icons.calendar_today,
-                        size: 16, color: Colors.black54),
+                        size: 18, color: Colors.black54),
                     SizedBox(width: 2.w),
                     Text(
                       date,
-                      style: TextStyle(fontSize: 11.sp, color: Colors.black87),
+                      style: TextStyle(fontSize: 13.sp, color: Colors.black87),
                     ),
                     const Spacer(),
                     const Icon(Icons.access_time,
-                        size: 16, color: Colors.black54),
+                        size: 18, color: Colors.black54),
                     SizedBox(width: 2.w),
                     Text(
                       time,
-                      style: TextStyle(fontSize: 11.sp, color: Colors.black87),
+                      style: TextStyle(fontSize: 13.sp, color: Colors.black87),
                     ),
                   ],
                 ),
@@ -292,13 +292,13 @@ class EventCard extends StatelessWidget {
                 Row(
                   children: [
                     const Icon(Icons.location_on,
-                        size: 16, color: Colors.black54),
+                        size: 18, color: Colors.black54),
                     SizedBox(width: 2.w),
                     Expanded(
                       child: Text(
                         location,
                         style:
-                            TextStyle(fontSize: 11.sp, color: Colors.black87),
+                            TextStyle(fontSize: 13.sp, color: Colors.black87),
                       ),
                     ),
                   ],
