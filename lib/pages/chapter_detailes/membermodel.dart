@@ -7,6 +7,7 @@ class MemberModel {
   final String phone;
   final String? role;
   final String? website;
+  final String? category;
   final String? chapterName;
   final String? businessDescription;
   final String? email;
@@ -19,6 +20,7 @@ class MemberModel {
     required this.company,
     required this.phone,
     this.role,
+    this.category,
     this.website,
     this.chapterName,
     this.businessDescription,
@@ -41,7 +43,7 @@ class MemberModel {
           '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}'.trim(),
       company: personal['companyName'] ?? '',
       phone: contact['mobileNumber'] ?? '',
-      role: personal['categoryRepresented'],
+      role: business['categoryRepresented'], // ✅ FIXED HERE
       website: contact['website'],
       chapterName: chapterInfo['chapterName'],
       businessDescription: business['businessDescription'],
@@ -65,6 +67,7 @@ class othersMemberModel {
   final String? businessDescription;
   final String? email;
   final String? address;
+  final String? category;
   final String? cidId;
   final String? profileImageUrl; // ✅ Add this
 
@@ -74,6 +77,7 @@ class othersMemberModel {
     required this.company,
     required this.phone,
     this.role,
+    this.category,
     this.website,
     this.chapterName,
     this.businessDescription,
@@ -105,14 +109,14 @@ class othersMemberModel {
           '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}'.trim(),
       company: personal['companyName'] ?? '',
       phone: contact['mobileNumber'] ?? '',
-      role: personal['categoryRepresented'],
+      category: business['categoryRepresented'], // ✅ FIXED LINE HERE
       website: contact['website'],
       chapterName: chapterInfo['chapterName'],
       businessDescription: business['businessDescription'],
       email: contact['email'],
       address: address['addressLine1'],
       cidId: chapterInfo['cidId'],
-      profileImageUrl: profileImageUrl, // ✅ Assign built URL
+      profileImageUrl: profileImageUrl,
     );
   }
 }

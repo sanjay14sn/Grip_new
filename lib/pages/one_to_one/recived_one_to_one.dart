@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
@@ -22,8 +23,7 @@ class OthersOneToOnesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const imageBaseUrl =
-        'https://your-server.com/uploads'; // 🔁 Set your actual base URL
+    final imageBaseUrl = UrlService.imageBaseUrl;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -56,7 +56,7 @@ class OthersOneToOnesPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Text(
-                      "ONE TO ONES DETAILS",
+                      "ONE TO ONE DETAILS",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -102,7 +102,7 @@ class OthersOneToOnesPage extends StatelessWidget {
                               '${to?['firstName'] ?? ''} ${to?['lastName'] ?? ''}';
 
                           final metWith =
-                              item['createdBy'] == item['fromMember']['_id']
+                              item['createdBy'] == item['toMember']['_id']
                                   ? toName
                                   : fromName;
 
@@ -151,8 +151,7 @@ class OthersOneToOnesPage extends StatelessWidget {
                                                 const TextSpan(
                                                   text: "MET WITH: ",
                                                   style: TextStyle(
-                                                    color:
-                                                        const Color(0xFFC6221A),
+                                                    color: Color(0xFFC6221A),
                                                     fontWeight: FontWeight.w600,
                                                     fontSize: 11,
                                                   ),
@@ -182,7 +181,7 @@ class OthersOneToOnesPage extends StatelessWidget {
                                     const Icon(
                                       Icons.arrow_forward_ios_rounded,
                                       size: 14,
-                                      color: const Color(0xFFC6221A),
+                                      color: Color(0xFFC6221A),
                                     ),
                                   ],
                                 ),

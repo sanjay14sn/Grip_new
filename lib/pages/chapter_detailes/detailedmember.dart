@@ -12,6 +12,7 @@ class DetailedMember {
   final String chapterName;
   final String? cid;
   final String? profileImageUrl; // ✅ added
+  final String? category; // 👈 add this
 
   DetailedMember({
     required this.id,
@@ -24,6 +25,7 @@ class DetailedMember {
     required this.address,
     required this.chapterName,
     this.cid,
+    this.category, // 👈 include in constructor
     this.profileImageUrl, // ✅ constructor
   });
 
@@ -38,7 +40,8 @@ class DetailedMember {
 
     return DetailedMember(
       id: json['_id']?.toString() ?? '',
-      name: "${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}".trim(),
+      name:
+          "${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}".trim(),
       company: personal['companyName']?.toString() ?? '',
       mobile: contact['mobileNumber']?.toString() ?? '',
       description: business['businessDescription']?.toString() ?? '',
@@ -50,12 +53,17 @@ class DetailedMember {
         addressData['city'],
         addressData['state'],
         addressData['postalCode'],
-      ].whereType<String>().map((e) => e.trim()).where((e) => e.isNotEmpty).join(', '),
+      ]
+          .whereType<String>()
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .join(', '),
       chapterName: chapterId['chapterName']?.toString() ?? '',
       cid: chapterInfo['cidId']?.toString(),
+      category: personal['categoryRepresented']?.toString(), // ✅ FIXED HERE
       profileImageUrl: (profile != null)
           ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
-          : null, // ✅ added
+          : null,
     );
   }
 }

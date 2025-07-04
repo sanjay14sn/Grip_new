@@ -508,7 +508,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
                     name: detailed.name,
                     company: detailed.company,
                     phone: detailed.mobile,
-                    role: null,
+                    category: detailed.category, // 👈 pass the category here
                     website: detailed.website,
                     chapterName: detailed.chapterName,
                     businessDescription: detailed.description,

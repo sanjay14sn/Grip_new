@@ -129,7 +129,6 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
 
             SizedBox(height: 1.5.h),
 
-            // Category Toggle
             Text('Category:', style: TTextStyles.Category),
             SizedBox(height: 1.h),
             Container(
@@ -190,10 +189,6 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
                 ],
               ),
             ),
-
-            // SizedBox(height: 2.h),
-
-            // One to One List
             Expanded(
               child: filteredList.isEmpty
                   ? const Center(child: Text('No data found.'))

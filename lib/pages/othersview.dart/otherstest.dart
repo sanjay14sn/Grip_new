@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/filter.dart';
 import 'package:grip/components/filter_options.dart';
@@ -7,7 +8,6 @@ import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:grip/components/shimmer.dart';
 
 class OthersTestimonialsViewPage extends StatefulWidget {
@@ -77,8 +77,7 @@ class _OthersTestimonialsViewPageState
           success = true;
         } else {
           if (attempt < maxRetries) {
-            await Future.delayed(
-                const Duration(seconds: 2)); // wait before retry
+            await Future.delayed(const Duration(seconds: 2));
           } else {
             setState(() => isLoading = false);
           }
@@ -158,7 +157,7 @@ class _OthersTestimonialsViewPageState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// 🔙 Top Bar
+              // Top Bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -189,6 +188,7 @@ class _OthersTestimonialsViewPageState
 
               SizedBox(height: 2.h),
 
+              // Title
               Row(
                 children: [
                   Text('${widget.memberName}\'s Testimonials',
@@ -203,11 +203,10 @@ class _OthersTestimonialsViewPageState
               ),
 
               SizedBox(height: 1.5.h),
-
               Text('Category:', style: TTextStyles.Category),
               SizedBox(height: 1.h),
 
-              /// Toggle Buttons
+              // Toggle
               Container(
                 width: double.infinity,
                 height: 40,
@@ -275,7 +274,7 @@ class _OthersTestimonialsViewPageState
 
               SizedBox(height: 2.h),
 
-              /// Testimonial List
+              // List
               Expanded(
                 child: isLoading
                     ? buildShimmerList()
@@ -290,7 +289,6 @@ class _OthersTestimonialsViewPageState
                             itemCount: activeList.length,
                             itemBuilder: (context, index) {
                               final item = activeList[index];
-
                               final member = isReceivedSelected
                                   ? item['fromMember']
                                   : item['toMember'];
@@ -304,19 +302,20 @@ class _OthersTestimonialsViewPageState
                                   ? DateFormat('dd-MM-yy').format(date)
                                   : '';
 
-                              final images = item['images'] as List?;
-                              final imageUrl = (images != null &&
-                                      images.isNotEmpty &&
-                                      images[0]['docName'] != null)
-                                  ? '${dotenv.env['API_BASE_URL']}/uploads/${images[0]['docPath']}/${images[0]['docName']}'
-                                  : '';
+                              final profile =
+                                  member?['personalDetails']?['profileImage'];
+                              final imageUrl = (profile != null &&
+                                      profile['docPath'] != null &&
+                                      profile['docName'] != null)
+                                  ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
+                                  : null;
 
                               return testimonialTile(
                                 name: name,
                                 date: formattedDate,
                                 imagePath:
                                     'assets/images/profile_placeholder.png',
-                                networkImage: imageUrl,
+                                networkImage: imageUrl, // ✅ Safe nullable pass
                                 isReceived: isReceivedSelected,
                                 data: item,
                               );
@@ -330,11 +329,12 @@ class _OthersTestimonialsViewPageState
     );
   }
 
+  /// ✅ Testimonial tile with safe image loading
   Widget testimonialTile({
     required String name,
     required String date,
     required String imagePath,
-    required String networkImage,
+    required String? networkImage, // ✅ Make this nullable
     required bool isReceived,
     required Map<String, dynamic> data,
   }) {
@@ -358,7 +358,7 @@ class _OthersTestimonialsViewPageState
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: networkImage.isNotEmpty
+                backgroundImage: networkImage != null && networkImage.isNotEmpty
                     ? NetworkImage(networkImage)
                     : AssetImage(imagePath) as ImageProvider,
               ),

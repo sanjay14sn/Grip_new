@@ -201,7 +201,7 @@ class _NumberSearchState extends State<NumberSearch> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: Color(0xFFDC2A29)),
     );
     widget.controller.clear(); // ✅ clear input on error
   }

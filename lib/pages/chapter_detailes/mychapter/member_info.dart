@@ -203,6 +203,8 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
               // Contact Info
               infoRow(Icons.business, widget.member.company),
+              infoRow(Icons.storefront_rounded, widget.member.category?? 'N/A'),
+
               infoRow(Icons.phone, widget.member.phone),
               infoRow(Icons.email, widget.member.email ?? 'N/A'),
               infoRow(Icons.language, widget.member.website ?? 'N/A'),

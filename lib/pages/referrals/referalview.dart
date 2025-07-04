@@ -262,9 +262,7 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
                                           .trim();
                                   return referralTile(
                                       item,
-                                      fromName.isNotEmpty
-                                          ? fromName
-                                          : name,
+                                      fromName.isNotEmpty ? fromName : name,
                                       date,
                                       true);
                                 },

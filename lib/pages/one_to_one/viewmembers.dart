@@ -110,7 +110,7 @@ class _MemberListPageState extends State<MemberListPage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.search, color: Colors.red),
+                        const Icon(Icons.search, color: Color(0xFFC83837)),
                         SizedBox(width: 2.w),
                         Expanded(
                           child: TextField(
@@ -130,7 +130,7 @@ class _MemberListPageState extends State<MemberListPage> {
                             isExpanded
                                 ? Icons.keyboard_arrow_up
                                 : Icons.keyboard_arrow_down,
-                            color: Colors.red,
+                            color: Color(0xFFC83837),
                           ),
                           onPressed: () {
                             setState(() {
@@ -168,7 +168,7 @@ class _MemberListPageState extends State<MemberListPage> {
                             isExpanded
                                 ? Icons.keyboard_arrow_up
                                 : Icons.keyboard_arrow_down,
-                            color: Colors.red,
+                            color: Color(0xFFC83837),
                           ),
                         ],
                       ),
@@ -195,8 +195,9 @@ class _MemberListPageState extends State<MemberListPage> {
                                 title: Text(
                                   member.name,
                                   style: TextStyle(
-                                    color:
-                                        isSelected ? Colors.red : Colors.black,
+                                    color: isSelected
+                                        ? Color(0xFFC83837)
+                                        : Colors.black,
                                     fontWeight: isSelected
                                         ? FontWeight.bold
                                         : FontWeight.normal,

@@ -219,6 +219,7 @@ final GoRouter router = GoRouter(
             email: extra.email,
             address: extra.address,
             profileImageUrl: extra.profileImageUrl, // ✅ include this line
+            category: extra.category
           );
           return ChapterDetails(member: converted);
         } else {
