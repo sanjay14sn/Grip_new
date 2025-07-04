@@ -5,6 +5,13 @@ plugins {
     id "com.google.gms.google-services"
 }
 
+// ✅ Load keystore properties
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace 'com.example.grip'
     compileSdk 35
@@ -13,7 +20,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-        coreLibraryDesugaringEnabled true // ✅ Required for flutter_local_notifications
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -21,20 +28,29 @@ android {
     }
 
     defaultConfig {
-    applicationId "com.example.grip"
-    minSdkVersion 21           // ✅ Set this explicitly
-    targetSdkVersion 35
-    versionCode flutter.versionCode
-    versionName flutter.versionName
-}
+        applicationId "com.example.grip"
+        minSdkVersion 21
+        targetSdkVersion 35
+        versionCode flutter.versionCode
+        versionName flutter.versionName
+    }
 
+    // ✅ Signing config setup
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
-            // Optional: Enable minify if needed
-            // minifyEnabled true
-            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -44,10 +60,7 @@ flutter {
 }
 
 dependencies {
-    // Firebase BOM
     implementation platform('com.google.firebase:firebase-bom:33.13.0')
     implementation 'com.google.firebase:firebase-analytics'
-
-    // ✅ Required for flutter_local_notifications & Java 8+ APIs
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }

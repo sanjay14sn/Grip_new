@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
-import 'package:grip/pages/Eventpage.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
@@ -21,13 +20,19 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
 
   @override
   Widget build(BuildContext context) {
-    final toMember = widget.data['toMember'] as Map<String, dynamic>? ?? {};
+    final fromMember = widget.data['toMember'] as Map<String, dynamic>? ?? {};
     final personalDetails =
-        toMember['personalDetails'] as Map<String, dynamic>? ?? {};
+        fromMember['personalDetails'] as Map<String, dynamic>? ?? {};
     final fullName =
-        "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
-            .trim();
-    final companyName = toMember['companyName'] ?? 'No Company';
+        "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}".trim();
+    final companyName = personalDetails['companyName'] ?? 'No Company';
+
+    final profileImage = personalDetails['profileImage'];
+    final profileImageUrl = (profileImage != null &&
+            profileImage['docPath'] != null &&
+            profileImage['docName'] != null)
+        ? "${UrlService.imageBaseUrl}/${profileImage['docPath']}/${profileImage['docName']}"
+        : null;
 
     final images = widget.data['images'] as List? ?? [];
     final hasImages = images.isNotEmpty;
@@ -111,7 +116,7 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("From:", style: TTextStyles.Rivenrefsmall),
+                        Text("To:", style: TTextStyles.Rivenrefsmall),
                         SizedBox(height: 1.h),
 
                         /// 👤 Profile
@@ -120,8 +125,12 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
                             CircleAvatar(
                               radius: 24,
                               backgroundColor: Colors.grey[200],
-                              child: Icon(Icons.person,
-                                  size: 24, color: Colors.grey[500]),
+                              backgroundImage: profileImageUrl != null &&
+                                      profileImageUrl.isNotEmpty
+                                  ? NetworkImage(profileImageUrl)
+                                  : const AssetImage(
+                                          'assets/images/profile_placeholder.png')
+                                      as ImageProvider,
                             ),
                             SizedBox(width: 3.w),
                             Column(

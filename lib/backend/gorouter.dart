@@ -4,6 +4,7 @@ import 'package:grip/Registration.dart';
 import 'package:grip/components/attandance_sucessfull.dart';
 import 'package:grip/components/failure_attandance.dart';
 import 'package:grip/networkerror.dart';
+import 'package:grip/pages/Editprofile.dart';
 import 'package:grip/pages/Eventpage.dart';
 import 'package:grip/pages/chapter_detailes/chapterdetails.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
@@ -208,19 +209,18 @@ final GoRouter router = GoRouter(
         } else if (extra is othersMemberModel) {
           // ✅ Convert othersMemberModel to MemberModel including profileImageUrl
           final converted = MemberModel(
-            id: extra.id,
-            name: extra.name,
-            company: extra.company,
-            phone: extra.phone,
-            role: extra.role,
-            website: extra.website,
-            chapterName: extra.chapterName,
-            businessDescription: extra.businessDescription,
-            email: extra.email,
-            address: extra.address,
-            profileImageUrl: extra.profileImageUrl, // ✅ include this line
-            category: extra.category
-          );
+              id: extra.id,
+              name: extra.name,
+              company: extra.company,
+              phone: extra.phone,
+              role: extra.role,
+              website: extra.website,
+              chapterName: extra.chapterName,
+              businessDescription: extra.businessDescription,
+              email: extra.email,
+              address: extra.address,
+              profileImageUrl: extra.profileImageUrl, // ✅ include this line
+              category: extra.category);
           return ChapterDetails(member: converted);
         } else {
           // Fallback if type is unknown
@@ -350,6 +350,19 @@ final GoRouter router = GoRouter(
         return OthersVisitorsPage(
           memberId: extra['memberId'],
           memberName: extra['memberName'],
+        );
+      },
+    ),
+    GoRoute(
+      path: '/Editprofile',
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>?;
+
+        return ProfileFormPage(
+          firstName: data?['firstName'] ?? '',
+          lastName: data?['lastName'] ?? '',
+          companyName: data?['companyName'] ?? '',
+          profileImageUrl: data?['profileImageUrl'],
         );
       },
     ),

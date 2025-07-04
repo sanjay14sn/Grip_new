@@ -70,127 +70,131 @@ class OthersOneToOnesPage extends StatelessWidget {
 
               // List or Empty State
               Expanded(
-                child: othersList.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.hourglass_empty,
-                                size: 50, color: Colors.grey.shade400),
-                            SizedBox(height: 1.h),
-                            const Text(
-                              "No One-to-One found.",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: othersList.length,
-                        itemBuilder: (context, index) {
-                          final item = othersList[index];
-
-                          final from = item['fromMember']?['personalDetails'];
-                          final to = item['toMember']?['personalDetails'];
-
-                          final fromName =
-                              '${from?['firstName'] ?? ''} ${from?['lastName'] ?? ''}';
-                          final toName =
-                              '${to?['firstName'] ?? ''} ${to?['lastName'] ?? ''}';
-
-                          final metWith =
-                              item['createdBy'] == item['toMember']['_id']
-                                  ? toName
-                                  : fromName;
-
-                          final date = _formatDate(item['date']);
-                          final address = item['address'] ?? 'No address';
-
-                          final hasImages = item['images'] != null &&
-                              item['images'].isNotEmpty;
-                          final imageUrl = hasImages
-                              ? "$imageBaseUrl/${item['images'][0]['docPath']}/${item['images'][0]['docName']}"
-                              : null;
-
-                          return InkWell(
-                            onTap: () {
-                              context.push('/Givenonetoonepage', extra: item);
-                            },
-                            child: Card(
-                              color: Colors.white,
-                              elevation: 1,
-                              margin: EdgeInsets.symmetric(vertical: 0.4.h),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 3.w, vertical: 1.h),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundImage: imageUrl != null
-                                          ? NetworkImage(imageUrl)
-                                          : const AssetImage(
-                                                  'assets/images/default_profile.jpg')
-                                              as ImageProvider,
-                                      radius: 20,
-                                    ),
-                                    SizedBox(width: 3.w),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          RichText(
-                                            text: TextSpan(
-                                              children: [
-                                                const TextSpan(
-                                                  text: "MET WITH: ",
-                                                  style: TextStyle(
-                                                    color: Color(0xFFC6221A),
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 11,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text: metWith,
-                                                  style: const TextStyle(
-                                                    color: Colors.black,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(height: 0.5.h),
-                                          Text(
-                                            date,
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      size: 14,
-                                      color: Color(0xFFC6221A),
-                                    ),
-                                  ],
+                  child: othersList.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.hourglass_empty,
+                                  size: 50, color: Colors.grey.shade400),
+                              SizedBox(height: 1.h),
+                              const Text(
+                                "No One-to-One found.",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: othersList.length,
+                          itemBuilder: (context, index) {
+                            final item = othersList[index];
+
+                            final from = item['fromMember']?['personalDetails'];
+                            final to = item['toMember']?['personalDetails'];
+
+                            final fromName =
+                                '${from?['firstName'] ?? ''} ${from?['lastName'] ?? ''}';
+                            final toName =
+                                '${to?['firstName'] ?? ''} ${to?['lastName'] ?? ''}';
+
+                            final metWith =
+                                item['createdBy'] == item['toMember']['_id']
+                                    ? toName
+                                    : fromName;
+
+                            final date = _formatDate(item['date']);
+                            final address = item['address'] ?? 'No address';
+
+                            // ✅ Fetch fromMember profile image
+                            final fromProfile = from?['profileImage'];
+                            final fromProfileImageUrl = (fromProfile != null &&
+                                    fromProfile['docPath'] != null &&
+                                    fromProfile['docName'] != null)
+                                ? "$imageBaseUrl/${fromProfile['docPath']}/${fromProfile['docName']}"
+                                : null;
+
+                            return InkWell(
+                              onTap: () {
+                                context.push('/Givenonetoonepage', extra: item);
+                              },
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 1,
+                                margin: EdgeInsets.symmetric(vertical: 0.4.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 3.w, vertical: 1.h),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundImage: fromProfileImageUrl !=
+                                                null
+                                            ? NetworkImage(fromProfileImageUrl)
+                                            : const AssetImage(
+                                                    'assets/images/default_profile.jpg')
+                                                as ImageProvider,
+                                        radius: 20,
+                                      ),
+                                      SizedBox(width: 3.w),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            RichText(
+                                              text: TextSpan(
+                                                children: [
+                                                  const TextSpan(
+                                                    text: "From: ",
+                                                    style: TextStyle(
+                                                      color: Color(0xFFC6221A),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 11,
+                                                    ),
+                                                  ),
+                                                  TextSpan(
+                                                    text: metWith,
+                                                    style: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(height: 0.5.h),
+                                            Text(
+                                              date,
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 14,
+                                        color: Color(0xFFC6221A),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        )),
             ],
           ),
         ),

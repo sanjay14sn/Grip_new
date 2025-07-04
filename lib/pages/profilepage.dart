@@ -85,7 +85,27 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(width: 3.w),
                   Text("My Profile", style: TTextStyles.myprofile),
                   const Spacer(),
-                  // Text("Edit", style: TTextStyles.Editprofile),
+                  GestureDetector(
+                    onTap: () {
+                      final personal =
+                          widget.memberData?['personalDetails'] ?? {};
+                      final profile = personal['profileImage'] ?? {};
+
+                      context.push('/Editprofile', extra: {
+                        'firstName': personal['firstName'] ?? '',
+                        'lastName': personal['lastName'] ?? '',
+                        'companyName': personal['companyName'] ?? '',
+                        'profileImageUrl': (profile['docPath'] != null &&
+                                profile['docName'] != null)
+                            ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
+                            : null,
+                      });
+                    },
+                    child: Text(
+                      "Edit",
+                      style: TTextStyles.Editprofile,
+                    ),
+                  )
                 ],
               ),
               SizedBox(height: 2.h),

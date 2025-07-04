@@ -196,7 +196,7 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
                       itemCount: filteredList.length,
                       itemBuilder: (context, index) {
                         final item = filteredList[index];
-                        final toMember = item['toMember'] ?? {};
+                        final toMember = item['fromMember'] ?? {};
                         final personalDetails =
                             toMember['personalDetails'] ?? {};
                         final name =
