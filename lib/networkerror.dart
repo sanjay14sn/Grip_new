@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:go_router/go_router.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
 
 class Networkerror extends StatelessWidget {
@@ -8,14 +11,24 @@ class Networkerror extends StatelessWidget {
 
   Future<void> _retryConnection(BuildContext context) async {
     final result = await Connectivity().checkConnectivity();
-    if (result != ConnectivityResult.none) {
-      Navigator.of(context).pop(); // Dismiss the error screen
+    final hasInternet = await _checkInternet();
+
+    if (result != ConnectivityResult.none && hasInternet) {
+      context.go('/homepage'); // or your actual destination
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Still offline. Please check your connection.'),
-        ),
-      );
+      ToastUtil.showToast(
+          context, 'Still offline. Please check your connection.');
+    }
+  }
+
+  Future<bool> _checkInternet() async {
+    try {
+      final response = await http
+          .get(Uri.parse('https://www.google.com'))
+          .timeout(const Duration(seconds: 5));
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
     }
   }
 

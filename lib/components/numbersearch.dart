@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
 import 'package:http/http.dart' as http;
@@ -129,74 +130,60 @@ class _NumberSearchState extends State<NumberSearch> {
   Future<void> _fetchMemberDetails(String mobile) async {
     setState(() {
       _isLoading = true;
+      memberFound = false;
       memberName = null;
       memberUid = null;
       memberChapter = null;
       personalDetails = null;
-      memberFound = false;
     });
 
-    try {
-      final url = Uri.parse(
-          'https://api.grip.oceansoft.online/api/mobile/members/list?search=$mobile');
-      final response = await http.get(url);
-      final data = jsonDecode(response.body);
+    final response = await PublicRoutesApiService.fetchMemberDetails(mobile);
 
-      if (response.statusCode == 200 &&
-          data['success'] == true &&
-          data['data'] is List &&
-          data['data'].isNotEmpty) {
-        final member = data['data'][0];
+    if (response.isSuccess && response.data != null) {
+      final member = response.data;
 
-        setState(() {
-          memberName =
-              "${member['personalDetails']['firstName']} ${member['personalDetails']['lastName']}";
-          memberUid = member['_id'];
-          memberChapter =
-              member['chapterInfo']['chapterId']['chapterName'] ?? '';
-          personalDetails = member['personalDetails'];
-          personalDetails!['email'] = member['contactDetails']['email'];
-          personalDetails!['website'] = member['contactDetails']['website'];
-          personalDetails!['businessDescription'] =
-              member['businessDetails']['businessDescription'];
-          memberFound = true;
-        });
-
-        String profileImageUrl = '';
-        if (personalDetails!['profileImage'] != null &&
-            personalDetails!['profileImage']['docPath'] != null &&
-            personalDetails!['profileImage']['docName'] != null) {
-          profileImageUrl =
-              "${UrlService.imageBaseUrl}/${personalDetails!['profileImage']['docPath']}/${personalDetails!['profileImage']['docName']}";
-        }
-
-        final memberModel = MemberModel(
-          id: memberUid!,
-          name: memberName ?? '',
-          role: '',
-          profileImageUrl: profileImageUrl,
-          company: personalDetails!['companyName'] ?? '',
-          phone: widget.controller.text,
-          email: personalDetails!['email'] ?? '',
-          website: personalDetails!['website'] ?? '',
-          address: '',
-          businessDescription: personalDetails!['businessDescription'] ?? '',
-        );
-
-        context.push('/Chaptermember', extra: memberModel);
-        widget.controller.clear(); // ✅ clear input after routing
-      } else {
-        _showError("No member found.");
-        widget.controller.clear();
-      }
-    } catch (e) {
-      _showError("Error: $e");
-      widget.controller.clear();
-    } finally {
       setState(() {
-        _isLoading = false;
+        memberName =
+            "${member['personalDetails']['firstName']} ${member['personalDetails']['lastName']}";
+        memberUid = member['_id'];
+        memberChapter = member['chapterInfo']['chapterId']['chapterName'] ?? '';
+        personalDetails = member['personalDetails'];
+        personalDetails!['email'] = member['contactDetails']['email'];
+        personalDetails!['website'] = member['contactDetails']['website'];
+        personalDetails!['businessDescription'] =
+            member['businessDetails']['businessDescription'];
+        memberFound = true;
       });
+
+      String profileImageUrl = '';
+      if (personalDetails!['profileImage'] != null &&
+          personalDetails!['profileImage']['docPath'] != null &&
+          personalDetails!['profileImage']['docName'] != null) {
+        profileImageUrl =
+            "${UrlService.imageBaseUrl}/${personalDetails!['profileImage']['docPath']}/${personalDetails!['profileImage']['docName']}";
+      }
+
+      final memberModel = MemberModel(
+        id: memberUid!,
+        name: memberName ?? '',
+        role: '',
+        profileImageUrl: profileImageUrl,
+        company: personalDetails!['companyName'] ?? '',
+        phone: widget.controller.text,
+        email: personalDetails!['email'] ?? '',
+        website: personalDetails!['website'] ?? '',
+        address: '',
+        businessDescription: personalDetails!['businessDescription'] ?? '',
+      );
+
+      context.push('/Chaptermember', extra: memberModel);
+      widget.controller.clear();
+    } else {
+      _showError(response.message ?? "No member found.");
+      widget.controller.clear();
     }
+
+    setState(() => _isLoading = false);
   }
 
   void _showError(String message) {

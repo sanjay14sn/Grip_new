@@ -1468,4 +1468,44 @@ class PublicRoutesApiService {
       );
     }
   }
+  // noauthapi.dart
+
+  static Future<ApiResponse> fetchMemberDetails(String mobile) async {
+    try {
+      final url =
+          Uri.parse('$endPointbaseUrl/api/mobile/members/list?search=$mobile');
+      final response = await makeRequest(
+        url: url.toString(),
+        method: 'GET',
+      );
+
+      final data = response.data;
+
+      if (response.statusCode == 200 &&
+          data['success'] == true &&
+          data['data'] is List &&
+          data['data'].isNotEmpty) {
+        return ApiResponse(
+          statusCode: 200,
+          isSuccess: true,
+          data: data['data'][0], // send the member data only
+          message: 'Success',
+        );
+      } else {
+        return ApiResponse(
+          statusCode: 404,
+          isSuccess: false,
+          data: null,
+          message: 'No member found',
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
+  }
 }

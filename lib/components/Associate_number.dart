@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
 import 'package:grip/utils/theme/Textheme.dart';
+
+import '../backend/api-requests/no_auth_api.dart';
 
 class CustomInputField extends StatefulWidget {
   final String label;
@@ -135,50 +138,32 @@ class _CustomInputFieldState extends State<CustomInputField> {
       memberFound = false;
     });
 
-    try {
-      final url = Uri.parse(
-          'https://api.grip.oceansoft.online/api/mobile/members/list?search=$mobile');
-      final response = await http.get(url);
-      final data = jsonDecode(response.body);
+    final response = await PublicRoutesApiService.fetchMemberDetails(mobile);
 
-      if (response.statusCode == 200 &&
-          data['success'] == true &&
-          data['data'] is List &&
-          data['data'].isNotEmpty) {
-        final member = data['data'][0];
+    if (response.isSuccess && response.data != null) {
+      final member = response.data;
 
-        setState(() {
-          memberName =
-              "${member['personalDetails']['firstName']} ${member['personalDetails']['lastName']}";
-          memberUid = member['_id'];
-          memberChapter =
-              member['chapterInfo']['chapterId']['chapterName'] ?? '';
-          memberFound = true;
-        });
-
-        widget.onUidFetched?.call(memberUid);
-      } else {
-        setState(() {
-          memberName = 'No member found';
-          memberUid = null;
-          memberChapter = null;
-          memberFound = false;
-        });
-        widget.onUidFetched?.call(null);
-      }
-    } catch (e) {
       setState(() {
-        memberName = 'Error: $e';
+        memberName =
+            "${member['personalDetails']['firstName']} ${member['personalDetails']['lastName']}";
+        memberUid = member['_id'];
+        memberChapter = member['chapterInfo']['chapterId']['chapterName'] ?? '';
+        memberFound = true;
+      });
+
+      widget.onUidFetched?.call(memberUid);
+    } else {
+      setState(() {
+        memberName = response.message ?? 'No member found';
         memberUid = null;
         memberChapter = null;
         memberFound = false;
       });
+
       widget.onUidFetched?.call(null);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
+
+    setState(() => _isLoading = false);
   }
 
   void _showError(String message) {
