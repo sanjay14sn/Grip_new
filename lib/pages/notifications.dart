@@ -166,20 +166,31 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               padding: EdgeInsets.only(bottom: 1.h),
                               itemBuilder: (context, index) {
                                 final notification = notifications[index];
-                                final from = notification['fromMember'];
-                                final name =
-                                    '${from['personalDetails']['firstName']} ${from['personalDetails']['lastName']}';
+                                final from = notification['fromMember'] ?? {};
+                                final personalDetails =
+                                    from['personalDetails'] ?? {};
+
+                                final firstName =
+                                    personalDetails['firstName'] ?? 'Unknown';
+                                final lastName =
+                                    personalDetails['lastName'] ?? '';
+                                final name = '$firstName $lastName';
+
                                 final type = notification['type'];
                                 final message = getNotificationMessage(type);
-                                final createdAt =
-                                    DateTime.parse(notification['createdAt']);
+
+                                final createdAt = DateTime.tryParse(
+                                        notification['createdAt'] ?? '') ??
+                                    DateTime.now();
                                 final formattedTime = timeago.format(createdAt);
 
-                                // Construct profile image URL
                                 final profileImage =
-                                    from['personalDetails']['profileImage'];
-                                final imageUrl =
-                                    '${UrlService.imageBaseUrl}/${profileImage['docPath']}/${profileImage['docName']}';
+                                    personalDetails['profileImage'];
+                                final imageUrl = (profileImage != null &&
+                                        profileImage['docPath'] != null &&
+                                        profileImage['docName'] != null)
+                                    ? "${UrlService.imageBaseUrl}/${profileImage['docPath']}/${profileImage['docName']}"
+                                    : null;
 
                                 return Container(
                                   margin: EdgeInsets.only(bottom: 1.h),
@@ -191,7 +202,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     leading: CircleAvatar(
                                       radius: 22,
                                       backgroundColor: Colors.grey.shade200,
-                                      backgroundImage: NetworkImage(imageUrl),
+                                      backgroundImage: imageUrl != null
+                                          ? NetworkImage(imageUrl)
+                                          : const AssetImage(
+                                                  'assets/images/profile.png')
+                                              as ImageProvider,
                                     ),
                                     title: RichText(
                                       text: TextSpan(

@@ -40,7 +40,7 @@ android {
         release {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
+            storeFile file("$rootDir/app/${keystoreProperties['storeFile']}")
             storePassword keystoreProperties['storePassword']
         }
     }
@@ -60,7 +60,10 @@ flutter {
 }
 
 dependencies {
+    // Firebase BOM
     implementation platform('com.google.firebase:firebase-bom:33.13.0')
     implementation 'com.google.firebase:firebase-analytics'
+
+    // For Java 8+ APIs (e.g., flutter_local_notifications)
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }

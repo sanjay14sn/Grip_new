@@ -62,11 +62,13 @@ class _ChapterSelectorState extends State<ChapterSelector> {
         success = true;
         debugPrint('✅ Zones fetched successfully');
       } else {
-        debugPrint('❌ Failed attempt $attempt to fetch zones: ${response.message}');
+        debugPrint(
+            '❌ Failed attempt $attempt to fetch zones: ${response.message}');
         if (attempt == maxRetries) {
           setState(() => isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed to load zones: ${response.message}")),
+            SnackBar(
+                content: Text("Failed to load zones: ${response.message}")),
           );
         }
       }
@@ -97,10 +99,12 @@ class _ChapterSelectorState extends State<ChapterSelector> {
         success = true;
         debugPrint('✅ Chapters fetched successfully');
       } else {
-        debugPrint('❌ Failed attempt $attempt to fetch chapters: ${response.message}');
+        debugPrint(
+            '❌ Failed attempt $attempt to fetch chapters: ${response.message}');
         if (attempt == maxRetries) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed to load chapters: ${response.message}")),
+            SnackBar(
+                content: Text("Failed to load chapters: ${response.message}")),
           );
         }
       }
@@ -130,9 +134,11 @@ class _ChapterSelectorState extends State<ChapterSelector> {
                 zones.map((z) => z['zoneName'].toString()).toList(),
                 selectedZoneId == null
                     ? null
-                    : zones.firstWhere((z) => z['_id'] == selectedZoneId)['zoneName'],
+                    : zones.firstWhere(
+                        (z) => z['_id'] == selectedZoneId)['zoneName'],
                 (val) {
-                  final selected = zones.firstWhere((z) => z['zoneName'] == val);
+                  final selected =
+                      zones.firstWhere((z) => z['zoneName'] == val);
                   selectedZoneId = selected['_id'];
                   fetchChaptersByZone(selectedZoneId!);
                 },
@@ -143,7 +149,9 @@ class _ChapterSelectorState extends State<ChapterSelector> {
               if (selectedZoneId != null && chaptersInZone.isNotEmpty)
                 _dropdownField(
                   "Select Chapter",
-                  chaptersInZone.map((c) => c['chapterName'].toString()).toList(),
+                  chaptersInZone
+                      .map((c) => c['chapterName'].toString())
+                      .toList(),
                   selectedChapterId == null
                       ? null
                       : chaptersInZone.firstWhere(
@@ -168,10 +176,13 @@ class _ChapterSelectorState extends State<ChapterSelector> {
                   if (selectedZoneId != null && selectedChapterId != null) {
                     final chapterName = chaptersInZone.firstWhere(
                         (c) => c['_id'] == selectedChapterId)['chapterName'];
-                    context.push('/Otherschapter/$selectedChapterId?name=$chapterName');
+                    context.push(
+                        '/Otherschapter/$selectedChapterId?name=$chapterName');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Please select both zone and chapter.")),
+                      const SnackBar(
+                          content:
+                              Text("Please select both zone and chapter.")),
                     );
                   }
                 },
@@ -254,7 +265,9 @@ class _ChapterSelectorState extends State<ChapterSelector> {
         value: selectedValue,
         icon: const Icon(Icons.keyboard_arrow_down),
         dropdownColor: Colors.white,
-        items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+        items: items
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
         onChanged: onChanged,
       ),
     );
