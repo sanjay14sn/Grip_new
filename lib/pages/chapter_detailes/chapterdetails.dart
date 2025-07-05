@@ -66,54 +66,40 @@ class _MyChapterPageState extends State<MyChapterPage> {
   }) async {
     for (int attempt = 1; attempt <= retries; attempt++) {
       try {
-        debugPrint('🔁 [$logLabel] Attempt $attempt');
         final result = await task();
         return result;
       } catch (e) {
-        debugPrint('❌ [$logLabel] Attempt $attempt failed: $e');
         if (attempt < retries) await Future.delayed(delay);
       }
     }
-    debugPrint('🚫 [$logLabel] All $retries attempts failed.');
+
     return null;
   }
 
   Future<void> _fetchAllMemberDetails() async {
-    debugPrint("🔄 Fetching all member details...");
     setState(() {
       _isLoading = true;
-      debugPrint("🔃 isLoading set to true");
     });
 
     _detailedMembers.clear();
-    debugPrint("🧹 Cleared existing detailed members");
 
     const storage = FlutterSecureStorage();
     final userDataString = await storage.read(key: 'user_data');
-    debugPrint("🔐 Retrieved user data string: $userDataString");
 
     String? currentUserId;
     if (userDataString != null) {
       final userData = jsonDecode(userDataString);
       currentUserId = userData['id'];
-      debugPrint("👤 Current user ID: $currentUserId");
-    } else {
-      debugPrint("⚠️ No user data found in secure storage");
-    }
+    } else {}
 
     final chapterProvider =
         Provider.of<ChapterProvider>(context, listen: false);
     final cidId = chapterProvider.chapterDetails?.cidId;
-    debugPrint("📛 CID ID from chapter: $cidId");
 
     final members = chapterProvider.members;
-    debugPrint("📋 Total members fetched: ${members.length}");
 
     for (final member in members) {
-      debugPrint("➡️ Processing member ID: ${member.id}");
-
       if (member.id == currentUserId) {
-        debugPrint("🙅 Skipping current user: $currentUserId");
         continue;
       }
 
@@ -125,24 +111,18 @@ class _MyChapterPageState extends State<MyChapterPage> {
       );
 
       if (response != null && response.isSuccess && response.data != null) {
-        debugPrint("✅ Successfully fetched: ${member.id}");
         final detailed = DetailedMember.fromJson(response.data);
         _detailedMembers.add(detailed);
-      } else {
-        debugPrint("⚠️ Failed permanently for: ${member.id}");
-      }
+      } else {}
     }
 
     setState(() {
       _filteredMembers = _detailedMembers;
       _isLoading = false;
-      debugPrint("✅ Member details updated and isLoading set to false");
     });
   }
 
   Future<void> _fetchCidDetails(String cidId) async {
-    debugPrint('🔄 Fetching CID details for ID: $cidId');
-
     final response = await retry(
       () => PublicRoutesApiService.fetchCidDetails(cidId),
       retries: 3,
@@ -176,11 +156,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
       setState(() {
         _cidMember = member;
       });
-
-      debugPrint('✅ CID details fetched: ${member.name}, ${member.company}');
-    } else {
-      debugPrint('❌ Failed to fetch CID details after retries');
-    }
+    } else {}
   }
 
   @override

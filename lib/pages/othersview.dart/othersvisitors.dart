@@ -41,9 +41,7 @@ class _OthersVisitorsPageState extends State<OthersVisitorsPage> {
       });
     } else {
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.message ?? 'Failed to fetch visitors')),
-      );
+     
     }
   }
 

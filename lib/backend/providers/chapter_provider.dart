@@ -24,24 +24,23 @@ class ChapterProvider extends ChangeNotifier {
         final data = response.data['data'];
 
         _chapterDetails = ChapterDetails.fromJson(data);
-        print('✅ Parsed ChapterDetails: ${_chapterDetails!.chapterName}');
+     
 
         final membersJson = data['members'] ?? [];
-        print('👥 Members raw JSON: $membersJson');
+  
 
         _members = membersJson.map<Member>((e) {
-          print('🧾 Parsing Member: $e');
+   
           return Member.fromJson(e);
         }).toList();
 
-        print('✅ Parsed ${_members.length} members');
       } catch (e) {
-        print('❌ Parsing error: $e');
+  
         _members = [];
         _chapterDetails = null;
       }
     } else {
-      print('❌ API call failed: ${response.message}');
+     
     }
 
     _isLoading = false;
@@ -63,7 +62,7 @@ class Member {
   });
 
   factory Member.fromJson(Map<String, dynamic> json) {
-    print('🧩 Member JSON: $json');
+
     return Member(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
@@ -101,7 +100,7 @@ class ChapterDetails {
   });
 
   factory ChapterDetails.fromJson(Map<String, dynamic> json) {
-    print('📥 ChapterDetails JSON: $json');
+
     return ChapterDetails(
       id: json['_id'] ?? '',
       chapterName: json['chapterName'] ?? '',

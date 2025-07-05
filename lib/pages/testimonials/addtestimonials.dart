@@ -47,7 +47,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
         });
       }
     } catch (e) {
-      ToastUtil.showToast(context, "Error picking files: $e");
+
     }
   }
 
@@ -91,7 +91,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
       ToastUtil.showToast(context, "✅ Testimonial submitted successfully");
       Navigator.pop(context, true);
     } else {
-      ToastUtil.showToast(context, "❌ Failed: ${response.message}");
+
     }
     setState(() => isSubmitting = false);
   }

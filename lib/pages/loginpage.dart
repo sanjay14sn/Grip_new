@@ -49,19 +49,13 @@ class _LoginScreenState extends State<LoginScreen> {
       final mobileNumber = usernameController.text.trim();
       final pin = passwordController.text;
 
-      print('🔐 Attempting login with username: $mobileNumber');
-
       try {
         const storage = FlutterSecureStorage();
         final fcmToken =
             await storage.read(key: 'fcm_token'); // ✅ Read FCM token
 
         if (fcmToken != null && fcmToken.isNotEmpty) {
-          print(
-              '📲 Retrieved FCM Token from storage: ${fcmToken.substring(0, 30)}... [truncated]');
-        } else {
-          print('⚠️ No FCM Token found in storage. Proceeding without it.');
-        }
+        } else {}
 
         final response = await PublicRoutesApi.Login(
           mobileNumber: mobileNumber,
@@ -69,24 +63,14 @@ class _LoginScreenState extends State<LoginScreen> {
           fcmToken: fcmToken, // ✅ Pass FCM token here
         );
 
-        print('📡 API Response Status: ${response.statusCode}');
-        print(
-            '📦 Sent Login Payload → mobileNumber: $mobileNumber, pin: $pin, fcmToken: ${fcmToken ?? 'null'}');
-
         final responseDataString = response.data.toString();
         final truncatedResponse = responseDataString.length > 500
             ? '${responseDataString.substring(0, 500)}... [truncated]'
             : responseDataString;
-        print('📡 API Response Body: $truncatedResponse');
 
         if (response.isSuccess && response.data['success'] == true) {
           final token = response.data['token'];
           final userJson = response.data['member'];
-
-          print('✅ Login successful.');
-          print(
-              '🔑 Token: ${token.toString().substring(0, 30)}... [truncated]');
-          print('👤 User Info: $userJson');
 
           await storage.write(key: 'auth_token', value: token);
           await storage.write(key: 'user_data', value: jsonEncode(userJson));
@@ -98,10 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
               key: 'token_expiry',
               value: expiryDate.toIso8601String(),
             );
-            print('📅 Token expires at: $expiryDate');
-          } else {
-            print('⚠️ Could not extract token expiry.');
-          }
+          } else {}
 
           ToastUtil.showToast(context, '✅ Login successful!');
           context.go('/homepage');
@@ -112,11 +93,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ? rawMessage
               : 'Please Try Again';
 
-          print('❌ Login failed with message: $message');
           ToastUtil.showToast(context, message);
         }
       } catch (e) {
-        print('🚨 Exception during login: $e');
         ToastUtil.showToast(context, 'Please Try Again');
       }
     }
@@ -137,7 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final exp = payloadMap['exp'];
       return DateTime.fromMillisecondsSinceEpoch(exp * 1000);
     } catch (e) {
-      debugPrint('❌ Failed to decode token expiry: $e');
       return null;
     }
   }

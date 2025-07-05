@@ -33,7 +33,7 @@ class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
 
     if (userDataString == null) {
       setState(() => _isLoading = false);
-      ToastUtil.showToast(context, 'User not logged in');
+    
       return;
     }
 

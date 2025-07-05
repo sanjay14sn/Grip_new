@@ -50,7 +50,6 @@ class _ChapterSelectorState extends State<ChapterSelector> {
 
     while (attempt < maxRetries && !success) {
       attempt++;
-      debugPrint('🌍 Attempt $attempt to fetch zones');
 
       final response = await PublicRoutesApiService.fetchZoneList();
 
@@ -60,16 +59,9 @@ class _ChapterSelectorState extends State<ChapterSelector> {
           isLoading = false;
         });
         success = true;
-        debugPrint('✅ Zones fetched successfully');
       } else {
-        debugPrint(
-            '❌ Failed attempt $attempt to fetch zones: ${response.message}');
         if (attempt == maxRetries) {
           setState(() => isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text("Failed to load zones: ${response.message}")),
-          );
         }
       }
     }
@@ -86,7 +78,6 @@ class _ChapterSelectorState extends State<ChapterSelector> {
 
     while (attempt < maxRetries && !success) {
       attempt++;
-      debugPrint('🏘️ Attempt $attempt to fetch chapters for zone: $zoneId');
 
       final response = await PublicRoutesApiService.fetchChaptersByZone(zoneId);
 
@@ -97,16 +88,8 @@ class _ChapterSelectorState extends State<ChapterSelector> {
           chaptersInZone = filteredChapters;
         });
         success = true;
-        debugPrint('✅ Chapters fetched successfully');
       } else {
-        debugPrint(
-            '❌ Failed attempt $attempt to fetch chapters: ${response.message}');
-        if (attempt == maxRetries) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text("Failed to load chapters: ${response.message}")),
-          );
-        }
+        if (attempt == maxRetries) {}
       }
     }
   }

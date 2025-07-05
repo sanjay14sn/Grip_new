@@ -65,12 +65,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
       final lastName = lastNameController.text.trim();
       final company = companyController.text.trim();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Submitted: $firstName $lastName from $company")),
-      );
-
-      // TODO: Upload _pickedImage to server if needed
+     
     }
   }
 

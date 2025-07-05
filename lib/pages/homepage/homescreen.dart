@@ -153,10 +153,7 @@ class _HomescreenState extends State<Homescreen> {
       final members = provider.members;
 
       if (details != null) {
-        for (var member in members) {
-          print(
-              '  🔹 ${member.name} | ${member.email} | ${member.mobileNumber} | ${member.id}');
-        }
+        for (var member in members) {}
       } else {}
     }, apiName: 'Fetch Chapter Details');
   }

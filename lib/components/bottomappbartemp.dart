@@ -25,7 +25,7 @@ class CurvedBottomNavBar extends StatelessWidget {
             ),
           ),
 
-          // Floating Scan Button
+          //    Floating Scan Button
           Positioned(
             top: -3.h,
             child: GestureDetector(

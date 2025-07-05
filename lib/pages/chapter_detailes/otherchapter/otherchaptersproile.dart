@@ -54,8 +54,6 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
 
     while (attempt < maxRetries && !success) {
       attempt++;
-      debugPrint(
-          "🔁 Attempt $attempt to fetch members for chapter: ${widget.chapterId}");
 
       final response =
           await PublicRoutesApiService.fetchMembersByChapter(widget.chapterId);
@@ -66,11 +64,8 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
               .map((e) => othersMemberModel.fromJson(e))
               .toList();
 
-          debugPrint('✅ Parsed Members Count: ${members.length}');
-
           if (members.isNotEmpty) {
             final cid = members.first.cidId;
-            debugPrint('📛 CID ID of first member: $cid');
 
             if (cid != null && cid.isNotEmpty) {
               await _fetchCidDetailsWithRetry(cid);
@@ -85,17 +80,12 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
 
           success = true;
         } catch (e) {
-          debugPrint('❌ Error parsing members: $e');
           break;
         }
       } else {
-        debugPrint('❌ Attempt $attempt failed: ${response.message}');
         if (attempt >= maxRetries) {
           setState(() => isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(response.message ?? 'Failed to load members')),
-          );
+         
         }
       }
     }
@@ -108,7 +98,6 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
 
     while (attempt < maxRetries && !success) {
       attempt++;
-      debugPrint("🔁 Attempt $attempt to fetch CID details for ID: $cidId");
 
       try {
         final response = await PublicRoutesApiService.fetchCidDetails(cidId);
@@ -138,20 +127,12 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
             _cidMember = member;
           });
 
-          debugPrint(
-              '✅ CID details fetched: ${member.name}, ${member.company}');
           success = true;
-        } else {
-          debugPrint('❌ Failed attempt $attempt for CID ID $cidId');
-        }
-      } catch (e) {
-        debugPrint('❌ Exception on CID fetch (attempt $attempt): $e');
-      }
+        } else {}
+      } catch (e) {}
     }
 
-    if (!success) {
-      debugPrint('❌ All retry attempts failed for CID ID: $cidId');
-    }
+    if (!success) {}
   }
 
   void _onSearchChanged() {

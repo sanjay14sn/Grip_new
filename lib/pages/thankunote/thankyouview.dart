@@ -53,9 +53,7 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
     if (response.isSuccess && response.data is List) {
       originalReceivedNotes = response.data;
       filteredReceivedNotes = List.from(originalReceivedNotes);
-    } else {
-      print('❌ Failed to fetch received notes: ${response.message}');
-    }
+    } else {}
 
     setState(() => _isLoading = false);
   }
@@ -238,34 +236,34 @@ class _ThankyouviewpageState extends State<Thankyouviewpage> {
               // List
               Expanded(
                 child: data.isEmpty
-                        ? const Center(child: Text('No data found.'))
-                        : ListView.builder(
-                            itemCount: data.length,
-                            itemBuilder: (context, index) {
-                              final item = data[index];
+                    ? const Center(child: Text('No data found.'))
+                    : ListView.builder(
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          final item = data[index];
 
-                              final name = isReceivedSelected
-                                  ? "${item['fromMember']?['personalDetails']?['firstName'] ?? ''} ${item['fromMember']?['personalDetails']?['lastName'] ?? ''}"
-                                  : "${item['toMember']?['personalDetails']?['firstName'] ?? ''} ${item['toMember']?['personalDetails']?['lastName'] ?? ''}";
+                          final name = isReceivedSelected
+                              ? "${item['fromMember']?['personalDetails']?['firstName'] ?? ''} ${item['fromMember']?['personalDetails']?['lastName'] ?? ''}"
+                              : "${item['toMember']?['personalDetails']?['firstName'] ?? ''} ${item['toMember']?['personalDetails']?['lastName'] ?? ''}";
 
-                              final rawDate = item['createdAt'];
-                              final formattedDate = rawDate != null
-                                  ? DateFormat('dd-MM-yy')
-                                      .format(DateTime.parse(rawDate))
-                                  : '';
-                              final profileImageMap =
-                                  getProfileImageMap(item, isReceivedSelected);
-                              final imageUrl = buildImageUrl(profileImageMap);
+                          final rawDate = item['createdAt'];
+                          final formattedDate = rawDate != null
+                              ? DateFormat('dd-MM-yy')
+                                  .format(DateTime.parse(rawDate))
+                              : '';
+                          final profileImageMap =
+                              getProfileImageMap(item, isReceivedSelected);
+                          final imageUrl = buildImageUrl(profileImageMap);
 
-                              return referralTile(
-                                name,
-                                formattedDate,
-                                imageUrl,
-                                isReceivedSelected,
-                                item,
-                              );
-                            },
-                          ),
+                          return referralTile(
+                            name,
+                            formattedDate,
+                            imageUrl,
+                            isReceivedSelected,
+                            item,
+                          );
+                        },
+                      ),
               ),
             ],
           ),

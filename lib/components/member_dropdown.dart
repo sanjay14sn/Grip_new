@@ -90,12 +90,6 @@ class _MemberDropdownState extends State<MemberDropdown> {
                   final chapterId = chapter?.id ?? '';
                   final chapterName = chapter?.chapterName ?? '';
 
-                  // For debugging
-                  print('✅ Name: $name');
-                  print('🆔 UID: $uid');
-                  print('🏷️ Chapter ID: $chapterId');
-                  print('📛 Chapter Name: $chapterName');
-
                   widget.onSelect?.call(name, uid, chapterId, chapterName);
                 },
               ),

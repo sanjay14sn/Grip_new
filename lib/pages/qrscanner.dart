@@ -64,12 +64,6 @@ class _QRScanPageState extends State<QRScanPage> {
                       if (code != null && !_hasScanned) {
                         if (code.startsWith("GRIP-")) {
                           setState(() => _hasScanned = true);
-                          print('✅ Valid QR Code Scanned: $code');
-
-                          // Optional: show a short success message
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Scanned: $code')),
-                          );
 
                           // Delay before navigating (e.g., allow animation/message to show)
                           await Future.delayed(Duration(seconds: 1));
@@ -79,9 +73,6 @@ class _QRScanPageState extends State<QRScanPage> {
                             context.push('/AttendanceSuccess');
                           }
                         } else {
-                          print('❌ Invalid QR Code: $code');
-
-                          // ❌ Navigate to your error or failure page
                           if (context.mounted) {
                             context.push('/AttendanceFailure');
                           }

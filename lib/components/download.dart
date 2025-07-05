@@ -49,9 +49,6 @@ class FileDownloader {
         // Android <10 - Use legacy public storage
         final permissionStatus = await Permission.storage.request();
         if (!permissionStatus.isGranted) {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   const SnackBar(content: Text('Storage permission Required')),
-          // );
           ToastUtil.showToast(context, 'Storage permission Required');
 
           return;
@@ -59,9 +56,6 @@ class FileDownloader {
 
         final directory = await getExternalStorageDirectory();
         if (directory == null) {
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   const SnackBar(content: Text(' Unable to access storage')),
-          // );
           ToastUtil.showToast(context, 'Unable to access storage');
           return;
         }

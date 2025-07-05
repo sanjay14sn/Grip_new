@@ -48,7 +48,6 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
   Future<void> _fetchDashboardData() async {
     final filterType = filterMap[selectedIndex]!;
-    print('🔄 Fetching dashboard data for: $filterType');
 
     final response = await PublicRoutesApiService.fetchDashboardCount(
         filterType: filterType);
@@ -71,14 +70,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
           'training': raw['trainingCount'] ?? 0,
         };
       });
-
-      print('✅ Dashboard data: $dashboardData');
-    } else {
-      print('❌ Dashboard fetch error: ${response.message}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ ${response.message}')),
-      );
-    }
+    } else {}
   }
 
   String formatIndianNumber(num number) {

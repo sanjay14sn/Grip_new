@@ -233,9 +233,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     ),
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 6),
-                                    onTap: () {
-                                      debugPrint('Tapped on $name');
-                                    },
+                                    onTap: () {},
                                   ),
                                 );
                               },

@@ -21,7 +21,6 @@ class _ChapterDetailsState extends State<ChapterDetails> {
   @override
   void initState() {
     super.initState();
-    print("👤 Member ID: ${widget.member.id}");
   }
 
   @override
@@ -92,10 +91,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                               },
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Member ID missing")),
-                            );
+                           
                           }
                         }),
                         _menuItem(Icons.chat, "Testimonials", () {
@@ -118,17 +114,10 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                               context.push('/OthersOneToOnesPage',
                                   extra: response.data);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text(response.message ??
-                                        "Failed to load data")),
-                              );
+                              
                             }
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Member ID not found")),
-                            );
+                           
                           }
                         }),
                         _menuItem(Icons.remove_red_eye_sharp, "Visitors",
@@ -144,10 +133,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                               },
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Member ID not found")),
-                            );
+                           
                           }
                         }),
                       ],
@@ -203,7 +189,8 @@ class _ChapterDetailsState extends State<ChapterDetails> {
 
               // Contact Info
               infoRow(Icons.business, widget.member.company),
-              infoRow(Icons.storefront_rounded, widget.member.category?? 'N/A'),
+              infoRow(
+                  Icons.storefront_rounded, widget.member.category ?? 'N/A'),
 
               infoRow(Icons.phone, widget.member.phone),
               infoRow(Icons.email, widget.member.email ?? 'N/A'),

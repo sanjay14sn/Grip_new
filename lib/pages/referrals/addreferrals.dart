@@ -277,7 +277,6 @@ class _ReferralPageState extends State<ReferralPage> {
         },
       );
     } catch (e) {
-      print('❌ Failed to load contacts: $e');
       ToastUtil.showToast(context, 'Error loading contacts');
     }
   }

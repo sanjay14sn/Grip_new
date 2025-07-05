@@ -17,7 +17,6 @@ class LocationProvider with ChangeNotifier {
 
   Future<void> fetchLocation() async {
     try {
-      print("📍 Starting location fetch...");
       isFetching = true;
       notifyListeners();
 
@@ -26,20 +25,17 @@ class LocationProvider with ChangeNotifier {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          print("❌ Location permission denied.");
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        print("❌ Location permission permanently denied.");
         return;
       }
 
       // Check location services
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print("❌ Location services are disabled.");
         return;
       }
 
@@ -63,10 +59,6 @@ class LocationProvider with ChangeNotifier {
       latitude = bestPosition.latitude;
       longitude = bestPosition.longitude;
 
-      print("✅ Best location: lat = $latitude, long = $longitude");
-      print("🎯 Accuracy: ${bestPosition.accuracy} meters");
-      print("⏰ Timestamp: ${bestPosition.timestamp}");
-
       // Reverse geocoding
       if (latitude != null && longitude != null) {
         List<Placemark> placemarks =
@@ -83,26 +75,12 @@ class LocationProvider with ChangeNotifier {
           postalCode = placemark.postalCode;
           fullAddress =
               '${placemark.street}, ${placemark.subLocality}, ${placemark.subAdministrativeArea}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}, ${placemark.postalCode}';
-
-          print("🏘️ Address fetched:");
-          print("Street: $street");
-          print("Area: $area");
-          print("City: $city");
-          print("District: $district");
-          print("State: $state");
-          print("Country: $country");
-          print("Postal Code: $postalCode");
-          print("Full Address: $fullAddress");
-        } else {
-          print("⚠️ No placemarks found.");
-        }
+        } else {}
       }
     } catch (e) {
-      print("❗ Error fetching location: $e");
     } finally {
       isFetching = false;
       notifyListeners();
-      print("📍 Location fetch completed.");
     }
   }
 }

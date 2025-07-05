@@ -47,9 +47,7 @@ class _ReferralDetailsPageState extends State<ReferralDetailsPage> {
         originalReceivedReferrals = response.data;
         receivedReferrals = List.from(originalReceivedReferrals);
       });
-    } else {
-      ToastUtil.showToast(context, response.message);
-    }
+    } else {}
 
     setState(() => isLoadingReceived = false);
   }

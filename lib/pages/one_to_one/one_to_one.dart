@@ -60,18 +60,12 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
   void _handleSubmitOneToOne() async {
     if (isSubmitting) return;
     setState(() => isSubmitting = true);
-    print('🚀 Submitting 1-to-1...');
 
     final String? toMemberId = fetchedAssociateUid ?? selectedPersonId;
-    print('👤 Selected toMemberId: $toMemberId');
 
     if (toMemberId == null ||
         _pickedImage == null ||
         selectedLocation == null) {
-      print('⚠️ Missing one or more required fields:');
-      print('   toMemberId: $toMemberId');
-      print('   _pickedImage: $_pickedImage');
-      print('   selectedLocation: $selectedLocation');
       ToastUtil.showToast(context, "Please complete all required fields.");
       setState(() => isSubmitting = false);
       return;
@@ -92,27 +86,17 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
       default:
         mappedLocation = 'commonlocation';
     }
-    print('📍 Selected location: $selectedLocation → $mappedLocation');
 
     const storage = FlutterSecureStorage();
     final userDataString = await storage.read(key: 'user_data');
 
     if (userDataString == null) {
-      print('❌ Secure storage: user_data not found');
       ToastUtil.showToast(context, "User data not found.");
       setState(() => isSubmitting = false);
       return;
     }
 
     final userData = jsonDecode(userDataString);
-    print('🔐 User data loaded: $userData');
-
-    print('📤 Submitting 1-to-1 slip with:');
-    print('   toMember: $toMemberId');
-    print('   whereDidYouMeet: $mappedLocation');
-    print('   address: ${context.read<LocationProvider>().fullAddress}');
-    print('   date: ${DateTime.now().toIso8601String()}');
-    print('   imageFile: $_pickedImage');
 
     final response = await PublicRoutesApiService.submitOneToOneSlip(
       toMember: toMemberId,
@@ -122,18 +106,10 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
       imageFile: _pickedImage,
     );
 
-    print('📡 API Response:');
-    print('   statusCode: ${response.statusCode}');
-    print('   success: ${response.isSuccess}');
-    print('   message: ${response.message}');
-    print('   data: ${response.data}');
-
     if (response.isSuccess) {
       ToastUtil.showToast(context, '✅ One-to-one Submitted successfully!');
       Navigator.pop(context, true); // Refresh previous screen
-    } else {
-      ToastUtil.showToast(context, '❌ Failed: ${response.message}');
-    }
+    } else {}
 
     setState(() => isSubmitting = false); // Stop loader at the end
   }

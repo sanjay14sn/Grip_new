@@ -95,15 +95,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     final item = _items[index];
                                     return PaymentCard(
                                       item: item,
-                                      onTap: () {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content:
-                                                Text('Tapped: ${item.title}'),
-                                          ),
-                                        );
-                                      },
+                                      onTap: () {},
                                     );
                                   },
                                 ),
@@ -182,7 +174,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     return GestureDetector(
       onTap: () {
-        context.push('/membershipdetails');
+        // context.push('/membershipdetails');
       },
       child: Container(
         padding: EdgeInsets.all(3.w),
@@ -330,23 +322,23 @@ class PaymentCard extends StatelessWidget {
                     style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 14.sp)),
                 SizedBox(height: 1.h),
-                SizedBox(
-                  height: 3.5.h,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Implement payment logic here
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: EdgeInsets.symmetric(horizontal: 4.w),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(2.w),
-                      ),
-                    ),
-                    child: Text("Pay Now",
-                        style: TextStyle(fontSize: 12.sp, color: Colors.white)),
-                  ),
-                ),
+                // SizedBox(
+                //   height: 3.5.h,
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       // Implement payment logic here
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: Colors.blue,
+                //       padding: EdgeInsets.symmetric(horizontal: 4.w),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(2.w),
+                //       ),
+                //     ),
+                //     child: Text("Pay Now",
+                //         style: TextStyle(fontSize: 12.sp, color: Colors.white)),
+                //   ),
+                // ),
               ],
             ),
           ],

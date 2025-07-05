@@ -207,11 +207,6 @@ class _MemberListPageState extends State<MemberListPage> {
                                   setState(() {
                                     selectedMember = member.name;
                                   });
-
-                                  print("👤 Name: ${member.name}");
-                                  print("📞 Mobile: ${member.mobileNumber}");
-                                  print("🆔 UID: ${member.id}");
-
                                   final response = await PublicRoutesApiService
                                       .fetchOthersOneToOnes(member.id);
 
@@ -221,11 +216,7 @@ class _MemberListPageState extends State<MemberListPage> {
                                     context.push('/OthersOneToOnesPage',
                                         extra: response.data);
                                   } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(response.message ??
-                                              "Failed to load data")),
-                                    );
+                                    
                                   }
                                 });
                           },
