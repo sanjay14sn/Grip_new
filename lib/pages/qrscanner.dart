@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sizer/sizer.dart';
 
 class QRScanPage extends StatefulWidget {
   @override
@@ -12,11 +13,22 @@ class QRScanPage extends StatefulWidget {
 class _QRScanPageState extends State<QRScanPage> {
   bool _isPermissionGranted = false;
   bool _hasScanned = false;
+  late final MobileScannerController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = MobileScannerController(
+      facing: CameraFacing.back,
+      torchEnabled: false,
+    );
     _checkPermission();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<void> _checkPermission() async {
@@ -39,86 +51,81 @@ class _QRScanPageState extends State<QRScanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Scan QR Code',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          'Scan QR Code for Attendance',
+          style: TextStyle(color: Colors.white, fontSize: 15.sp),
         ),
         backgroundColor: Tcolors.title_color,
-        iconTheme:
-            const IconThemeData(color: Colors.white), // ✅ Make back icon white
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _isPermissionGranted
           ? Stack(
               children: [
                 MobileScanner(
-                    controller: MobileScannerController(
-                      facing: CameraFacing.back,
-                      torchEnabled: false,
-                    ),
-                    onDetect: (capture) async {
-                      if (_hasScanned) return;
+                  controller: _controller,
+                  onDetect: (capture) async {
+                    if (_hasScanned) return;
 
-                      final barcode = capture.barcodes.first;
-                      final String? code = barcode.rawValue;
+                    final barcode = capture.barcodes.first;
+                    final String? code = barcode.rawValue;
 
-                      if (code != null && !_hasScanned) {
-                        if (code.startsWith("GRIP-")) {
-                          setState(() => _hasScanned = true);
+                    if (code != null && !_hasScanned) {
+                      setState(() => _hasScanned = true);
+                      await _controller.stop(); // 🛑 stop the camera stream
 
-                          // Delay before navigating (e.g., allow animation/message to show)
-                          await Future.delayed(Duration(seconds: 1));
+                      await Future.delayed(const Duration(seconds: 1));
 
-                          // ✅ Navigate to AttendanceSuccessPage
-                          if (context.mounted) {
-                            context.push('/AttendanceSuccess');
-                          }
-                        } else {
-                          if (context.mounted) {
-                            context.push('/AttendanceFailure');
-                          }
-                        }
+                      if (!mounted) return;
+
+                      if (code.startsWith("GRIP-")) {
+                        context.push('/AttendanceSuccess');
+                      } else {
+                        context.push('/AttendanceFailure');
                       }
-                    }),
+                    }
+                  },
+                ),
 
-                // 🔳 Custom Overlay Box for QR Area
+                // 🔳 Scanning box
                 Center(
                   child: Container(
-                    width: 250,
-                    height: 250,
+                    width: 65.w,
+                    height: 30.h,
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white, width: 0.5.w),
+                      borderRadius: BorderRadius.circular(4.w),
                     ),
                   ),
                 ),
 
-                // 🔲 Semi-transparent dark overlay
+                // 🔲 Transparent overlay
                 Positioned.fill(
                   child: IgnorePointer(
                     child: CustomPaint(
-                      painter: ScannerOverlayPainter(scanAreaSize: 250),
+                      painter: ScannerOverlayPainter(scanAreaSize: 65.w),
                     ),
                   ),
                 ),
 
-                // 🔤 Instructional Text
+                // 🔤 Instruction text
                 Positioned(
-                  bottom: 40,
+                  bottom: 5.h,
                   left: 0,
                   right: 0,
                   child: Center(
                     child: Container(
-                      padding: EdgeInsets.all(12),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 1.h, horizontal: 4.w),
                       decoration: BoxDecoration(
                         color: Colors.black54,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(3.w),
                       ),
                       child: Text(
                         'Point your camera at a QR code',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15.sp,
+                        ),
                       ),
                     ),
                   ),
@@ -147,11 +154,10 @@ class ScannerOverlayPainter extends CustomPainter {
       height: scanAreaSize,
     );
 
-    // Draw the background with a transparent "cut-out" area
     final path = Path.combine(
       PathOperation.difference,
       Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height)),
-      Path()..addRRect(RRect.fromRectXY(cutOutRect, 16, 16)),
+      Path()..addRRect(RRect.fromRectXY(cutOutRect, 3.w, 3.w)),
     );
 
     canvas.drawPath(path, paint);

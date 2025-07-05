@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
@@ -84,23 +85,23 @@ class AttendanceFailurePage extends StatelessWidget {
                 children: [
                   Text(
                     'The Code You Scanned Is Not\nValid For Attendance.',
-                    style: TTextStyles.youratt.copyWith(fontSize: 11.sp),
+                    style: TTextStyles.youratt.copyWith(fontSize: 13.sp),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 1.h),
-                  Text(
-                    '(Or)',
-                    style: TTextStyles.youratt.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11.sp,
-                    ),
-                  ),
-                  SizedBox(height: 1.h),
-                  Text(
-                    'Make Sure The QR Code Is Clear\nAnd Within The Frame.',
-                    style: TTextStyles.youratt.copyWith(fontSize: 11.sp),
-                    textAlign: TextAlign.center,
-                  ),
+                  // SizedBox(height: 1.h),
+                  // Text(
+                  //   '(Or)',
+                  //   style: TTextStyles.youratt.copyWith(
+                  //     fontWeight: FontWeight.bold,
+                  //     fontSize: 11.sp,
+                  //   ),
+                  // ),
+                  // SizedBox(height: 1.h),
+                  // Text(
+                  //   'Make Sure The QR Code Is Clear\nAnd Within The Frame.',
+                  //   style: TTextStyles.youratt.copyWith(fontSize: 11.sp),
+                  //   textAlign: TextAlign.center,
+                  // ),
                 ],
               ),
             ),
@@ -110,7 +111,7 @@ class AttendanceFailurePage extends StatelessWidget {
               height: 6.h,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                 context.go('/homepage');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3A3A3A),

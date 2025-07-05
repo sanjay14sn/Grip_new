@@ -46,9 +46,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
               .toList();
         });
       }
-    } catch (e) {
-
-    }
+    } catch (e) {}
   }
 
   Future<void> _submitTestimonial() async {
@@ -90,9 +88,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
     if (response.isSuccess) {
       ToastUtil.showToast(context, "✅ Testimonial submitted successfully");
       Navigator.pop(context, true);
-    } else {
-
-    }
+    } else {}
     setState(() => isSubmitting = false);
   }
 
@@ -177,7 +173,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                       children: [
                         _buildDashedUploadIcon(),
                         const SizedBox(height: 12),
-                        const Text('Upload Documents',
+                        const Text('Upload Images',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -189,7 +185,7 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
               ),
               if (pickedImages.isNotEmpty) ...[
                 SizedBox(height: 1.h),
-                Text("Uploaded Documents:", style: TextStyle(fontSize: 14.sp)),
+                Text("Uploaded Images:", style: TextStyle(fontSize: 14.sp)),
                 ...pickedImages.asMap().entries.map((entry) {
                   return ListTile(
                     title: Text(entry.value.path.split('/').last,

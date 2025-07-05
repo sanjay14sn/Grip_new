@@ -22,48 +22,37 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
   }
 
   Future<void> _startSplashSequence() async {
-   
-
     await Future.delayed(const Duration(milliseconds: 1000));
     if (mounted) {
       setState(() => _opacity = 1.0);
-     
     }
 
     await Future.delayed(const Duration(seconds: 3));
-   
+
     try {
       final token = await storage.read(key: 'auth_token');
       final userData = await storage.read(key: 'user_data');
       final expiryString = await storage.read(key: 'token_expiry');
 
-    
       if (!mounted) return;
 
       if (token != null && userData != null && expiryString != null) {
         final expiryDate = DateTime.tryParse(expiryString);
 
         if (expiryDate != null) {
-          
           if (DateTime.now().isBefore(expiryDate)) {
-          
             context.go('/homepage');
             return;
           } else {
-            
             await storage.deleteAll();
             context.go('/splashscreen');
             return;
           }
-        } else {
-        
-        }
+        } else {}
       }
 
-     
       context.go('/splashscreen');
     } catch (e) {
-    
       if (mounted) {
         context.go('/splashscreen');
       }
@@ -87,4 +76,3 @@ class _GripSplashScreenState extends State<GripSplashScreen> {
     );
   }
 }
-

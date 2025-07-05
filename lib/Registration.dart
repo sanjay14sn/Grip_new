@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
@@ -17,7 +16,6 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   List<PaymentItem> _items = [];
   bool _isLoading = true;
-  String? _error;
 
   @override
   void initState() {
@@ -26,19 +24,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<void> fetchPaymentItems() async {
-    final response = await PublicRoutesApiService.fetchPayments();
+    try {
+      final response = await PublicRoutesApiService.fetchPayments();
 
-    if (response.isSuccess && response.data != null) {
-      final dataList = response.data as List<dynamic>;
-      final items = dataList.map((e) => PaymentItem.fromJson(e)).toList();
+      if (response.isSuccess && response.data is List) {
+        final dataList = response.data as List<dynamic>;
+        final items = dataList.map((e) => PaymentItem.fromJson(e)).toList();
+
+        setState(() {
+          _items = items;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _items = [];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
       setState(() {
-        _items = items;
+        _items = [];
         _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-        _error = response.message;
       });
     }
   }
@@ -66,43 +72,39 @@ class _PaymentScreenState extends State<PaymentScreen> {
         padding: EdgeInsets.all(3.w),
         child: _isLoading
             ? _buildShimmerList()
-            : _error != null
-                ? Center(child: Text(_error!))
+            : _items.isEmpty
+                ? const Center(child: Text("No payments available."))
                 : Column(
                     children: [
                       Expanded(
-                        child: _items.isEmpty
-                            ? const Center(
-                                child: Text("No payments available."))
-                            : Container(
-                                padding: EdgeInsets.all(3.w),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4.w),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 4,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                                child: ListView.separated(
-                                  itemCount: _items.length,
-                                  separatorBuilder: (_, __) =>
-                                      SizedBox(height: 2.h),
-                                  itemBuilder: (context, index) {
-                                    final item = _items[index];
-                                    return PaymentCard(
-                                      item: item,
-                                      onTap: () {},
-                                    );
-                                  },
-                                ),
+                        child: Container(
+                          padding: EdgeInsets.all(3.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4.w),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                spreadRadius: 2,
                               ),
+                            ],
+                          ),
+                          child: ListView.separated(
+                            itemCount: _items.length,
+                            separatorBuilder: (_, __) => SizedBox(height: 2.h),
+                            itemBuilder: (context, index) {
+                              final item = _items[index];
+                              return PaymentCard(
+                                item: item,
+                                onTap: () {},
+                              );
+                            },
+                          ),
+                        ),
                       ),
                       SizedBox(height: 2.h),
-                      _buildSubscriptionCard(context)
+                      _buildSubscriptionCard(context),
                     ],
                   ),
       ),
@@ -170,7 +172,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _buildSubscriptionCard(BuildContext context) {
-    final isActive = true; // Replace this with real logic
+    final isActive = true; // You can update this dynamically
 
     return GestureDetector(
       onTap: () {
@@ -181,11 +183,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(3.w),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 6,
-              offset: const Offset(2, 2),
+              offset: Offset(2, 2),
             ),
           ],
         ),
@@ -251,11 +253,11 @@ class PaymentItem {
         : null;
 
     return PaymentItem(
-      id: json['_id'],
-      title: json['topic'] ?? json['purpose'],
+      id: json['_id'] ?? '',
+      title: json['topic'] ?? json['purpose'] ?? 'No Title',
       imageUrl: imagePath,
       amount: json['amount'] ?? 0,
-      date: DateTime.parse(json['date']),
+      date: DateTime.tryParse(json['date'] ?? '') ?? DateTime.now(),
       paymentRequired: json['paymentRequired'] ?? false,
     );
   }
@@ -278,11 +280,11 @@ class PaymentCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(3.w),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 6,
-              offset: const Offset(2, 2),
+              offset: Offset(2, 2),
             ),
           ],
         ),
@@ -322,23 +324,6 @@ class PaymentCard extends StatelessWidget {
                     style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 14.sp)),
                 SizedBox(height: 1.h),
-                // SizedBox(
-                //   height: 3.5.h,
-                //   child: ElevatedButton(
-                //     onPressed: () {
-                //       // Implement payment logic here
-                //     },
-                //     style: ElevatedButton.styleFrom(
-                //       backgroundColor: Colors.blue,
-                //       padding: EdgeInsets.symmetric(horizontal: 4.w),
-                //       shape: RoundedRectangleBorder(
-                //         borderRadius: BorderRadius.circular(2.w),
-                //       ),
-                //     ),
-                //     child: Text("Pay Now",
-                //         style: TextStyle(fontSize: 12.sp, color: Colors.white)),
-                //   ),
-                // ),
               ],
             ),
           ],

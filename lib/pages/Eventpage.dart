@@ -58,8 +58,7 @@ class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
         });
       } else {
         setState(() => _isLoading = false);
-        ToastUtil.showToast(
-            context, response.message ?? 'Failed to load events');
+       
       }
     }
   }
