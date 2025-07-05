@@ -34,20 +34,27 @@ class OthersOneToOnesPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Stack(
+                alignment: Alignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE0E2E7),
-                        shape: BoxShape.circle,
+                  // Row for back button
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFE0E2E7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.arrow_back),
+                        ),
                       ),
-                      child: const Icon(Icons.arrow_back),
-                    ),
+                    ],
                   ),
+
+                  // Center title
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -63,9 +70,9 @@ class OthersOneToOnesPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Icon(Icons.filter_alt_outlined),
                 ],
               ),
+
               SizedBox(height: 2.h),
 
               // List or Empty State

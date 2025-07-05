@@ -226,7 +226,7 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
       int? maxLength,
       TextInputType? keyboardType,
       required TextEditingController controller}) {
-    double height = maxLines > 1 ? 114 : 50;
+    double height = maxLines > 1 ? 12.h : 6.h;
 
     return Padding(
       padding: EdgeInsets.only(bottom: 2.h),
@@ -243,8 +243,8 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
             hintStyle: TTextStyles.visitorsdetails,
             filled: true,
             fillColor: Colors.grey[200],
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+            contentPadding: EdgeInsets.symmetric(
+                horizontal: 4.w, vertical: maxLines > 1 ? 2.h : 1.5.h),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

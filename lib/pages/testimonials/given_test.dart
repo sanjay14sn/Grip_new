@@ -36,7 +36,9 @@ class _GiventestimonialspageState extends State<Giventestimonialspage> {
     final fullName =
         "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
             .trim();
-   final companyName = personalDetails['companyName'] ?? toMember['companyName'] ?? 'No Company';
+    final companyName = personalDetails['companyName'] ??
+        toMember['companyName'] ??
+        'No Company';
     final comment = widget.data['comments'] ?? '';
 
     final profileImage =
@@ -276,7 +278,7 @@ class _GiventestimonialspageState extends State<Giventestimonialspage> {
                                           },
                                           errorWidget: (context, url, error) =>
                                               const Center(
-                                            child: Text("❌ Image load failed"),
+                                            child: Text("No Document"),
                                           ),
                                         )
                                       : Container(

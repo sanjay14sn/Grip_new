@@ -24,7 +24,8 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
     final personalDetails =
         fromMember['personalDetails'] as Map<String, dynamic>? ?? {};
     final fullName =
-        "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}".trim();
+        "${personalDetails['firstName'] ?? ''} ${personalDetails['lastName'] ?? ''}"
+            .trim();
     final companyName = personalDetails['companyName'] ?? 'No Company';
 
     final profileImage = personalDetails['profileImage'];
@@ -116,7 +117,7 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("To:", style: TTextStyles.Rivenrefsmall),
+                        // Text("To:", style: TTextStyles.Rivenrefsmall),
                         SizedBox(height: 1.h),
 
                         /// 👤 Profile
@@ -273,10 +274,7 @@ class _Givenonetoonepage extends State<Givenonetoonepage> {
                                               ],
                                             );
                                           },
-                                          errorWidget: (context, url, error) =>
-                                              const Center(
-                                                  child: Text(
-                                                      "❌ Image load failed")),
+                                        
                                         )
                                       : Container(
                                           color: Colors.grey[300],

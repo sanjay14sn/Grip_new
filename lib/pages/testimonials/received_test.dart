@@ -278,7 +278,7 @@ class _RecivedtestimonialspageState extends State<Recivedtestimonialspage> {
                                           },
                                           errorWidget: (context, url, error) =>
                                               const Center(
-                                            child: Text("❌ Image load failed"),
+                                            child: Text("No Image"),
                                           ),
                                         )
                                       : Container(

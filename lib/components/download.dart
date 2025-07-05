@@ -99,20 +99,25 @@ class FileDownloader {
       );
 
       // ✅ Completion Notification
-      await _notificationsPlugin.show(
-        0,
-        '✅ Download Complete',
-        'Saved: $fileName',
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'download_channel',
-            'File Downloads',
-            channelDescription: 'Completed download',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-        ),
-      );
+    // ✅ Cancel previous progress notification
+await _notificationsPlugin.cancel(0);
+
+// ✅ Show final success notification
+await _notificationsPlugin.show(
+  1,
+  '✅ Download Complete',
+  'Saved: $fileName',
+  const NotificationDetails(
+    android: AndroidNotificationDetails(
+      'download_channel',
+      'File Downloads',
+      channelDescription: 'Completed download',
+      importance: Importance.high,
+      priority: Priority.high,
+    ),
+  ),
+);
+
 
       // Show save location info
       ToastUtil.showToast(context, ' File saved Successfully');

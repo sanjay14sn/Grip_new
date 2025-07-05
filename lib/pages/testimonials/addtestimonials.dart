@@ -166,23 +166,30 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
                   onTap: _pickFiles,
                   child: Container(
                     width: double.infinity,
-                    height: 12.h,
-                    color: blueUploadColor,
+                    padding: EdgeInsets.symmetric(vertical: 3.h),
+                    decoration: BoxDecoration(
+                      color: blueUploadColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildDashedUploadIcon(),
-                        const SizedBox(height: 12),
-                        const Text('Upload Images',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500)),
+                        SizedBox(height: 1.h),
+                        Text(
+                          'Upload Images',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
+
               if (pickedImages.isNotEmpty) ...[
                 SizedBox(height: 1.h),
                 Text("Uploaded Images:", style: TextStyle(fontSize: 14.sp)),
@@ -221,20 +228,31 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
               // Submit Button
               SizedBox(
                 width: double.infinity,
-                height: 6.5.h,
-                child: ElevatedButton(
-                  onPressed: isSubmitting ? null : _submitTestimonial,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade700,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: Tcolors.red_button,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: isSubmitting
-                      ? const DotLoader()
-                      : Text("Submit",
-                          style:
-                              TextStyle(fontSize: 14.sp, color: Colors.white)),
+                  child: ElevatedButton(
+                    onPressed: isSubmitting ? null : _submitTestimonial,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor:
+                          Colors.transparent, // Transparent so gradient shows
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 2.h),
+                    ),
+                    child: isSubmitting
+                        ? const DotLoader()
+                        : Text(
+                            "Submit",
+                            style:
+                                TextStyle(fontSize: 13.sp, color: Colors.white),
+                          ),
+                  ),
                 ),
               ),
             ],
