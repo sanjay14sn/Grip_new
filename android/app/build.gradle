@@ -13,7 +13,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace 'com.example.grip'
+    namespace 'com.sanjaysn.grip' // ✅ Updated from 'com.example.grip'
     compileSdk 35
     ndkVersion flutter.ndkVersion
 
@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.grip"
+        applicationId "com.sanjaysn.grip" // ✅ CORRECT
         minSdkVersion 21
         targetSdkVersion 35
         versionCode flutter.versionCode

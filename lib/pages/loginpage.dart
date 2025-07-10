@@ -70,6 +70,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (response.isSuccess && response.data['success'] == true) {
           final token = response.data['token'];
+
+// 🔒 Safely log part of the token for debugging (do not expose full token)
+
           final userJson = response.data['member'];
 
           await storage.write(key: 'auth_token', value: token);

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:461540485157:android:1f922ef4e907e4a8b3f7cc",
+        "mobilesdk_app_id": "1:461540485157:android:056c31fcac0be756b3f7cc",
         "android_client_info": {
-          "package_name": "com.example.grip"
+          "package_name": "com.sanjaysn.grip"
         }
       },
       "oauth_client": [],
