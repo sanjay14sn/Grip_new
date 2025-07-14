@@ -1550,4 +1550,59 @@ class PublicRoutesApiService {
       );
     }
   }
+  // 📁 no_authapi.dart
+
+  static Future<ApiResponse> fetchUpcomingMeetings() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url: '$endPointbaseUrl/api/mobile/agenta/list',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List meetings = response.data['data']
+            .where((item) =>
+                item['purpose'] == 'meeting' &&
+                DateTime.parse(item['date']).isAfter(DateTime.now()))
+            .toList();
+
+        return ApiResponse(
+          statusCode: 200,
+          isSuccess: true,
+          data: meetings.isNotEmpty ? meetings.first : null,
+          message: 'Success',
+        );
+      } else {
+        return ApiResponse(
+          statusCode: response.statusCode,
+          isSuccess: false,
+          data: null,
+          message: response.data['message'],
+        );
+      }
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
+  }
 }

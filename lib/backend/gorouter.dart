@@ -255,9 +255,13 @@ final GoRouter router = GoRouter(
       builder: (context, state) => AttendanceSuccessPage(),
     ),
     GoRoute(
-      path: '/AttendanceFailure',
-      builder: (context, state) => AttendanceFailurePage(),
+      path: '/attendance-failure',
+      builder: (context, state) {
+        final errorMsg = state.extra as String;
+        return AttendanceFailurePage(errorMessage: errorMsg);
+      },
     ),
+
     GoRoute(
       path: '/membershipdetails',
       builder: (context, state) => MembershipDetailsPage(),

@@ -4,7 +4,9 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class AttendanceFailurePage extends StatelessWidget {
-  const AttendanceFailurePage({super.key});
+  final String errorMessage;
+
+  const AttendanceFailurePage({super.key, required this.errorMessage});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +23,9 @@ class AttendanceFailurePage extends StatelessWidget {
               Navigator.pop(context);
             },
             child: Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE0E2E7),
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Color(0xFFE0E2E7),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.arrow_back),
@@ -84,24 +86,10 @@ class AttendanceFailurePage extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'The Code You Scanned Is Not\nValid For Attendance.',
+                    errorMessage,
                     style: TTextStyles.youratt.copyWith(fontSize: 13.sp),
                     textAlign: TextAlign.center,
                   ),
-                  // SizedBox(height: 1.h),
-                  // Text(
-                  //   '(Or)',
-                  //   style: TTextStyles.youratt.copyWith(
-                  //     fontWeight: FontWeight.bold,
-                  //     fontSize: 11.sp,
-                  //   ),
-                  // ),
-                  // SizedBox(height: 1.h),
-                  // Text(
-                  //   'Make Sure The QR Code Is Clear\nAnd Within The Frame.',
-                  //   style: TTextStyles.youratt.copyWith(fontSize: 11.sp),
-                  //   textAlign: TextAlign.center,
-                  // ),
                 ],
               ),
             ),
@@ -111,7 +99,7 @@ class AttendanceFailurePage extends StatelessWidget {
               height: 6.h,
               child: ElevatedButton(
                 onPressed: () {
-                 context.go('/homepage');
+                  context.go('/homepage');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3A3A3A),

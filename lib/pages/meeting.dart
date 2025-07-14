@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grip/utils/theme/Textheme.dart';
-import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:grip/backend/providers/chapter_provider.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../backend/api-requests/no_auth_api.dart';
 
 class MeetingDetailsPage extends StatelessWidget {
   const MeetingDetailsPage({super.key});
@@ -12,41 +13,25 @@ class MeetingDetailsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Consumer<ChapterProvider>(
-          builder: (context, provider, _) {
-            final details = provider.chapterDetails;
-            final hasMeetingData = details != null;
+        child: FutureBuilder(
+          future: PublicRoutesApiService.fetchUpcomingMeetings(),
+          builder: (context, snapshot) {
+            final hasData = snapshot.hasData &&
+                snapshot.data!.isSuccess &&
+                snapshot.data!.data != null;
 
-            if (provider.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+            final meeting = hasData ? snapshot.data!.data : null;
+            final date =
+                hasData ? DateTime.parse(meeting['date']) : DateTime.now();
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _shimmerUI();
             }
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Bar
-                Padding(
-                  padding: EdgeInsets.all(4.w),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFE0E2E7),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.arrow_back),
-                        ),
-                      ),
-                      SizedBox(width: 4.w),
-                      Text('Meeting Details', style: TTextStyles.myprofile),
-                    ],
-                  ),
-                ),
-
-                // Icon and Heading
+                _topBar(context),
                 Center(
                   child: Image.asset(
                     'assets/images/meeting_appbar.png',
@@ -55,96 +40,54 @@ class MeetingDetailsPage extends StatelessWidget {
                     height: 10.w,
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w),
-                  child: Text('Next Meeting', style: TTextStyles.nxtmeet),
-                ),
-
-                // Meeting Card OR "No Data Found"
-                Padding(
-                  padding: EdgeInsets.all(4.w),
-                  child: hasMeetingData
-                      ? Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4.w),
-                              child: Image.asset(
-                                'assets/images/meeting.jpg',
-                                height: 34.h,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Container(
-                              height: 34.h,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4.w),
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                            ),
-                            Positioned.fill(
-                              child: Padding(
-                                padding: EdgeInsets.all(4.w),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    meetingDetail(
-                                        'Date:',
-                                        _formatDate(
-                                            details.meetingDayAndTime)),
-                                    meetingDetail(
-                                        'Time:',
-                                        _formatTime(
-                                            details.meetingDayAndTime)),
-                                    meetingDetail(
-                                        'Mode:', details.meetingType),
-                                    meetingDetail(
-                                        'Venue:', details.meetingVenue),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      : Container(
-                          height: 34.h,
-                          width: double.infinity,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(4.w),
-                          ),
-                          child: Text(
-                            "No Meeting Found",
-                            style: TTextStyles.myprofile
-                                .copyWith(color: Colors.black54),
-                          ),
-                        ),
-                ),
-
-                // Attendance
+                if (hasData) ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 4.w),
+                    child: Text('Next Meeting', style: TTextStyles.nxtmeet),
+                  ),
+                  _meetingDetailsUI(
+                    topic: meeting['topic'],
+                    date: date,
+                    address: meeting['address'],
+                  ),
+                ] else ...[
+                  Padding(
+                    padding: EdgeInsets.all(4.w),
+                    child: Container(
+                      height: 34.h,
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4.w),
+                      ),
+                      child: Text(
+                        "No Upcoming Meetings Found",
+                        style: TTextStyles.myprofile
+                            .copyWith(color: Colors.black54),
+                      ),
+                    ),
+                  ),
+                ],
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4.w),
                   child: Text('Your Attendance', style: TTextStyles.nxtmeet),
                 ),
-                if (hasMeetingData)
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        attendanceCard('23', 'Present', Colors.green),
-                        attendanceCard('5', 'Late', const Color(0xFFB07DFF)),
-                        attendanceCard(
-                            '2', 'Substitute', const Color(0xFF00BFA5)),
-                        attendanceCard('1', 'Medical', const Color(0xFFFFAB00)),
-                        attendanceCard('8', 'Absent', Colors.red),
-                      ],
-                    ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      attendanceCard('23', 'Present', Colors.green),
+                      attendanceCard('5', 'Late', const Color(0xFFB07DFF)),
+                      attendanceCard(
+                          '2', 'Substitute', const Color(0xFF00BFA5)),
+                      attendanceCard('1', 'Medical', const Color(0xFFFFAB00)),
+                      attendanceCard('8', 'Absent', Colors.red),
+                    ],
                   ),
-
+                ),
                 const Spacer(),
                 SizedBox(height: 2.h),
               ],
@@ -155,32 +98,91 @@ class MeetingDetailsPage extends StatelessWidget {
     );
   }
 
+  Widget _topBar(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(4.w),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Color(0xFFE0E2E7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back),
+            ),
+          ),
+          SizedBox(width: 4.w),
+          Text('Meeting Details', style: TTextStyles.myprofile),
+        ],
+      ),
+    );
+  }
+
+  Widget _meetingDetailsUI({
+    required String topic,
+    required DateTime date,
+    required String address,
+  }) {
+    return Padding(
+      padding: EdgeInsets.all(4.w),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4.w),
+            child: Image.asset(
+              'assets/images/meeting.jpg',
+              height: 39.h,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Container(
+            height: 39.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4.w),
+              color: Colors.black.withOpacity(0.5),
+            ),
+          ),
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.all(4.w),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    meetingDetail('Topic:', topic),
+                    meetingDetail('Date:', _formatDate(date)),
+                    meetingDetail('Time:', _formatTime(date)),
+                    meetingDetail('Venue:', address),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget meetingDetail(String title, String value) {
     return Padding(
       padding: EdgeInsets.only(bottom: 1.h),
       child: Container(
         width: 90.w,
-        height: 6.5.h,
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.9),
           borderRadius: BorderRadius.circular(3.w),
         ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: '$title ',
-                  style: TTextStyles.myprofile,
-                ),
-                TextSpan(
-                  text: value,
-                  style: TTextStyles.nxtmeet,
-                ),
-              ],
-            ),
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(text: '$title ', style: TTextStyles.myprofile),
+              TextSpan(text: value, style: TTextStyles.nxtmeet),
+            ],
           ),
         ),
       ),
@@ -211,20 +213,60 @@ class MeetingDetailsPage extends StatelessWidget {
     );
   }
 
-  String _formatDate(String dateTimeStr) {
-    try {
-      final parts = dateTimeStr.split(' ');
-      return '${parts[0]}, ${parts[2]} ${parts[1]} ${parts[3]}';
-    } catch (_) {
-      return '';
-    }
+  Widget _shimmerUI() {
+    return Padding(
+      padding: EdgeInsets.all(4.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 5.h,
+            width: 40.w,
+            color: Colors.grey[300],
+          ),
+          SizedBox(height: 2.h),
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.white,
+            child: Container(
+              height: 34.h,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(4.w),
+              ),
+            ),
+          ),
+          SizedBox(height: 2.h),
+          Container(
+            height: 3.h,
+            width: 30.w,
+            color: Colors.grey[300],
+          ),
+          SizedBox(height: 2.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(5, (index) {
+              return Container(
+                height: 6.h,
+                width: 12.w,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2.w),
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
   }
 
-  String _formatTime(String dateTimeStr) {
-    try {
-      return dateTimeStr.split(' ')[4];
-    } catch (_) {
-      return '';
-    }
+  String _formatDate(DateTime dt) {
+    return '${dt.day.toString().padLeft(2, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.year}';
+  }
+
+  String _formatTime(DateTime dt) {
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 }

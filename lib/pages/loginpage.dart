@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -42,8 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLogin() async {
-    // 🔒 Close the keyboard
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(); // 🔒 Close keyboard
 
     if (_formKey.currentState!.validate()) {
       final mobileNumber = usernameController.text.trim();
@@ -51,41 +49,53 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         const storage = FlutterSecureStorage();
-        final fcmToken =
-            await storage.read(key: 'fcm_token'); // ✅ Read FCM token
 
-        if (fcmToken != null && fcmToken.isNotEmpty) {
-        } else {}
+        // 🔁 Read FCM token
+        final fcmToken = await storage.read(key: 'fcm_token');
 
+        if (fcmToken == null || fcmToken.isEmpty) {
+          print("⚠️ FCM token not found.");
+        } else {
+          print("🔔 FCM token available.");
+        }
+
+        // 🛠️ API Call
         final response = await PublicRoutesApi.Login(
           mobileNumber: mobileNumber,
           pin: pin,
-          fcmToken: fcmToken, // ✅ Pass FCM token here
+          fcmToken: fcmToken,
         );
 
+        // 🧪 Debug Response
         final responseDataString = response.data.toString();
         final truncatedResponse = responseDataString.length > 500
             ? '${responseDataString.substring(0, 500)}... [truncated]'
             : responseDataString;
+        print("📥 API Response: $truncatedResponse");
 
+        // ✅ If login success
         if (response.isSuccess && response.data['success'] == true) {
           final token = response.data['token'];
 
-// 🔒 Safely log part of the token for debugging (do not expose full token)
+          // 🔐 Log only part of token for safety
+          print(
+              "🔑 Token (partial): ${token.substring(0, 5)}...${token.substring(token.length - 5)}");
 
           final userJson = response.data['member'];
 
+          // 💾 Save token and user data
           await storage.write(key: 'auth_token', value: token);
           await storage.write(key: 'user_data', value: jsonEncode(userJson));
 
-          // ✅ Decode token expiry and save
+          // ⏳ Save token expiry if available
           final expiryDate = _getTokenExpiry(token);
           if (expiryDate != null) {
             await storage.write(
               key: 'token_expiry',
               value: expiryDate.toIso8601String(),
             );
-          } else {}
+            print("🕒 Token expiry saved: $expiryDate");
+          }
 
           ToastUtil.showToast(context, '✅ Login successful!');
           context.go('/homepage');
@@ -94,12 +104,13 @@ class _LoginScreenState extends State<LoginScreen> {
           final message = (rawMessage == 'Invalid PIN' ||
                   rawMessage == 'Invalid mobile number')
               ? rawMessage
-              : 'Please Try Again';
+              : 'Please try again';
 
           ToastUtil.showToast(context, message);
         }
       } catch (e) {
-        ToastUtil.showToast(context, 'Please Try Again');
+        print("❌ Login error: $e");
+        ToastUtil.showToast(context, 'Something went wrong. Please try again.');
       }
     }
   }
@@ -126,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // <--- Important
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           Positioned.fill(
