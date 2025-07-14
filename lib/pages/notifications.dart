@@ -4,7 +4,7 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:shimmer/shimmer.dart';
-import 'package:grip/backend/api-requests/imageurl.dart'; // for UrlService
+import 'package:grip/backend/api-requests/imageurl.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({Key? key}) : super(key: key);

@@ -14,7 +14,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
   final List<String> timeFilters = [
     '3 Months',
     '6 Months',
-    '1 Year',
+    '12 Months',
     'Overall'
   ];
   int selectedIndex = 0;
@@ -101,7 +101,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
               children: [
                 Container(
                   padding:
-                      EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                      EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.6.h),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? Colors.red.withOpacity(0.1)
@@ -110,7 +110,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   ),
                   child: Text(timeFilters[index], style: TTextStyles.month),
                 ),
-                SizedBox(height: 0.3.h),
+                SizedBox(height: 0.2.h),
                 Container(
                   height: 0.35.h,
                   width: 8.w,

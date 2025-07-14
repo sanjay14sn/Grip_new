@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:sizer/sizer.dart';
 
 class CurvedBottomNavBar extends StatelessWidget {
@@ -29,7 +31,37 @@ class CurvedBottomNavBar extends StatelessWidget {
           Positioned(
             top: -3.h,
             child: GestureDetector(
-              onTap: () => context.push('/QRscanner'),
+              onTap: () async {
+                // Step 1: Check if Location Services are enabled
+                final serviceEnabled =
+                    await Geolocator.isLocationServiceEnabled();
+                if (!serviceEnabled) {
+                  ToastUtil.showToast(
+                      context, "Please enable location services");
+                  await Geolocator.openLocationSettings(); // Open settings
+                  return;
+                }
+
+                // Step 2: Check for location permissions
+                LocationPermission permission =
+                    await Geolocator.checkPermission();
+                if (permission == LocationPermission.denied) {
+                  permission = await Geolocator.requestPermission();
+                }
+
+                // Step 3: Block access if permission is still denied
+                if (permission == LocationPermission.denied ||
+                    permission == LocationPermission.deniedForever) {
+                  ToastUtil.showToast(
+                      context, "Location permission is required");
+                  return;
+                }
+
+                // Step 4: All good → Go to QR Scanner
+                if (context.mounted) {
+                  context.push('/QRscanner');
+                }
+              },
               child: Container(
                 width: 12.w,
                 height: 12.w,

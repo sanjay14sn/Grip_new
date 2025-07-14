@@ -15,22 +15,17 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
     {
       "name": "Mr. Sukesh D",
       "image": "assets/images/dummyslider.jpg",
-      "title": "TOP REFERRAL OF THE MONTH"
+      "title": "Maximum Referrals Contributed"
     },
     {
       "name": "Ms. Aravindhi",
       "image": "assets/images/dummyslider.jpg",
-      "title": "TOP ONE TO ONE OF THE MONTH"
+      "title": "Maximum Business Contributed"
     },
     {
       "name": "Mr. Sidhu VJ",
       "image": "assets/images/dummyslider.jpg",
-      "title": "TOP VISITORS OF THE MONTH"
-    },
-    {
-      "name": "Mr. Mugesh D",
-      "image": "assets/images/dummyslider.jpg",
-      "title": "TOP TESTIMONIALS OF THE MONTH"
+      "title": "Maximum Visitors Invited"
     },
   ];
 
@@ -64,15 +59,15 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
                 padding: EdgeInsets.all(3.w),
                 child: Row(
                   children: [
-                    // ClipRRect(
-                    //   borderRadius: BorderRadius.circular(3.w),
-                    //   child: Image.asset(
-                    //     referral["image"]!,
-                    //     width: 24.w,
-                    //     height: 17.h,
-                    //     fit: BoxFit.cover,
-                    //   ),
-                    // ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(3.w),
+                      child: Image.asset(
+                        referral["image"]!,
+                        width: 24.w,
+                        height: 17.h,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                     SizedBox(width: 3.w),
                     Expanded(
                       child: ConstrainedBox(

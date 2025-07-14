@@ -79,34 +79,35 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               SizedBox(height: 15),
-              // Row(
-              //   children: [
-              //     SizedBox(width: 3.w),
-              //     Text("My Profile", style: TTextStyles.myprofile),
-              //     const Spacer(),
-              //     GestureDetector(
-              //       onTap: () {
-              //         final personal =
-              //             widget.memberData?['personalDetails'] ?? {};
-              //         final profile = personal['profileImage'] ?? {};
+              Row(
+                children: [
+                  SizedBox(width: 3.w),
+                  Text("My Profile", style: TTextStyles.myprofile),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      final personal =
+                          widget.memberData?['personalDetails'] ?? {};
+                      final profile = personal['profileImage'] ?? {};
 
-              //         context.push('/Editprofile', extra: {
-              //           'firstName': personal['firstName'] ?? '',
-              //           'lastName': personal['lastName'] ?? '',
-              //           'companyName': personal['companyName'] ?? '',
-              //           'profileImageUrl': (profile['docPath'] != null &&
-              //                   profile['docName'] != null)
-              //               ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
-              //               : null,
-              //         });
-              //       },
-              //       child: Text(
-              //         "Edit",
-              //         style: TTextStyles.Editprofile,
-              //       ),
-              //     )
-              //   ],
-              // ),
+                      context.push('/Editprofile', extra: {
+                        'id': widget.memberData?['_id'], // 👈 Add this line
+                        'firstName': personal['firstName'] ?? '',
+                        'lastName': personal['lastName'] ?? '',
+                        'companyName': personal['companyName'] ?? '',
+                        'profileImageUrl': (profile['docPath'] != null &&
+                                profile['docName'] != null)
+                            ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
+                            : null,
+                      });
+                    },
+                    child: Text(
+                      "Edit",
+                      style: TTextStyles.Editprofile,
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(height: 2.h),
               Center(
                 child: CircleAvatar(

@@ -1605,4 +1605,59 @@ class PublicRoutesApiService {
       );
     }
   }
+
+  static Future<ApiResponse> updateProfileWithImage({
+    required String id,
+    required String firstName,
+    required String lastName,
+    required String companyName,
+    File? profileImage,
+  }) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null || token.isEmpty) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'User not authenticated',
+      );
+    }
+
+    final uri =
+        Uri.parse('$endPointbaseUrl/api/mobile/members/profile/update/$id');
+    final request = http.MultipartRequest('PUT', uri)
+      ..headers['Authorization'] = 'Bearer $token'
+      ..fields['firstName'] = firstName
+      ..fields['lastName'] = lastName
+      ..fields['companyName'] = companyName;
+
+    if (profileImage != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'profileImage',
+        profileImage.path,
+      ));
+    }
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      final data = jsonDecode(response.body);
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.statusCode == 200,
+        data: data['data'],
+        message: data['message'],
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
+  }
 }

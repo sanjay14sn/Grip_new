@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/backend/providers/Homerefreshprovider.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
 import 'package:grip/components/bottomappbartemp.dart';
 import 'package:grip/pages/allcount.dart';
@@ -61,6 +62,18 @@ class _HomescreenState extends State<Homescreen> {
     _loadChapterDetails();
     fetchMember();
     Future.delayed(const Duration(milliseconds: 1000), _loadAllDashboardData);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final refreshNotifier = Provider.of<HomeRefreshNotifier>(context);
+    if (refreshNotifier.shouldRefresh) {
+      fetchMember();
+      _loadAllDashboardData();
+      refreshNotifier.reset(); // Mark the refresh as completed
+    }
   }
 
 // Add this helper method to your state class

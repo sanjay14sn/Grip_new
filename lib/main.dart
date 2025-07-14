@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/orientation_lock.dart';
+import 'package:grip/backend/providers/Homerefreshprovider.dart';
 import 'package:grip/backend/providers/location_provider.dart';
 import 'package:grip/pages/navigator_key.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
@@ -192,6 +193,7 @@ class _MyAppState extends State<MyApp> {
           providers: [
             ChangeNotifierProvider(create: (_) => LocationProvider()),
             ChangeNotifierProvider(create: (_) => ChapterProvider()),
+            ChangeNotifierProvider(create: (_) => HomeRefreshNotifier()),
             // Add other providers here if needed
           ],
           child: MaterialApp.router(

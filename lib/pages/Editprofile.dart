@@ -1,11 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:grip/backend/api-requests/no_auth_api.dart';
+import 'package:grip/backend/providers/Homerefreshprovider.dart';
 import 'package:grip/pages/toastutill.dart' show ToastUtil;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 class ProfileFormPage extends StatefulWidget {
+  final String id;
   final String firstName;
   final String lastName;
   final String companyName;
@@ -13,6 +18,7 @@ class ProfileFormPage extends StatefulWidget {
 
   const ProfileFormPage({
     super.key,
+    required this.id,
     required this.firstName,
     required this.lastName,
     required this.companyName,
@@ -30,6 +36,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
 
   final _formKey = GlobalKey<FormState>();
   File? _pickedImage;
+  bool isSubmitting = false;
 
   @override
   void initState() {
@@ -59,13 +66,38 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
     }
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final firstName = firstNameController.text.trim();
       final lastName = lastNameController.text.trim();
       final company = companyController.text.trim();
 
-     
+      setState(() => isSubmitting = true);
+
+      final response = await PublicRoutesApiService.updateProfileWithImage(
+        id: widget.id,
+        firstName: firstName,
+        lastName: lastName,
+        companyName: company,
+        profileImage: _pickedImage,
+      );
+
+      if (response.isSuccess) {
+        ToastUtil.showToast(context, "✅ Profile updated successfully");
+
+        // ✅ Trigger the refresh for homepage
+        final notifier =
+            Provider.of<HomeRefreshNotifier>(context, listen: false);
+        notifier.trigger();
+
+        // ✅ Navigate to homepage
+        context.go('/homepage');
+      } else {
+        ToastUtil.showToast(
+            context, response.message ?? "Something went wrong");
+      }
+
+      setState(() => isSubmitting = false);
     }
   }
 
@@ -90,12 +122,9 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// 📸 Profile Image Section
-                  Text(
-                    "Profile Image",
-                    style:
-                        TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w600),
-                  ),
+                  Text("Profile Image",
+                      style: TextStyle(
+                          fontSize: 17.sp, fontWeight: FontWeight.w600)),
                   SizedBox(height: 2.h),
                   Center(
                     child: Stack(
@@ -132,34 +161,23 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                     ),
                   ),
                   SizedBox(height: 4.h),
-
-                  /// 📝 First Name
                   Text("First Name *", style: _labelStyle()),
                   SizedBox(height: 0.8.h),
                   _buildTextField(
                       controller: firstNameController,
                       hint: "Enter first name"),
-
                   SizedBox(height: 2.h),
-
-                  /// 📝 Last Name
                   Text("Last Name *", style: _labelStyle()),
                   SizedBox(height: 0.8.h),
                   _buildTextField(
                       controller: lastNameController, hint: "Enter last name"),
-
                   SizedBox(height: 2.h),
-
-                  /// 🏢 Company Name
                   Text("Company Name *", style: _labelStyle()),
                   SizedBox(height: 0.8.h),
                   _buildTextField(
                       controller: companyController,
                       hint: "Enter company name"),
-
                   SizedBox(height: 4.h),
-
-                  /// ✅ Submit Button
                   SizedBox(
                     width: double.infinity,
                     height: 6.h,
@@ -170,14 +188,17 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _submitForm,
-                      child: Text(
-                        "Submit",
-                        style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
+                      onPressed: isSubmitting ? null : _submitForm,
+                      child: isSubmitting
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              "Submit",
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                 ],

@@ -363,6 +363,7 @@ final GoRouter router = GoRouter(
         final data = state.extra as Map<String, dynamic>?;
 
         return ProfileFormPage(
+          id: data?['id'], // 👈 Pass the ID here
           firstName: data?['firstName'] ?? '',
           lastName: data?['lastName'] ?? '',
           companyName: data?['companyName'] ?? '',
