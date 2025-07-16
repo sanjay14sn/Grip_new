@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/Homerefreshprovider.dart';
+import 'package:grip/components/Dotloader.dart';
 import 'package:grip/pages/toastutill.dart' show ToastUtil;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -107,12 +108,28 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
       return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title:
-              const Text("Edit Profile", style: TextStyle(color: Colors.black)),
           backgroundColor: Colors.white,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.black),
           centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.black),
+          title: const Text(
+            "Edit Profile",
+            style: TextStyle(color: Colors.black),
+          ),
+
+          /// 👇 Custom back button
+          leading: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Color(0xFFE0E2E7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back, color: Colors.black),
+            ),
+          ),
         ),
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
@@ -190,7 +207,11 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                       ),
                       onPressed: isSubmitting ? null : _submitForm,
                       child: isSubmitting
-                          ? const CircularProgressIndicator(color: Colors.white)
+                          ? const DotLoader(
+                              color: Colors.white,
+                              size: 10,
+                              dotCount: 4,
+                            )
                           : Text(
                               "Submit",
                               style: TextStyle(

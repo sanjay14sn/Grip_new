@@ -87,6 +87,13 @@ class _LoginScreenState extends State<LoginScreen> {
           await storage.write(key: 'auth_token', value: token);
           await storage.write(key: 'user_data', value: jsonEncode(userJson));
 
+          // ✅ Save chapterId separately
+          final chapterId = userJson['chapterId'];
+          if (chapterId != null) {
+            await storage.write(key: 'chapter_id', value: chapterId);
+            print("🏷️ Chapter ID saved: $chapterId");
+          }
+
           // ⏳ Save token expiry if available
           final expiryDate = _getTokenExpiry(token);
           if (expiryDate != null) {

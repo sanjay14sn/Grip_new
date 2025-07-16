@@ -448,7 +448,7 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                     /// Home Button
                     GestureDetector(
                       onTap: () {
-                        // TODO: Navigate to home
+                      context.go('/homepage');
                       },
                       child: Container(
                         width: 11.w,

@@ -54,6 +54,8 @@ class _QRScanPageState extends State<QRScanPage> {
     setState(() => _hasScanned = true);
 
     try {
+      print('📲 Scanned QR Code: $code');
+
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -72,64 +74,93 @@ class _QRScanPageState extends State<QRScanPage> {
       );
 
       final decoded = jsonDecode(code);
+      print('🧩 Decoded QR JSON: $decoded');
+
       if (decoded is! Map ||
           !decoded.containsKey('meetingId') ||
           !decoded.containsKey('latitude') ||
           !decoded.containsKey('longitude') ||
-          !decoded.containsKey('date')) {
+          !decoded.containsKey('startDate')) {
+        print('❌ QR code missing required keys');
         throw Exception("Invalid QR data");
       }
 
       final String meetingId = decoded['meetingId'];
       final double qrLat = (decoded['latitude'] as num).toDouble();
       final double qrLng = (decoded['longitude'] as num).toDouble();
-      final DateTime qrDate = DateTime.parse(decoded['date']);
+      final DateTime qrStartDate = DateTime.parse(decoded['startDate']);
+      final DateTime? qrEndDate = decoded.containsKey('endDate')
+          ? DateTime.tryParse(decoded['endDate'])
+          : null;
+
+      print('✅ Meeting ID: $meetingId');
+      print('📍 QR Location: ($qrLat, $qrLng)');
+      print('🕒 Meeting Start Time: $qrStartDate');
+      if (qrEndDate != null) {
+        print('🕒 Meeting End Time: $qrEndDate');
+      }
 
       final locationProvider = context.read<LocationProvider>();
       await locationProvider.fetchLocation();
 
       final double? userLat = locationProvider.latitude;
       final double? userLng = locationProvider.longitude;
+
       if (userLat == null || userLng == null) {
+        print('⚠️ User location unavailable');
         throw Exception("Location unavailable");
       }
+
+      print('📍 User Location: ($userLat, $userLng)');
 
       final DateTime now = DateTime.now();
       final double distance =
           Geolocator.distanceBetween(userLat, userLng, qrLat, qrLng);
+      print(
+          '📏 Distance from QR location: ${distance.toStringAsFixed(2)} meters');
+      print('🕓 Current time: $now');
 
-      if (distance > 100) throw Exception("Too far from meeting location");
-      if (now.isBefore(qrDate)) throw Exception("Meeting not started yet");
+      if (distance > 100) {
+        print(
+            '❌ Too far from location: ${distance.toStringAsFixed(2)}m > 100m');
+        throw Exception("Too far from meeting location");
+      }
 
+      if (qrEndDate != null && now.isAfter(qrEndDate)) {
+        print('⏰ Meeting already ended: $now > $qrEndDate');
+        throw Exception("Meeting has already ended");
+      }
+
+      print('📡 Sending attendance request...');
       final response = await PublicRoutesApiService.markAttendance(meetingId);
+
       await Future.delayed(const Duration(milliseconds: 700));
       if (!context.mounted) return;
+
       Navigator.of(context).pop(); // dismiss loading
 
       if (response.isSuccess) {
+        print('✅ Attendance marked successfully');
         context.push('/AttendanceSuccess');
       } else {
+        print('❌ Attendance failed: ${response.message}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.message ?? "Attendance failed")),
         );
-        context.push(
-          '/attendance-failure',
-          extra: e.toString(), // pass the exception message
-        );
+        context.push('/attendance-failure', extra: response.message);
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.of(context).pop(); // dismiss loading
+        print('❌ Exception: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
         );
-        context.push(
-          '/attendance-failure',
-          extra: e.toString(), // pass the exception message
-        );
+        context.push('/attendance-failure', extra: e.toString());
       }
     } finally {
       await _scannerController.stop();
+      print('🔒 Scanner stopped');
     }
   }
 

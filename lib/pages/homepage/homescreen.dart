@@ -472,7 +472,7 @@ class _HomescreenState extends State<Homescreen> {
                             maxLines: 1,
                           ),
                           Text(
-                            "Let's connect, communicate and collaborate",
+                            "India’s 1  Digital Business Networking Platform",
                             style: TTextStyles.usersubtitle,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,

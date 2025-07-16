@@ -173,29 +173,15 @@ class _HomeDashboardState extends State<HomeDashboard> {
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> statData = [
       {
+        'title': 'One to One',
+        'value': 'Total ${dashboardData['onetoones']}',
+        'icon': Icons.group,
+      },
+      {
         'title': 'Referral',
         'value':
             'Given ${dashboardData['referralGiven']} / Received ${dashboardData['referralReceived']}',
         'icon': Icons.compare_arrows,
-      },
-      {
-        'title': 'Business',
-        'value': truncateValue(
-          'Given ₹${formatIndianNumber(dashboardData['revenueGiven'])} / '
-          'Received ₹${formatIndianNumber(dashboardData['revenueReceived'])}',
-        ),
-        'icon': Icons.currency_rupee_sharp,
-      },
-      {
-        'title': 'Testimonials',
-        'value':
-            'Given ${dashboardData['testimonialGiven']} / Received ${dashboardData['testimonialReceived']}',
-        'icon': Icons.swap_horiz,
-      },
-      {
-        'title': 'One to One',
-        'value': 'Total ${dashboardData['onetoones']}',
-        'icon': Icons.group,
       },
       {
         'title': 'Visitors',
@@ -203,7 +189,23 @@ class _HomeDashboardState extends State<HomeDashboard> {
         'icon': Icons.desktop_windows,
       },
       {
-        'title': 'Training',
+        'title': 'Business Given',
+        'value': truncateValue(
+          'Total ₹${formatIndianNumber(dashboardData['revenueGiven'])}'
+
+        ),
+        'icon': Icons.currency_rupee_sharp,
+      },
+     {
+        'title': 'Business Received',
+        'value': truncateValue(
+
+          'Total ₹${formatIndianNumber(dashboardData['revenueReceived'])}',
+        ),
+        'icon': Icons.currency_rupee_sharp,
+      },
+      {
+        'title': 'Learnings',
         'value': 'Total ${dashboardData['training']}',
         'icon': Icons.person,
       },

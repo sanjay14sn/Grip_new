@@ -1579,13 +1579,14 @@ class PublicRoutesApiService {
         final List meetings = response.data['data']
             .where((item) =>
                 item['purpose'] == 'meeting' &&
-                DateTime.parse(item['date']).isAfter(DateTime.now()))
+                item['startDate'] != null &&
+                DateTime.parse(item['startDate']).isAfter(DateTime.now()))
             .toList();
 
         return ApiResponse(
           statusCode: 200,
           isSuccess: true,
-          data: meetings.isNotEmpty ? meetings.first : null,
+          data: meetings, // return list, not just first
           message: 'Success',
         );
       } else {
@@ -1650,6 +1651,47 @@ class PublicRoutesApiService {
         isSuccess: response.statusCode == 200,
         data: data['data'],
         message: data['message'],
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
+  }
+
+  static Future<ApiResponse> fetchTopPerformersMonthly() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+    final chapterId = await storage.read(key: 'chapter_id'); // 📌 Get chapterId
+
+    if (token == null || chapterId == null) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'Missing token or chapter ID',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url:
+            '$endPointbaseUrl/api/mobile/chapters/top-performer-monthly/$chapterId',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.isSuccess,
+        data: response.data['data'],
+        message: response.data['message'],
       );
     } catch (e) {
       return ApiResponse(
