@@ -82,6 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
               "🔑 Token (partial): ${token.substring(0, 5)}...${token.substring(token.length - 5)}");
 
           final userJson = response.data['member'];
+          print("👤 User Data: $userJson");
 
           // 💾 Save token and user data
           await storage.write(key: 'auth_token', value: token);

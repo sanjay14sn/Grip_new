@@ -1702,4 +1702,74 @@ class PublicRoutesApiService {
       );
     }
   }
+
+  static Future<ApiResponse> fetchAttendanceStatus() async {
+    const storage = FlutterSecureStorage();
+
+    try {
+      final token = await storage.read(key: 'auth_token');
+      print('🔑 Token: $token');
+
+      final userRaw = await storage.read(key: 'user_data');
+      print('👤 Raw user_data: $userRaw');
+
+      if (userRaw == null || token == null) {
+        print('❌ Missing user data or token');
+        return ApiResponse(
+          statusCode: 401,
+          isSuccess: false,
+          data: null,
+          message: 'Missing token or member ID',
+        );
+      }
+
+      final decodedUser = jsonDecode(userRaw);
+      final memberId = decodedUser['id'];
+      print('🆔 Extracted memberId: $memberId');
+
+      if (memberId == null) {
+        print('❌ Member ID not found in user data');
+        return ApiResponse(
+          statusCode: 401,
+          isSuccess: false,
+          data: null,
+          message: 'Invalid user data: Missing member ID',
+        );
+      }
+
+      final url =
+          '$endPointbaseUrl/api/mobile/attendance/attendanceDetailsByMemberId/$memberId';
+      print('🌐 Requesting: $url');
+
+      final response = await makeRequest(
+        url: url,
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('📥 API Response received: ${response.data}');
+
+      // ✅ Safely access message even if it's null or missing
+      final dynamic rawMessage = response.data['message'];
+      final String message =
+          rawMessage != null ? rawMessage.toString() : 'Success';
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.isSuccess,
+        data: response.data,
+        message: message,
+      );
+    } catch (e) {
+      print('💥 Error fetching attendance status: $e');
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
+  }
 }

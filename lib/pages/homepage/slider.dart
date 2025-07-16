@@ -171,9 +171,28 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
         ],
       );
     }
-
     if (referrals.isEmpty) {
-      return const Center(child: Text("No top performers found"));
+      // 👇 Hardcoded fallback data
+      referrals = [
+        {
+          "name": "R.VARADARAJ",
+          "category": "IT Services",
+          "title": "Co-FOUNDER & COO",
+          "image": "assets/images/varadha.png",
+        },
+        {
+          "name": "R.PRATHEEP GANDHI",
+          "category": "FOUNDER & CEO",
+          "title": "thankYouSlips",
+          "image": "assets/images/gandhi.png",
+        },
+        {
+          "name": "PUGALENTHI PALANIVELU",
+          "category": "Co-FOUNDER & CFO",
+          "title": "visitors",
+          "image": "assets/images/pugal.png",
+        },
+      ];
     }
 
     return Column(
@@ -204,14 +223,21 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(3.w),
-                      child: Image.network(
-                        referral["image"],
-                        width: 24.w,
-                        height: 17.h,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Image.asset("assets/images/dummyslider.jpg"),
-                      ),
+                      child: referral["image"].toString().startsWith('http')
+                          ? Image.network(
+                              referral["image"],
+                              width: 24.w,
+                              height: 17.h,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset("assets/images/dummyslider.jpg"),
+                            )
+                          : Image.asset(
+                              referral["image"],
+                              width: 24.w,
+                              height: 17.h,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                     SizedBox(width: 3.w),
                     Expanded(

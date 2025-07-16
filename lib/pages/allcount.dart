@@ -173,7 +173,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> statData = [
       {
-        'title': 'One to One',
+        'title': 'One-to-One',
         'value': 'Total ${dashboardData['onetoones']}',
         'icon': Icons.group,
       },
@@ -191,16 +191,13 @@ class _HomeDashboardState extends State<HomeDashboard> {
       {
         'title': 'Business Given',
         'value': truncateValue(
-          'Total ₹${formatIndianNumber(dashboardData['revenueGiven'])}'
-
-        ),
+            'Amount ₹${formatIndianNumber(dashboardData['revenueGiven'])}'),
         'icon': Icons.currency_rupee_sharp,
       },
-     {
+      {
         'title': 'Business Received',
         'value': truncateValue(
-
-          'Total ₹${formatIndianNumber(dashboardData['revenueReceived'])}',
+          'Amount ₹${formatIndianNumber(dashboardData['revenueReceived'])}',
         ),
         'icon': Icons.currency_rupee_sharp,
       },

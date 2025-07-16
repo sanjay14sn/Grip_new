@@ -35,7 +35,11 @@ class _TestimonialSlipPageState extends State<TestimonialSlipPage> {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        allowedExtensions: [
+          'jpg',
+          'jpeg',
+          'png',
+        ],
       );
 
       if (result != null) {

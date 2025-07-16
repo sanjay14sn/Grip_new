@@ -2,104 +2,159 @@ import 'package:flutter/material.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../backend/api-requests/no_auth_api.dart';
 
-class MeetingDetailsPage extends StatelessWidget {
+class MeetingDetailsPage extends StatefulWidget {
   const MeetingDetailsPage({super.key});
+
+  @override
+  State<MeetingDetailsPage> createState() => _MeetingDetailsPageState();
+}
+
+class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
+  Map<String, int> _attendanceCounts = {
+    'present': 0,
+    'absent': 0,
+    'late': 0,
+    'substitute': 0,
+    'medical': 0,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAttendanceData();
+  }
+
+  Future<void> _fetchAttendanceData() async {
+    print('📡 Fetching attendance status...');
+
+    final response = await PublicRoutesApiService.fetchAttendanceStatus();
+    print(
+        '📥 Response received: ${response.isSuccess}, data: ${response.data}');
+
+    if (response.isSuccess && response.data != null) {
+      try {
+        // 👇 Unwrap the inner "data"
+        final outerData = response.data;
+        final innerData = outerData['data'];
+
+        if (innerData == null || innerData['attendanceStatus'] == null) {
+          print('⚠️ attendanceStatus is null inside innerData');
+          return;
+        }
+
+        final attendanceList = innerData['attendanceStatus'] as List;
+        print('🧾 Parsed attendance list: $attendanceList');
+
+        final updatedCounts = {
+          'present': 0,
+          'absent': 0,
+          'late': 0,
+          'substitute': 0,
+          'medical': 0,
+        };
+
+        for (var item in attendanceList) {
+          final status = item['_id']?.toString();
+          final countRaw = item['count'];
+          final count = countRaw is int
+              ? countRaw
+              : int.tryParse(countRaw.toString()) ?? 0;
+
+          print('🔍 Status: $status, Count: $count');
+
+          if (status != null && updatedCounts.containsKey(status)) {
+            updatedCounts[status] = count;
+            print('✅ Updated $status to $count');
+          } else {
+            print('⚠️ Unrecognized or null status: $status');
+          }
+        }
+
+        setState(() {
+          _attendanceCounts = updatedCounts;
+        });
+
+        print('📊 Final attendance counts: $_attendanceCounts');
+      } catch (e) {
+        print('💥 Error parsing attendance data: $e');
+      }
+    } else {
+      print('❌ Failed to fetch attendance data or data is null.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-          child: FutureBuilder(
-        future: PublicRoutesApiService.fetchUpcomingMeetings(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _shimmerUI();
-          }
+        child: Column(
+          children: [
+            _topBar(context),
+            Expanded(
+              child: FutureBuilder(
+                future: PublicRoutesApiService.fetchUpcomingMeetings(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _shimmerUI();
+                  }
 
-          if (!snapshot.hasData || snapshot.data == null) {
-            return Center(child: Text("Something went wrong"));
-          }
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return _noMeetingUI();
+                  }
 
-          final response = snapshot.data!;
-          final bool hasData = response.isSuccess &&
-              response.data != null &&
-              response.data is List &&
-              response.data.isNotEmpty;
+                  final response = snapshot.data!;
+                  final bool hasData = response.isSuccess &&
+                      response.data != null &&
+                      response.data is List &&
+                      response.data.isNotEmpty;
 
-          if (!hasData) {
-            return Padding(
-              padding: EdgeInsets.all(4.w),
-              child: Container(
-                height: 34.h,
-                width: double.infinity,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(4.w),
-                ),
-                child: Text(
-                  "No Upcoming Meetings Found",
-                  style: TTextStyles.myprofile.copyWith(color: Colors.black54),
-                ),
-              ),
-            );
-          }
+                  if (!hasData) {
+                    return _noMeetingUI();
+                  }
 
-          final List meetings = response.data as List;
-          final meeting = meetings[0];
+                  final List meetings = response.data as List;
+                  final meeting = meetings[0];
 
-          final startDate = DateTime.parse(meeting['startDate']).toLocal();
-          final endDate = DateTime.parse(meeting['endDate']).toLocal();
+                  final startDate =
+                      DateTime.parse(meeting['startDate']).toLocal();
+                  final endDate = DateTime.parse(meeting['endDate']).toLocal();
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _topBar(context),
-              Center(
-                child: Image.asset(
-                  'assets/images/meeting_appbar.png',
-                  color: const Color(0xFFC6221A),
-                  width: 10.w,
-                  height: 10.w,
-                ),
+                  return ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      Center(
+                        child: Image.asset(
+                          'assets/images/meeting_appbar.png',
+                          color: const Color(0xFFC6221A),
+                          width: 10.w,
+                          height: 10.w,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4.w),
+                        child: Text('Next Meeting', style: TTextStyles.nxtmeet),
+                      ),
+                      _meetingDetailsUI(
+                        topic: meeting['topic'],
+                        startDate: startDate,
+                        endDate: endDate,
+                        address: meeting['address'],
+                      ),
+                      SizedBox(height: 1.5.h),
+                      _attendanceHeader(),
+                      _attendanceCards(),
+                      SizedBox(height: 2.h),
+                    ],
+                  );
+                },
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                child: Text('Next Meeting', style: TTextStyles.nxtmeet),
-              ),
-              _meetingDetailsUI(
-                topic: meeting['topic'],
-                startDate: startDate,
-                endDate: endDate,
-                address: meeting['address'],
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                child: Text('Your Attendance', style: TTextStyles.nxtmeet),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    attendanceCard('23', 'Present', Colors.green),
-                    attendanceCard('5', 'Late', const Color(0xFFB07DFF)),
-                    attendanceCard('2', 'Substitute', const Color(0xFF00BFA5)),
-                    attendanceCard('1', 'Medical', const Color(0xFFFFAB00)),
-                    attendanceCard('8', 'Absent', Colors.red),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              SizedBox(height: 2.h),
-            ],
-          );
-        },
-      )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -123,6 +178,82 @@ class MeetingDetailsPage extends StatelessWidget {
           Text('Meeting Details', style: TTextStyles.myprofile),
         ],
       ),
+    );
+  }
+
+  Widget _attendanceHeader() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      child: Text('Your Attendance', style: TTextStyles.nxtmeet),
+    );
+  }
+
+  Widget _attendanceCards() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          attendanceCard(
+              '${_attendanceCounts['present']}', 'Present', Colors.green),
+          attendanceCard(
+              '${_attendanceCounts['late']}', 'Late', const Color(0xFFB07DFF)),
+          attendanceCard('${_attendanceCounts['substitute']}', 'Substitute',
+              const Color(0xFF00BFA5)),
+          attendanceCard('${_attendanceCounts['medical']}', 'Medical',
+              const Color(0xFFFFAB00)),
+          attendanceCard(
+              '${_attendanceCounts['absent']}', 'Absent', Colors.red),
+        ],
+      ),
+    );
+  }
+
+  Widget attendanceCard(String count, String label, Color color) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 5.w),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(3.w),
+          ),
+          child: Text(
+            count,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 16.sp,
+            ),
+          ),
+        ),
+        SizedBox(height: 1.h),
+        Text(label, style: TextStyle(fontSize: 14.sp)),
+      ],
+    );
+  }
+
+  Widget _noMeetingUI() {
+    return ListView(
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      children: [
+        Container(
+          height: 34.h,
+          width: double.infinity,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(4.w),
+          ),
+          child: Text(
+            "No Upcoming Meetings Found",
+            style: TTextStyles.myprofile.copyWith(color: Colors.black54),
+          ),
+        ),
+        _attendanceHeader(),
+        _attendanceCards(),
+        SizedBox(height: 2.h),
+      ],
     );
   }
 
@@ -196,76 +327,61 @@ class MeetingDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget attendanceCard(String count, String label, Color color) {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 5.w),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(3.w),
-          ),
-          child: Text(
-            count,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.bold,
-              fontSize: 16.sp,
-            ),
-          ),
-        ),
-        SizedBox(height: 1.h),
-        Text(label, style: TextStyle(fontSize: 14.sp)),
-      ],
-    );
-  }
-
   Widget _shimmerUI() {
-    return Padding(
+    return ListView(
       padding: EdgeInsets.all(4.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 5.h,
-            width: 40.w,
-            color: Colors.grey[300],
-          ),
-          SizedBox(height: 2.h),
-          Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.white,
-            child: Container(
-              height: 34.h,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.circular(4.w),
-              ),
-            ),
-          ),
-          SizedBox(height: 2.h),
-          Container(
-            height: 3.h,
-            width: 30.w,
-            color: Colors.grey[300],
-          ),
-          SizedBox(height: 2.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(5, (index) {
-              return Container(
-                height: 6.h,
-                width: 12.w,
+      children: [
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 5.h,
+                width: 40.w,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(2.w),
                 ),
-              );
-            }),
+              ),
+              SizedBox(height: 2.h),
+              Container(
+                height: 34.h,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4.w),
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Container(
+                height: 3.h,
+                width: 30.w,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(2.w),
+                ),
+              ),
+              SizedBox(height: 2.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(5, (index) {
+                  return Container(
+                    height: 6.h,
+                    width: 12.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(2.w),
+                    ),
+                  );
+                }),
+              ),
+              SizedBox(height: 2.h),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

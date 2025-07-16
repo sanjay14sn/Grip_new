@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/location_provider.dart';
+import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/constants/Tcolors.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -81,8 +82,9 @@ class _QRScanPageState extends State<QRScanPage> {
           !decoded.containsKey('latitude') ||
           !decoded.containsKey('longitude') ||
           !decoded.containsKey('startDate')) {
-        print('❌ QR code missing required keys');
-        throw Exception("Invalid QR data");
+        debugPrint('❌ QR code parsing error: Essential keys are absent.');
+        ToastUtil.showToast(
+            context, "Invalid QR code . Please scan a valid one.");
       }
 
       final String meetingId = decoded['meetingId'];
@@ -123,12 +125,13 @@ class _QRScanPageState extends State<QRScanPage> {
       if (distance > 100) {
         print(
             '❌ Too far from location: ${distance.toStringAsFixed(2)}m > 100m');
-        throw Exception("Too far from meeting location");
+        throw Exception(
+            "Attendance can only be marked when you're in the meeting location");
       }
 
       if (qrEndDate != null && now.isAfter(qrEndDate)) {
         print('⏰ Meeting already ended: $now > $qrEndDate');
-        throw Exception("Meeting has already ended");
+        throw Exception("Meeting has already ended.");
       }
 
       print('📡 Sending attendance request...');
@@ -141,21 +144,18 @@ class _QRScanPageState extends State<QRScanPage> {
 
       if (response.isSuccess) {
         print('✅ Attendance marked successfully');
+        ToastUtil.showToast(context, "✅ Attendance marked successfully!");
         context.push('/AttendanceSuccess');
       } else {
         print('❌ Attendance failed: ${response.message}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message ?? "Attendance failed")),
-        );
+        ToastUtil.showToast(context, response.message ?? "Attendance failed");
         context.push('/attendance-failure', extra: response.message);
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.of(context).pop(); // dismiss loading
         print('❌ Exception: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ToastUtil.showToast(context, e.toString());
         context.push('/attendance-failure', extra: e.toString());
       }
     } finally {

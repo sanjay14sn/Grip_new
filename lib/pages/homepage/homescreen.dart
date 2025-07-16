@@ -381,7 +381,7 @@ class _HomescreenState extends State<Homescreen> {
                   height: 2.h,
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 8.0, 8.0, 8.0),
+                  padding: const EdgeInsets.fromLTRB(0, 0.0, 0.0, 0.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -433,10 +433,9 @@ class _HomescreenState extends State<Homescreen> {
                         ],
                       ),
 
-                      // 🅶 Grip Logo on the Right
                       Image.asset(
                         Timages.griplogo,
-                        height: 80,
+                        height: 90,
                         width: 100,
                       ),
                     ],
