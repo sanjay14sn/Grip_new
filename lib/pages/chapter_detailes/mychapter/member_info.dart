@@ -90,9 +90,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                                 'memberName': widget.member.name,
                               },
                             );
-                          } else {
-                           
-                          }
+                          } else {}
                         }),
                         _menuItem(Icons.chat, "Testimonials", () {
                           context.push(
@@ -113,12 +111,8 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                             if (response.isSuccess && response.data != null) {
                               context.push('/OthersOneToOnesPage',
                                   extra: response.data);
-                            } else {
-                              
-                            }
-                          } else {
-                           
-                          }
+                            } else {}
+                          } else {}
                         }),
                         _menuItem(Icons.remove_red_eye_sharp, "Visitors",
                             () async {
@@ -132,9 +126,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                                 'memberName': widget.member.name,
                               },
                             );
-                          } else {
-                           
-                          }
+                          } else {}
                         }),
                       ],
                     ),

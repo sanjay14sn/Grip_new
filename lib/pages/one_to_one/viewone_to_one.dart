@@ -117,7 +117,7 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
             // Title
             Row(
               children: [
-                Text('One to Ones', style: TTextStyles.ReferralSlip),
+                Text('One-to-One', style: TTextStyles.ReferralSlip),
                 const SizedBox(width: 8),
                 Image.asset(
                   'assets/images/testimonials.png',
@@ -153,7 +153,7 @@ class _onetooneviewpageState extends State<onetooneviewpage> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'My One to Ones',
+                          'My One-to-One',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: !isReceivedSelected

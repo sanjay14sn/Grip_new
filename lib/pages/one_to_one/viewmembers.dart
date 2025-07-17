@@ -85,7 +85,7 @@ class _MemberListPageState extends State<MemberListPage> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
-                              "OTHERS ONE TO ONES",
+                              "OTHERS ONE-TO-ONE",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

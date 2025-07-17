@@ -63,7 +63,7 @@ class OthersOneToOnesPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Text(
-                      "ONE TO ONE DETAILS",
+                      "ONE-TO-ONE DETAILS",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
