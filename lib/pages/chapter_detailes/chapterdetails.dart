@@ -24,6 +24,7 @@ class MyChapterPage extends StatefulWidget {
 
 class _MyChapterPageState extends State<MyChapterPage> {
   bool isMyChapterSelected = true;
+  String? cidId; // Declare at class level if not already
 
   List<DetailedMember> _detailedMembers = [];
   List<DetailedMember> _filteredMembers = [];
@@ -81,16 +82,21 @@ class _MyChapterPageState extends State<MyChapterPage> {
   void initState() {
     super.initState();
 
-    _fetchAllMemberDetails();
+    _fetchAllMemberDetails(); // Fetch all members
+
+    // ✅ Safely get ChapterProvider without listening to rebuilds
     final chapterProvider =
         Provider.of<ChapterProvider>(context, listen: false);
-    final cidId = chapterProvider.chapterDetails?.cidId;
-    if (cidId != null && cidId.isNotEmpty) {
-      _fetchCidDetails(cidId);
-    }
+    final cids = chapterProvider.chapterDetails?.cids ?? [];
 
-    _loadChapterId(); // 👈 Check chapter ID
-    _searchController.addListener(_onSearchChanged);
+    if (cids.isNotEmpty) {
+      cidId = cids.first.id;
+
+      _fetchCidDetails(cidId!); // Fetch CID details
+    } else {}
+
+    _loadChapterId(); // Load stored chapter ID
+    _searchController.addListener(_onSearchChanged); // Set up search listener
   }
 
   Future<void> _loadChapterId() async {
@@ -137,88 +143,35 @@ class _MyChapterPageState extends State<MyChapterPage> {
     return null;
   }
 
-  // Future<void> _fetchAllMemberDetails() async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-
-  //   _detailedMembers.clear();
-
-  //   const storage = FlutterSecureStorage();
-  //   final userDataString = await storage.read(key: 'user_data');
-
-  //   String? currentUserId;
-  //   if (userDataString != null) {
-  //     final userData = jsonDecode(userDataString);
-  //     currentUserId = userData['id'];
-  //   } else {}
-
-  //   final chapterProvider =
-  //       Provider.of<ChapterProvider>(context, listen: false);
-  //   final cidId = chapterProvider.chapterDetails?.cidId;
-
-  //   final members = chapterProvider.members;
-
-  //   for (final member in members) {
-  //     if (member.id == currentUserId) {
-  //       continue;
-  //     }
-
-  //     final response = await retry(
-  //       () => PublicRoutesApiService.fetchMemberDetailsById(member.id),
-  //       retries: 3,
-  //       delay: const Duration(seconds: 1),
-  //       logLabel: "Member ${member.id}",
-  //     );
-
-  //     if (response != null && response.isSuccess && response.data != null) {
-  //       final detailed = DetailedMember.fromJson(response.data);
-  //       _detailedMembers.add(detailed);
-  //     } else {}
-  //   }
-
-  //   setState(() {
-  //     _filteredMembers = _detailedMembers;
-  //     _isLoading = false;
-  //   });
-  // }
-
   Future<void> _fetchAllMemberDetails() async {
-    print('🔄 Starting to fetch all member details...');
     setState(() {
       _isLoading = true;
     });
 
     _detailedMembers.clear();
-    print('🧹 Cleared old detailed members list.');
 
     const storage = FlutterSecureStorage();
     final userDataString = await storage.read(key: 'user_data');
-    print('🔐 user_data read from storage: $userDataString');
 
     String? currentUserId;
     if (userDataString != null) {
       final userData = jsonDecode(userDataString);
       currentUserId = userData['id'];
-      print('👤 Current user ID: $currentUserId');
     } else {
-      print('❌ No user_data found in secure storage.');
       return;
     }
 
     final chapterProvider =
         Provider.of<ChapterProvider>(context, listen: false);
-    final cidId = chapterProvider.chapterDetails?.cidId;
+
+    for (var m in chapterProvider.members) {}
+
+    chapterProvider.chapterDetails?.cids.first.id; // ✅ Gets first CID's ID
+
     final members = chapterProvider.members;
 
-    print('👥 Total members in chapter: ${members.length}');
-    print('📛 cidId: $cidId');
-
     for (final member in members) {
-      print('➡️ Checking member ID: ${member.id}');
-
       if (member.id == currentUserId) {
-        print('⏩ Skipping current user...');
         continue;
       }
 
@@ -232,16 +185,12 @@ class _MyChapterPageState extends State<MyChapterPage> {
       if (response != null && response.isSuccess && response.data != null) {
         final detailed = DetailedMember.fromJson(response.data);
         _detailedMembers.add(detailed);
-        print('✅ Fetched and added details for member ${member.id}');
-      } else {
-        print('❌ Failed to fetch details for member ${member.id}');
-      }
+      } else {}
     }
 
     setState(() {
       _filteredMembers = _detailedMembers;
       _isLoading = false;
-      print('✅ Fetch complete. Total fetched: ${_filteredMembers.length}');
     });
   }
 

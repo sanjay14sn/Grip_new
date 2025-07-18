@@ -68,8 +68,8 @@ class othersMemberModel {
   final String? email;
   final String? address;
   final String? category;
-  final String? cidId;
-  final String? profileImageUrl; // ✅ Add this
+  final List<String>? cidIds; // 🔁 Updated from String? to List<String>?
+  final String? profileImageUrl;
 
   othersMemberModel({
     required this.id,
@@ -83,8 +83,8 @@ class othersMemberModel {
     this.businessDescription,
     this.email,
     this.address,
-    this.cidId,
-    this.profileImageUrl, // ✅ Add to constructor
+    this.cidIds, // 🔁 Updated
+    this.profileImageUrl,
   });
 
   factory othersMemberModel.fromJson(Map<String, dynamic> json) {
@@ -109,13 +109,17 @@ class othersMemberModel {
           '${personal['firstName'] ?? ''} ${personal['lastName'] ?? ''}'.trim(),
       company: personal['companyName'] ?? '',
       phone: contact['mobileNumber'] ?? '',
-      category: business['categoryRepresented'], // ✅ FIXED LINE HERE
+      category: business['categoryRepresented'] is List
+          ? (business['categoryRepresented'] as List).join(', ')
+          : business['categoryRepresented']?.toString(),
       website: contact['website'],
       chapterName: chapterInfo['chapterName'],
       businessDescription: business['businessDescription'],
       email: contact['email'],
       address: address['addressLine1'],
-      cidId: chapterInfo['cidId'],
+      cidIds: chapterInfo['cidId'] != null
+          ? List<String>.from(chapterInfo['cidId'])
+          : null, // ✅ Fixed
       profileImageUrl: profileImageUrl,
     );
   }

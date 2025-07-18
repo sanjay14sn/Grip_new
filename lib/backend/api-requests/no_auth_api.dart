@@ -1665,7 +1665,8 @@ class PublicRoutesApiService {
   static Future<ApiResponse> fetchTopPerformersMonthly() async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'auth_token');
-    final chapterId = await storage.read(key: 'chapter_id'); // 📌 Get chapterId
+    final chapterId =
+        await storage.read(key: 'chapter_ids'); // 📌 Get chapterId
 
     if (token == null || chapterId == null) {
       return ApiResponse(
@@ -1708,12 +1709,10 @@ class PublicRoutesApiService {
 
     try {
       final token = await storage.read(key: 'auth_token');
-    
+
       final userRaw = await storage.read(key: 'user_data');
-  
 
       if (userRaw == null || token == null) {
-   
         return ApiResponse(
           statusCode: 401,
           isSuccess: false,
@@ -1725,9 +1724,7 @@ class PublicRoutesApiService {
       final decodedUser = jsonDecode(userRaw);
       final memberId = decodedUser['id'];
 
-
       if (memberId == null) {
-
         return ApiResponse(
           statusCode: 401,
           isSuccess: false,
@@ -1738,7 +1735,6 @@ class PublicRoutesApiService {
 
       final url =
           '$endPointbaseUrl/api/mobile/attendance/attendanceDetailsByMemberId/$memberId';
-     
 
       final response = await makeRequest(
         url: url,
@@ -1747,8 +1743,6 @@ class PublicRoutesApiService {
           'Authorization': 'Bearer $token',
         },
       );
-
-    
 
       // ✅ Safely access message even if it's null or missing
       final dynamic rawMessage = response.data['message'];
@@ -1762,7 +1756,6 @@ class PublicRoutesApiService {
         message: message,
       );
     } catch (e) {
- 
       return ApiResponse(
         statusCode: 500,
         isSuccess: false,

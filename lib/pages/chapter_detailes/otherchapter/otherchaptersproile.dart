@@ -102,31 +102,40 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
 
       if (response.isSuccess && response.data != null) {
         try {
-          final List<othersMemberModel> members = (response.data as List)
-              .map((e) => othersMemberModel.fromJson(e))
-              .toList();
+          final List<dynamic> rawList = response.data;
+
+          // Debug raw list
+
+          for (var item in rawList) {}
+
+          final List<othersMemberModel> members =
+              rawList.map((e) => othersMemberModel.fromJson(e)).toList();
+
+          for (var m in members) {}
 
           if (members.isNotEmpty) {
-            final cid = members.first.cidId;
+            final cid = members.first.cidIds;
 
             if (widget.chapterId == '6879e0be60ef1e65cb84bfa7') {
-              // Show Gajendran & Kirubakaran only
               setState(() => _cidMember = _staticCidMember); // Gajendran
             } else if (widget.chapterId == '6878eb1a60ef1e65cb84aa90') {
-              // Show actual CID + Rajesh
-              if (cid != null && cid.isNotEmpty) {
-                await _fetchCidDetailsWithRetry(cid);
-              }
-            } else if (widget.chapterId == '6879eda160ef1e65cb84d450') {
-              // Not considered
-              setState(() => _cidMember = null);
-            } else {
-              // Default: only actual CID
-              if (cid != null && cid.isNotEmpty) {
-                await _fetchCidDetailsWithRetry(cid);
-              }
+              //   if (cid != null && cid.isNotEmpty) {
+              //     await _fetchCidDetailsWithRetry(cid);
+              //   } else {
+              //     print('⚠️ CID is null or empty');
+              //   }
+              // } else if (widget.chapterId == '6879eda160ef1e65cb84d450') {
+              //   print('🚫 Chapter skipped for CID');
+              //   setState(() => _cidMember = null);
+              // } else {
+              //   print('📍 Default chapter logic - Load only actual CID');
+              //   if (cid != null && cid.isNotEmpty) {
+              //     await _fetchCidDetailsWithRetry(cid);
+              //   } else {
+              //     print('⚠️ CID is null or empty');
+              //   }
             }
-          }
+          } else {}
 
           setState(() {
             allMembers = members;
@@ -135,7 +144,8 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
           });
 
           success = true;
-        } catch (e) {
+        } catch (e, stackTrace) {
+          setState(() => isLoading = false);
           break;
         }
       } else {
