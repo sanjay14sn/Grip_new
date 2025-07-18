@@ -56,7 +56,6 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
       setState(() {
         _isLoading = false;
       });
-      print("❌ Error: ${response.message}");
     }
   }
 
@@ -176,8 +175,8 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
       referrals = [
         {
           "name": "R.VARADARAJ",
-          "category": "IT Services",
-          "title": "Co-FOUNDER & COO",
+          "category": "Co-",
+          "title": "referralSlips",
           "image": "assets/images/varadha.png",
         },
         {

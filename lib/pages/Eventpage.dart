@@ -30,22 +30,16 @@ class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
     const storage = FlutterSecureStorage();
     final userDataString = await storage.read(key: 'user_data');
 
-    print('🔐 Retrieved user_data: $userDataString');
-
     if (userDataString == null) {
       setState(() => _isLoading = false);
-      print('⚠️ No user data found in secure storage.');
+
       return;
     }
 
     final userData = jsonDecode(userDataString);
     final userChapterId = userData['chapterId'];
 
-    print('📌 User Chapter ID: $userChapterId');
-
     final response = await PublicRoutesApiService.fetchAgentaEvents();
-
-    print('🌐 API Response data: ${response.data}');
 
     if (mounted) {
       if (response.isSuccess && response.data is List) {
@@ -53,11 +47,9 @@ class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
           final isEvent = e['purpose'] == 'event'; // ✅ only events
           final chapterIds = e['chapterId'] as List<dynamic>? ?? [];
           final match = chapterIds.any((c) => c['_id'] == userChapterId);
-          print(
-              '🔍 Checking event ID: ${e['_id']} | Match: $match | isEvent: $isEvent');
+
           return match && isEvent;
         }).map((e) {
-          print('✅ Adding Event ID: ${e['_id']} | Topic: ${e['topic']}');
           return AgentaEvent.fromJson(e);
         }).toList();
 
@@ -65,11 +57,8 @@ class _UpcomingEventsPageState extends State<UpcomingEventsPage> {
           _events = filteredEvents;
           _isLoading = false;
         });
-
-        print('📅 Filtered Events Count: ${_events.length}');
       } else {
         setState(() => _isLoading = false);
-        print('❌ Failed to fetch events or response format invalid.');
       }
     }
   }

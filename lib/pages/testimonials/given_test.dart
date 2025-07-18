@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
-import 'package:grip/components/download.dart';
 import 'package:grip/components/download.dart' as FileDownloader;
-import 'package:grip/pages/Eventpage.dart';
-import 'package:grip/pages/toastutill.dart';
 import 'package:sizer/sizer.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:cached_network_image/cached_network_image.dart';

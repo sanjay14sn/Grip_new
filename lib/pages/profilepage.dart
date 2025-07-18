@@ -155,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
               infoRow(Icons.email, email),
               infoRow(Icons.language, website),
               infoRow(Icons.location_on, location),
-              infoRow(Icons.link, 'www.linkedin.com/in/grip'),
+              //  infoRow(Icons.link, 'www.linkedin.com/in/grip'),
               infoRow(Icons.badge, chapterName),
               SizedBox(height: 3.h),
               Align(

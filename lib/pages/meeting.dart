@@ -27,11 +27,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   }
 
   Future<void> _fetchAttendanceData() async {
-    print('📡 Fetching attendance status...');
-
     final response = await PublicRoutesApiService.fetchAttendanceStatus();
-    print(
-        '📥 Response received: ${response.isSuccess}, data: ${response.data}');
 
     if (response.isSuccess && response.data != null) {
       try {
@@ -40,12 +36,10 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         final innerData = outerData['data'];
 
         if (innerData == null || innerData['attendanceStatus'] == null) {
-          print('⚠️ attendanceStatus is null inside innerData');
           return;
         }
 
         final attendanceList = innerData['attendanceStatus'] as List;
-        print('🧾 Parsed attendance list: $attendanceList');
 
         final updatedCounts = {
           'present': 0,
@@ -62,27 +56,16 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
               ? countRaw
               : int.tryParse(countRaw.toString()) ?? 0;
 
-          print('🔍 Status: $status, Count: $count');
-
           if (status != null && updatedCounts.containsKey(status)) {
             updatedCounts[status] = count;
-            print('✅ Updated $status to $count');
-          } else {
-            print('⚠️ Unrecognized or null status: $status');
-          }
+          } else {}
         }
 
         setState(() {
           _attendanceCounts = updatedCounts;
         });
-
-        print('📊 Final attendance counts: $_attendanceCounts');
-      } catch (e) {
-        print('💥 Error parsing attendance data: $e');
-      }
-    } else {
-      print('❌ Failed to fetch attendance data or data is null.');
-    }
+      } catch (e) {}
+    } else {}
   }
 
   @override
@@ -250,7 +233,9 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
             style: TTextStyles.myprofile.copyWith(color: Colors.black54),
           ),
         ),
+        SizedBox(height: 2.h),
         _attendanceHeader(),
+        SizedBox(height: 2.h),
         _attendanceCards(),
         SizedBox(height: 2.h),
       ],

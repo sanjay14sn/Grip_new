@@ -54,10 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final fcmToken = await storage.read(key: 'fcm_token');
 
         if (fcmToken == null || fcmToken.isEmpty) {
-          print("⚠️ FCM token not found.");
-        } else {
-          print("🔔 FCM token available.");
-        }
+        } else {}
 
         // 🛠️ API Call
         final response = await PublicRoutesApi.Login(
@@ -71,18 +68,14 @@ class _LoginScreenState extends State<LoginScreen> {
         final truncatedResponse = responseDataString.length > 500
             ? '${responseDataString.substring(0, 500)}... [truncated]'
             : responseDataString;
-        print("📥 API Response: $truncatedResponse");
 
         // ✅ If login success
         if (response.isSuccess && response.data['success'] == true) {
           final token = response.data['token'];
 
           // 🔐 Log only part of token for safety
-          print(
-              "🔑 Token (partial): ${token.substring(0, 5)}...${token.substring(token.length - 5)}");
 
           final userJson = response.data['member'];
-          print("👤 User Data: $userJson");
 
           // 💾 Save token and user data
           await storage.write(key: 'auth_token', value: token);
@@ -92,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
           final chapterId = userJson['chapterId'];
           if (chapterId != null) {
             await storage.write(key: 'chapter_id', value: chapterId);
-            print("🏷️ Chapter ID saved: $chapterId");
           }
 
           // ⏳ Save token expiry if available
@@ -102,7 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
               key: 'token_expiry',
               value: expiryDate.toIso8601String(),
             );
-            print("🕒 Token expiry saved: $expiryDate");
           }
 
           ToastUtil.showToast(context, '✅ Login successful!');
@@ -117,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ToastUtil.showToast(context, message);
         }
       } catch (e) {
-        print("❌ Login error: $e");
+     
         ToastUtil.showToast(context, 'Something went wrong. Please try again.');
       }
     }

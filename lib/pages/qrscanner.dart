@@ -55,8 +55,6 @@ class _QRScanPageState extends State<QRScanPage> {
     setState(() => _hasScanned = true);
 
     try {
-      print('📲 Scanned QR Code: $code');
-
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -75,14 +73,12 @@ class _QRScanPageState extends State<QRScanPage> {
       );
 
       final decoded = jsonDecode(code);
-      print('🧩 Decoded QR JSON: $decoded');
 
       if (decoded is! Map ||
           !decoded.containsKey('meetingId') ||
           !decoded.containsKey('latitude') ||
           !decoded.containsKey('longitude') ||
           !decoded.containsKey('startDate')) {
-        debugPrint('❌ QR code parsing error: Essential keys are absent.');
         ToastUtil.showToast(
             context, "Invalid QR code . Please scan a valid one.");
       }
@@ -95,12 +91,7 @@ class _QRScanPageState extends State<QRScanPage> {
           ? DateTime.tryParse(decoded['endDate'])
           : null;
 
-      print('✅ Meeting ID: $meetingId');
-      print('📍 QR Location: ($qrLat, $qrLng)');
-      print('🕒 Meeting Start Time: $qrStartDate');
-      if (qrEndDate != null) {
-        print('🕒 Meeting End Time: $qrEndDate');
-      }
+      if (qrEndDate != null) {}
 
       final locationProvider = context.read<LocationProvider>();
       await locationProvider.fetchLocation();
@@ -109,32 +100,22 @@ class _QRScanPageState extends State<QRScanPage> {
       final double? userLng = locationProvider.longitude;
 
       if (userLat == null || userLng == null) {
-        print('⚠️ User location unavailable');
         throw Exception("Location unavailable");
       }
-
-      print('📍 User Location: ($userLat, $userLng)');
 
       final DateTime now = DateTime.now();
       final double distance =
           Geolocator.distanceBetween(userLat, userLng, qrLat, qrLng);
-      print(
-          '📏 Distance from QR location: ${distance.toStringAsFixed(2)} meters');
-      print('🕓 Current time: $now');
 
       if (distance > 100) {
-        print(
-            '❌ Too far from location: ${distance.toStringAsFixed(2)}m > 100m');
         throw Exception(
             "Attendance can only be marked when you're in the meeting location");
       }
 
       if (qrEndDate != null && now.isAfter(qrEndDate)) {
-        print('⏰ Meeting already ended: $now > $qrEndDate');
         throw Exception("Meeting has already ended.");
       }
 
-      print('📡 Sending attendance request...');
       final response = await PublicRoutesApiService.markAttendance(meetingId);
 
       await Future.delayed(const Duration(milliseconds: 700));
@@ -143,24 +124,21 @@ class _QRScanPageState extends State<QRScanPage> {
       Navigator.of(context).pop(); // dismiss loading
 
       if (response.isSuccess) {
-        print('✅ Attendance marked successfully');
-        ToastUtil.showToast(context, "✅ Attendance marked successfully!");
+        ToastUtil.showToast(context, "Attendance marked successfully!");
         context.push('/AttendanceSuccess');
       } else {
-        print('❌ Attendance failed: ${response.message}');
         ToastUtil.showToast(context, response.message ?? "Attendance failed");
         context.push('/attendance-failure', extra: response.message);
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.of(context).pop(); // dismiss loading
-        print('❌ Exception: $e');
+
         ToastUtil.showToast(context, e.toString());
         context.push('/attendance-failure', extra: e.toString());
       }
     } finally {
       await _scannerController.stop();
-      print('🔒 Scanner stopped');
     }
   }
 
