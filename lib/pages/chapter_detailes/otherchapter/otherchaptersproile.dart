@@ -45,6 +45,48 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
     super.dispose();
   }
 
+  final othersMemberModel _staticCidMember = othersMemberModel(
+    id: 'static456',
+    name: 'Gajendran K',
+    company: 'NA',
+    phone: '9841058328',
+    role: 'CID',
+    website: 'NA',
+    chapterName: 'ARAM',
+    businessDescription: 'NA',
+    email: 'NA',
+    address: 'NA',
+    profileImageUrl: null,
+  );
+
+  final othersMemberModel _dummyCid1 = othersMemberModel(
+    id: 'static123',
+    name: 'Rajesh R',
+    company: 'NA',
+    phone: '9600111070',
+    role: 'CID',
+    website: 'NA',
+    chapterName: 'ARAM',
+    businessDescription: 'NA',
+    email: 'NA',
+    address: 'NA',
+    profileImageUrl: null,
+  );
+
+  final othersMemberModel _dummyCid2 = othersMemberModel(
+    id: 'static789',
+    name: 'Kirubakaran K',
+    company: 'NA',
+    phone: '8608036883',
+    role: 'CID',
+    website: 'NA',
+    chapterName: 'ARAM',
+    businessDescription: 'NA',
+    email: 'NA',
+    address: 'NA',
+    profileImageUrl: null,
+  );
+
   Future<void> fetchMembers() async {
     const int maxRetries = 3;
     int attempt = 0;
@@ -67,8 +109,22 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
           if (members.isNotEmpty) {
             final cid = members.first.cidId;
 
-            if (cid != null && cid.isNotEmpty) {
-              await _fetchCidDetailsWithRetry(cid);
+            if (widget.chapterId == '6879e0be60ef1e65cb84bfa7') {
+              // Show Gajendran & Kirubakaran only
+              setState(() => _cidMember = _staticCidMember); // Gajendran
+            } else if (widget.chapterId == '6878eb1a60ef1e65cb84aa90') {
+              // Show actual CID + Rajesh
+              if (cid != null && cid.isNotEmpty) {
+                await _fetchCidDetailsWithRetry(cid);
+              }
+            } else if (widget.chapterId == '6879eda160ef1e65cb84d450') {
+              // Not considered
+              setState(() => _cidMember = null);
+            } else {
+              // Default: only actual CID
+              if (cid != null && cid.isNotEmpty) {
+                await _fetchCidDetailsWithRetry(cid);
+              }
             }
           }
 
@@ -85,7 +141,6 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
       } else {
         if (attempt >= maxRetries) {
           setState(() => isLoading = false);
-         
         }
       }
     }
@@ -273,37 +328,10 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                     SizedBox(height: 2.h),
 
                     /// CID Member (if exists)
-                    if (_cidMember != null) ...[
-                      // ✅ CID Member Header
-                      isLoading
-                          ? buildAllMembersTitleShimmer()
-                          : Container(
-                              width: 73.w,
-                              height: 3.3.h,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 3.w, vertical: 1.h),
-                              alignment: Alignment.centerLeft,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF2C2B2B),
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(10),
-                                  bottomRight: Radius.circular(10),
-                                ),
-                              ),
-                              child: Text(
-                                "CID MEMBER",
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12.sp,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                      SizedBox(height: 1.h),
-
-                      // ✅ CID Member Grid
+                    if (widget.chapterId == '6879e0be60ef1e65cb84bfa7') ...[
+                      _buildCidHeader(),
                       GridView.builder(
-                        itemCount: 1,
+                        itemCount: 2,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         padding: EdgeInsets.symmetric(vertical: 1.h),
@@ -314,8 +342,65 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                           childAspectRatio: 0.75,
                         ),
                         itemBuilder: (context, index) {
+                          final dummy =
+                              index == 0 ? _staticCidMember : _dummyCid2;
                           return othersMemberCard(
-                              member: _cidMember!, isCidMember: true);
+                              member: dummy, isCidMember: true);
+                        },
+                      ),
+                      SizedBox(height: 2.h),
+                    ] else if (_cidMember != null) ...[
+                      _buildCidHeader(),
+                      GridView.builder(
+                        itemCount:
+                            widget.chapterId == '6878eb1a60ef1e65cb84aa90'
+                                ? 2
+                                : 1,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(vertical: 1.h),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 3.w,
+                          mainAxisSpacing: 3.w,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return othersMemberCard(
+                                member: _cidMember!, isCidMember: true);
+                          } else {
+                            return othersMemberCard(
+                                member: _dummyCid1, isCidMember: true);
+                          }
+                        },
+                      ),
+                      SizedBox(height: 2.h),
+                    ] else if (_cidMember != null) ...[
+                      // ✅ Show real CID + optionally 1 static
+                      _buildCidHeader(),
+                      GridView.builder(
+                        itemCount:
+                            widget.chapterId == '6878eb1a60ef1e65cb84aa90'
+                                ? 2
+                                : 1,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(vertical: 1.h),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 3.w,
+                          mainAxisSpacing: 3.w,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return othersMemberCard(
+                                member: _cidMember!, isCidMember: true);
+                          } else {
+                            return othersMemberCard(
+                                member: _dummyCid1, isCidMember: true);
+                          }
                         },
                       ),
                       SizedBox(height: 2.h),
@@ -448,7 +533,7 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                     /// Home Button
                     GestureDetector(
                       onTap: () {
-                      context.go('/homepage');
+                        context.go('/homepage');
                       },
                       child: Container(
                         width: 11.w,
@@ -496,6 +581,30 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCidHeader() {
+    return Container(
+      width: 73.w,
+      height: 3.3.h,
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+      alignment: Alignment.centerLeft,
+      decoration: const BoxDecoration(
+        color: Color(0xFF2C2B2B),
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(10),
+          bottomRight: Radius.circular(10),
+        ),
+      ),
+      child: Text(
+        "CID MEMBER",
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.w600,
+          fontSize: 12.sp,
+          color: Colors.white,
         ),
       ),
     );

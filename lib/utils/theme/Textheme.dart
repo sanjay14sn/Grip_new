@@ -16,8 +16,14 @@ class TTextStyles {
     color: Colors.white,
   );
   static final TextStyle usernametitle = GoogleFonts.roboto(
-    fontSize: 20.0.sp,
+    fontSize: 17.0.sp,
     fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+
+   static final TextStyle userchap = GoogleFonts.roboto(
+    fontSize: 16.0.sp,
+    fontWeight: FontWeight.w500,
     color: Colors.black,
   );
 

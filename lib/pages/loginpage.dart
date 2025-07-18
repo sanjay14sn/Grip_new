@@ -108,7 +108,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ToastUtil.showToast(context, message);
         }
       } catch (e) {
-     
         ToastUtil.showToast(context, 'Something went wrong. Please try again.');
       }
     }

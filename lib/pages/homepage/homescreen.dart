@@ -460,7 +460,7 @@ class _HomescreenState extends State<Homescreen> {
                           ),
                           Text(
                             "${_memberData?['chapterInfo']?['chapterId']?['chapterName'] ?? 'Chapter'}",
-                            style: TTextStyles.usersubtitle,
+                            style: TTextStyles.userchap,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),

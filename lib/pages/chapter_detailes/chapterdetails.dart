@@ -28,9 +28,54 @@ class _MyChapterPageState extends State<MyChapterPage> {
   List<DetailedMember> _detailedMembers = [];
   List<DetailedMember> _filteredMembers = [];
   MemberModel? _cidMember;
+  bool _showStaticCid = false;
+  bool _showOnlyStaticCids = false;
+  bool _showExtraStaticCid = false;
 
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
+
+  final MemberModel _staticCidMember1 = MemberModel(
+    id: 'static123',
+    name: 'Rajesh R',
+    company: 'NA',
+    phone: '9600111070',
+    role: 'CID',
+    website: 'NA',
+    chapterName: 'ARAM',
+    businessDescription: 'NA',
+    email: 'NA',
+    address: 'NA',
+    profileImageUrl: null,
+  );
+
+  final MemberModel _staticCidMember2 = MemberModel(
+    id: 'static456',
+    name: 'Gajendran K',
+    company: 'NA',
+    phone: '9841058328',
+    role: 'CID',
+    website: 'NA',
+    chapterName: 'ARAM',
+    businessDescription: 'NA',
+    email: 'NA',
+    address: 'NA',
+    profileImageUrl: null,
+  );
+
+  final MemberModel _staticCidMember3 = MemberModel(
+    id: 'static789',
+    name: 'Kirubakaran K',
+    company: 'NA',
+    phone: '8608036883',
+    role: 'CID',
+    website: 'NA',
+    chapterName: 'ARAM',
+    businessDescription: 'NA',
+    email: 'NA',
+    address: 'NA',
+    profileImageUrl: null,
+  );
 
   @override
   void initState() {
@@ -41,10 +86,26 @@ class _MyChapterPageState extends State<MyChapterPage> {
         Provider.of<ChapterProvider>(context, listen: false);
     final cidId = chapterProvider.chapterDetails?.cidId;
     if (cidId != null && cidId.isNotEmpty) {
-      _fetchCidDetails(cidId); // 👈 pass the actual cidId
+      _fetchCidDetails(cidId);
     }
 
+    _loadChapterId(); // 👈 Check chapter ID
     _searchController.addListener(_onSearchChanged);
+  }
+
+  Future<void> _loadChapterId() async {
+    const storage = FlutterSecureStorage();
+    final chapterId = await storage.read(key: 'chapter_id');
+
+    if (chapterId == "6878eb1a60ef1e65cb84aa90") {
+      _showExtraStaticCid = true;
+    }
+
+    if (chapterId == "6879e0be60ef1e65cb84bfa7") {
+      _showOnlyStaticCids = true;
+    }
+
+    setState(() {});
   }
 
   void _onSearchChanged() {
@@ -76,30 +137,88 @@ class _MyChapterPageState extends State<MyChapterPage> {
     return null;
   }
 
+  // Future<void> _fetchAllMemberDetails() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   _detailedMembers.clear();
+
+  //   const storage = FlutterSecureStorage();
+  //   final userDataString = await storage.read(key: 'user_data');
+
+  //   String? currentUserId;
+  //   if (userDataString != null) {
+  //     final userData = jsonDecode(userDataString);
+  //     currentUserId = userData['id'];
+  //   } else {}
+
+  //   final chapterProvider =
+  //       Provider.of<ChapterProvider>(context, listen: false);
+  //   final cidId = chapterProvider.chapterDetails?.cidId;
+
+  //   final members = chapterProvider.members;
+
+  //   for (final member in members) {
+  //     if (member.id == currentUserId) {
+  //       continue;
+  //     }
+
+  //     final response = await retry(
+  //       () => PublicRoutesApiService.fetchMemberDetailsById(member.id),
+  //       retries: 3,
+  //       delay: const Duration(seconds: 1),
+  //       logLabel: "Member ${member.id}",
+  //     );
+
+  //     if (response != null && response.isSuccess && response.data != null) {
+  //       final detailed = DetailedMember.fromJson(response.data);
+  //       _detailedMembers.add(detailed);
+  //     } else {}
+  //   }
+
+  //   setState(() {
+  //     _filteredMembers = _detailedMembers;
+  //     _isLoading = false;
+  //   });
+  // }
+
   Future<void> _fetchAllMemberDetails() async {
+    print('🔄 Starting to fetch all member details...');
     setState(() {
       _isLoading = true;
     });
 
     _detailedMembers.clear();
+    print('🧹 Cleared old detailed members list.');
 
     const storage = FlutterSecureStorage();
     final userDataString = await storage.read(key: 'user_data');
+    print('🔐 user_data read from storage: $userDataString');
 
     String? currentUserId;
     if (userDataString != null) {
       final userData = jsonDecode(userDataString);
       currentUserId = userData['id'];
-    } else {}
+      print('👤 Current user ID: $currentUserId');
+    } else {
+      print('❌ No user_data found in secure storage.');
+      return;
+    }
 
     final chapterProvider =
         Provider.of<ChapterProvider>(context, listen: false);
     final cidId = chapterProvider.chapterDetails?.cidId;
-
     final members = chapterProvider.members;
 
+    print('👥 Total members in chapter: ${members.length}');
+    print('📛 cidId: $cidId');
+
     for (final member in members) {
+      print('➡️ Checking member ID: ${member.id}');
+
       if (member.id == currentUserId) {
+        print('⏩ Skipping current user...');
         continue;
       }
 
@@ -113,12 +232,16 @@ class _MyChapterPageState extends State<MyChapterPage> {
       if (response != null && response.isSuccess && response.data != null) {
         final detailed = DetailedMember.fromJson(response.data);
         _detailedMembers.add(detailed);
-      } else {}
+        print('✅ Fetched and added details for member ${member.id}');
+      } else {
+        print('❌ Failed to fetch details for member ${member.id}');
+      }
     }
 
     setState(() {
       _filteredMembers = _detailedMembers;
       _isLoading = false;
+      print('✅ Fetch complete. Total fetched: ${_filteredMembers.length}');
     });
   }
 
@@ -414,7 +537,9 @@ class _MyChapterPageState extends State<MyChapterPage> {
               SizedBox(height: 2.h),
 
               // CID Member Section
-              if (_cidMember != null) ...[
+              if (_cidMember != null ||
+                  _showOnlyStaticCids ||
+                  _showExtraStaticCid) ...[
                 Container(
                   width: 73.w,
                   height: 3.3.h,
@@ -428,7 +553,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
                     ),
                   ),
                   child: Text(
-                    "CID MEMBER",
+                    "CID MEMBERS",
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w600,
                       fontSize: 12.sp,
@@ -437,7 +562,24 @@ class _MyChapterPageState extends State<MyChapterPage> {
                   ),
                 ),
                 SizedBox(height: 1.h),
-                MemberCard(member: _cidMember!),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_showOnlyStaticCids) ...[
+                      Expanded(child: MemberCard(member: _staticCidMember2)),
+                      SizedBox(width: 2.w),
+                      Expanded(child: MemberCard(member: _staticCidMember3)),
+                    ] else if (_cidMember != null) ...[
+                      Expanded(child: MemberCard(member: _cidMember!)),
+                      if (_showExtraStaticCid) ...[
+                        SizedBox(width: 2.w),
+                        Expanded(child: MemberCard(member: _staticCidMember1)),
+                      ],
+                    ] else ...[
+                      const Text("No CID member available"),
+                    ],
+                  ],
+                ),
                 SizedBox(height: 2.h),
               ],
 

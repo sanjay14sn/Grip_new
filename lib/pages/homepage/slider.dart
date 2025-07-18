@@ -175,7 +175,7 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
       referrals = [
         {
           "name": "R.VARADARAJ",
-          "category": "Co-",
+          "category": "CO-FOUNDER & COO",
           "title": "referralSlips",
           "image": "assets/images/varadha.png",
         },
@@ -240,10 +240,12 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
                     ),
                     SizedBox(width: 3.w),
                     Expanded(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: 17.h),
+                      child: SingleChildScrollView(
+                        physics:
+                            const NeverScrollableScrollPhysics(), // Prevents unintended scroll
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Image.asset(
                               'assets/images/topreff.png',
@@ -265,7 +267,7 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
                             ),
                             SizedBox(height: 0.8.h),
 
-                            /// 👇 Updated Container with name + category
+                            /// Updated Container with name + category
                             Container(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 3.w, vertical: 0.8.h),
@@ -275,10 +277,12 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Flexible(
+                                    flex: 2,
                                     child: Text(
-                                      referral["name"],
+                                      referral["name"] ?? '',
                                       style: TextStyle(
                                         color: Colors.black87,
                                         fontWeight: FontWeight.w600,
@@ -286,6 +290,7 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
                                       ),
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                   ),
                                   SizedBox(width: 2.w),
@@ -297,12 +302,13 @@ class _ReferralCarouselState extends State<ReferralCarousel> {
                                       borderRadius: BorderRadius.circular(2.w),
                                     ),
                                     child: Text(
-                                      referral["category"],
+                                      referral["category"] ?? '',
                                       style: TextStyle(
                                         color: Colors.black87,
                                         fontWeight: FontWeight.w500,
                                         fontSize: 11.sp,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                 ],
