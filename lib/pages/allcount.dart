@@ -34,7 +34,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
   };
 
   final Map<int, String> filterMap = {
-    0: 'this-month',
+    0: '3-months',
     1: '6-months',
     2: '12-months',
     3: '', // Life time

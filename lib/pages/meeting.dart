@@ -27,19 +27,25 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
   }
 
   Future<void> _fetchAttendanceData() async {
+ 
+
     final response = await PublicRoutesApiService.fetchAttendanceStatus();
+
+  
 
     if (response.isSuccess && response.data != null) {
       try {
-        // 👇 Unwrap the inner "data"
-        final outerData = response.data;
-        final innerData = outerData['data'];
+        final outerList = response.data['data'] as List;
 
-        if (innerData == null || innerData['attendanceStatus'] == null) {
+    
+
+        if (outerList.isEmpty) {
+          
           return;
         }
 
-        final attendanceList = innerData['attendanceStatus'] as List;
+        final attendanceList = outerList.first['attendanceStatus'] ?? [];
+        print('📋 Attendance list: $attendanceList');
 
         final updatedCounts = {
           'present': 0,
@@ -51,21 +57,30 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
 
         for (var item in attendanceList) {
           final status = item['_id']?.toString();
-          final countRaw = item['count'];
-          final count = countRaw is int
-              ? countRaw
-              : int.tryParse(countRaw.toString()) ?? 0;
+          final count = item['count'] is int
+              ? item['count']
+              : int.tryParse(item['count'].toString()) ?? 0;
+
+          
 
           if (status != null && updatedCounts.containsKey(status)) {
             updatedCounts[status] = count;
-          } else {}
+          } else {
+           
+          }
         }
+
+      
 
         setState(() {
           _attendanceCounts = updatedCounts;
         });
-      } catch (e) {}
-    } else {}
+      } catch (e, stack) {
+      
+      }
+    } else {
+     
+    }
   }
 
   @override
