@@ -40,158 +40,82 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // void _handleLogin() async {
-  //   FocusScope.of(context).unfocus(); // 🔒 Close keyboard
-
-  //   if (_formKey.currentState!.validate()) {
-  //     final mobileNumber = usernameController.text.trim();
-  //     final pin = passwordController.text;
-
-  //     try {
-  //       const storage = FlutterSecureStorage();
-
-  //       // 🔁 Read FCM token
-  //       final fcmToken = await storage.read(key: 'fcm_token');
-
-  //       if (fcmToken == null || fcmToken.isEmpty) {
-  //       } else {}
-
-  //       // 🛠️ API Call
-  //       final response = await PublicRoutesApi.Login(
-  //         mobileNumber: mobileNumber,
-  //         pin: pin,
-  //         fcmToken: fcmToken,
-  //       );
-
-  //       // 🧪 Debug Response
-  //       final responseDataString = response.data.toString();
-  //       final truncatedResponse = responseDataString.length > 500
-  //           ? '${responseDataString.substring(0, 500)}... [truncated]'
-  //           : responseDataString;
-
-  //       // ✅ If login success
-  //       if (response.isSuccess && response.data['success'] == true) {
-  //         final token = response.data['token'];
-
-  //         // 🔐 Log only part of token for safety
-
-  //         final userJson = response.data['member'];
-
-  //         // 💾 Save token and user data
-  //         await storage.write(key: 'auth_token', value: token);
-  //         await storage.write(key: 'user_data', value: jsonEncode(userJson));
-
-  //         // ✅ Save chapterId separately
-  //         final chapterId = userJson['chapterId'];
-  //         if (chapterId != null) {
-  //           await storage.write(key: 'chapter_id', value: chapterId);
-  //         }
-
-  //         // ⏳ Save token expiry if available
-  //         final expiryDate = _getTokenExpiry(token);
-  //         if (expiryDate != null) {
-  //           await storage.write(
-  //             key: 'token_expiry',
-  //             value: expiryDate.toIso8601String(),
-  //           );
-  //         }
-
-  //         ToastUtil.showToast(context, '✅ Login successful!');
-  //         context.go('/homepage');
-  //       } else {
-  //         final rawMessage = response.data?['message'] ?? response.message;
-  //         final message = (rawMessage == 'Invalid PIN' ||
-  //                 rawMessage == 'Invalid mobile number')
-  //             ? rawMessage
-  //             : 'Please try again';
-
-  //         ToastUtil.showToast(context, message);
-  //       }
-  //     } catch (e) {
-  //       ToastUtil.showToast(context, 'Something went wrong. Please try again.');
-  //     }
-  //   }
-  // }
-
-
   void _handleLogin() async {
-  FocusScope.of(context).unfocus(); // 🔒 Close keyboard
+    FocusScope.of(context).unfocus(); // 🔒 Close keyboard
 
-  if (_formKey.currentState!.validate()) {
-    final mobileNumber = usernameController.text.trim();
-    final pin = passwordController.text;
+    if (_formKey.currentState!.validate()) {
+      final mobileNumber = usernameController.text.trim();
+      final pin = passwordController.text;
 
-    try {
-      const storage = FlutterSecureStorage();
+      try {
+        const storage = FlutterSecureStorage();
 
-      // 🔁 Read FCM token
-      final fcmToken = await storage.read(key: 'fcm_token');
+        // 🔁 Read FCM token
+        final fcmToken = await storage.read(key: 'fcm_token');
 
-      if (fcmToken == null || fcmToken.isEmpty) {
-        // You can handle missing FCM token here if needed
-      } else {
-        // You can use the FCM token if needed
-      }
-
-      // 🛠️ API Call
-      final response = await PublicRoutesApi.Login(
-        mobileNumber: mobileNumber,
-        pin: pin,
-        fcmToken: fcmToken,
-      );
-
-      // 🧪 Debug Response
-      final responseDataString = response.data.toString();
-      final truncatedResponse = responseDataString.length > 500
-          ? '${responseDataString.substring(0, 500)}... [truncated]'
-          : responseDataString;
-
-      // ✅ If login success
-      if (response.isSuccess && response.data['success'] == true) {
-        final token = response.data['token'];
-
-        final userJson = response.data['member'];
-
-    
-        final memberId = userJson['id']; // or use 'memberId' if needed
-     
-
-        // 💾 Save token and user data
-        await storage.write(key: 'auth_token', value: token);
-        await storage.write(key: 'user_data', value: jsonEncode(userJson));
-
-        // ✅ Save chapterId separately
-        final chapterId = userJson['chapterId'];
-        if (chapterId != null) {
-          await storage.write(key: 'chapter_id', value: chapterId);
+        if (fcmToken == null || fcmToken.isEmpty) {
+          // You can handle missing FCM token here if needed
+        } else {
+          // You can use the FCM token if needed
         }
 
-        // ⏳ Save token expiry if available
-        final expiryDate = _getTokenExpiry(token);
-        if (expiryDate != null) {
-          await storage.write(
-            key: 'token_expiry',
-            value: expiryDate.toIso8601String(),
-          );
+        // 🛠️ API Call
+        final response = await PublicRoutesApi.Login(
+          mobileNumber: mobileNumber,
+          pin: pin,
+          fcmToken: fcmToken,
+        );
+
+        // 🧪 Debug Response
+        final responseDataString = response.data.toString();
+        final truncatedResponse = responseDataString.length > 500
+            ? '${responseDataString.substring(0, 500)}... [truncated]'
+            : responseDataString;
+
+        // ✅ If login success
+        if (response.isSuccess && response.data['success'] == true) {
+          final token = response.data['token'];
+
+          final userJson = response.data['member'];
+
+          final memberId = userJson['id']; // or use 'memberId' if needed
+
+          // 💾 Save token and user data
+          await storage.write(key: 'auth_token', value: token);
+          await storage.write(key: 'user_data', value: jsonEncode(userJson));
+
+          // ✅ Save chapterId separately
+          final chapterId = userJson['chapterId'];
+          print('📦 chapterId: $chapterId'); // 👈 Debug print
+          if (chapterId != null) {
+            await storage.write(key: 'chapter_id', value: chapterId);
+          }
+
+          // ⏳ Save token expiry if available
+          final expiryDate = _getTokenExpiry(token);
+          if (expiryDate != null) {
+            await storage.write(
+              key: 'token_expiry',
+              value: expiryDate.toIso8601String(),
+            );
+          }
+
+          ToastUtil.showToast(context, '✅ Login successful!');
+          context.go('/homepage');
+        } else {
+          final rawMessage = response.data?['message'] ?? response.message;
+          final message = (rawMessage == 'Invalid PIN' ||
+                  rawMessage == 'Invalid mobile number')
+              ? rawMessage
+              : 'Please try again';
+
+          ToastUtil.showToast(context, message);
         }
-
-        ToastUtil.showToast(context, '✅ Login successful!');
-        context.go('/homepage');
-      } else {
-        final rawMessage = response.data?['message'] ?? response.message;
-        final message = (rawMessage == 'Invalid PIN' ||
-                rawMessage == 'Invalid mobile number')
-            ? rawMessage
-            : 'Please try again';
-
-        ToastUtil.showToast(context, message);
+      } catch (e) {
+        ToastUtil.showToast(context, 'Something went wrong. Please try again.');
       }
-    } catch (e) {
-      ToastUtil.showToast(context, 'Something went wrong. Please try again.');
     }
   }
-}
-
 
   DateTime? _getTokenExpiry(String token) {
     try {

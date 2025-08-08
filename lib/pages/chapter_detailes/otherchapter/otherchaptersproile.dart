@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:grip/backend/api-requests/imageurl.dart';
+
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/components/shimmer.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
@@ -30,11 +30,13 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
 
   bool isMenuOpen = false;
   bool isLoading = true;
+  List<CidMemberModel> cidMembers = [];
 
   @override
   void initState() {
     super.initState();
     fetchMembers();
+    fetchcidMembers();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -44,48 +46,6 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
     _searchController.dispose();
     super.dispose();
   }
-
-  final othersMemberModel _staticCidMember = othersMemberModel(
-    id: 'static456',
-    name: 'Gajendran K',
-    company: 'NA',
-    phone: '9841058328',
-    role: 'CID',
-    website: 'NA',
-    chapterName: 'ARAM',
-    businessDescription: 'NA',
-    email: 'NA',
-    address: 'NA',
-    profileImageUrl: null,
-  );
-
-  final othersMemberModel _dummyCid1 = othersMemberModel(
-    id: 'static123',
-    name: 'Rajesh R',
-    company: 'NA',
-    phone: '9600111070',
-    role: 'CID',
-    website: 'NA',
-    chapterName: 'ARAM',
-    businessDescription: 'NA',
-    email: 'NA',
-    address: 'NA',
-    profileImageUrl: null,
-  );
-
-  final othersMemberModel _dummyCid2 = othersMemberModel(
-    id: 'static789',
-    name: 'Kirubakaran K',
-    company: 'NA',
-    phone: '8608036883',
-    role: 'CID',
-    website: 'NA',
-    chapterName: 'ARAM',
-    businessDescription: 'NA',
-    email: 'NA',
-    address: 'NA',
-    profileImageUrl: null,
-  );
 
   Future<void> fetchMembers() async {
     const int maxRetries = 3;
@@ -113,30 +73,6 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
 
           for (var m in members) {}
 
-          if (members.isNotEmpty) {
-            final cid = members.first.cidIds;
-
-            if (widget.chapterId == '6879e0be60ef1e65cb84bfa7') {
-              setState(() => _cidMember = _staticCidMember); // Gajendran
-            } else if (widget.chapterId == '6878eb1a60ef1e65cb84aa90') {
-              //   if (cid != null && cid.isNotEmpty) {
-              //     await _fetchCidDetailsWithRetry(cid);
-              //   } else {
-              //     print('⚠️ CID is null or empty');
-              //   }
-              // } else if (widget.chapterId == '6879eda160ef1e65cb84d450') {
-              //   print('🚫 Chapter skipped for CID');
-              //   setState(() => _cidMember = null);
-              // } else {
-              //   print('📍 Default chapter logic - Load only actual CID');
-              //   if (cid != null && cid.isNotEmpty) {
-              //     await _fetchCidDetailsWithRetry(cid);
-              //   } else {
-              //     print('⚠️ CID is null or empty');
-              //   }
-            }
-          } else {}
-
           setState(() {
             allMembers = members;
             filteredMembers = members;
@@ -156,48 +92,51 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
     }
   }
 
-  Future<void> _fetchCidDetailsWithRetry(String cidId) async {
+  Future<void> fetchcidMembers() async {
     const int maxRetries = 3;
     int attempt = 0;
     bool success = false;
 
+    setState(() => isLoading = true);
+
     while (attempt < maxRetries && !success) {
       attempt++;
 
-      try {
-        final response = await PublicRoutesApiService.fetchCidDetails(cidId);
+      final response =
+          await PublicRoutesApiService.fetchMembersByChapter(widget.chapterId);
 
-        if (response.isSuccess && response.data != null) {
-          final data = response.data;
+      if (response.isSuccess && response.data != null) {
+        try {
+          final List<dynamic> rawList = response.data;
+          final List<othersMemberModel> members =
+              rawList.map((e) => othersMemberModel.fromJson(e)).toList();
 
-          final profile = data['profileImage']; // ✅ correct key
-
-          final member = othersMemberModel(
-            id: data['_id'] ?? '',
-            name: data['username'] ?? '',
-            company: data['companyName'] ?? '',
-            phone: data['mobileNumber'] ?? '',
-            role: data['role']?['name'] ?? '',
-            website: data['website'],
-            chapterName: data['chapterName'],
-            businessDescription: data['businessDescription'],
-            email: data['email'] ?? '',
-            address: data['address'],
-            profileImageUrl: (profile != null)
-                ? "${UrlService.imageBaseUrl}/${profile['docPath']}/${profile['docName']}"
-                : null,
-          );
+          // ✅ Also fetch CID members
+          final cidResponse = await PublicRoutesApiService.fetchCidDetailsList(
+              widget.chapterId);
+          if (cidResponse.isSuccess && cidResponse.data != null) {
+            final List<dynamic> rawCidList = cidResponse.data;
+            cidMembers =
+                rawCidList.map((e) => CidMemberModel.fromJson(e)).toList();
+          }
 
           setState(() {
-            _cidMember = member;
+            allMembers = members;
+            filteredMembers = members;
+            isLoading = false;
           });
 
           success = true;
-        } else {}
-      } catch (e) {}
+        } catch (e) {
+          setState(() => isLoading = false);
+          break;
+        }
+      } else {
+        if (attempt >= maxRetries) {
+          setState(() => isLoading = false);
+        }
+      }
     }
-
-    if (!success) {}
   }
 
   void _onSearchChanged() {
@@ -252,6 +191,67 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
       itemBuilder: (context, index) {
         return othersMemberCard(member: filteredMembers[index]);
       },
+    );
+  }
+
+  Widget _buildCidMembers() {
+    if (cidMembers.isEmpty) return const SizedBox();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 73.w,
+          height: 3.3.h,
+          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+          alignment: Alignment.centerLeft,
+          decoration: const BoxDecoration(
+            color: Color(0xFF2C2B2B),
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+            ),
+          ),
+          child: Text(
+            "CID MEMBERS",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 12.sp,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        SizedBox(height: 1.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: cidMembers.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 2.h,
+              crossAxisSpacing: 4.w,
+              childAspectRatio: 0.65,
+            ),
+            itemBuilder: (context, index) {
+              final cid = cidMembers[index];
+              final member = othersMemberModel(
+                name: cid.name,
+                company: cid.companyName,
+                phone: cid.mobileNumber,
+                email: cid.email,
+                role: cid.roleName,
+                profileImageUrl: cid.profileImage,
+                id: '', // Match field names carefully
+              );
+
+              return othersMemberCard(member: member, isCidMember: true);
+            },
+          ),
+        ),
+        SizedBox(height: 2.h),
+      ],
     );
   }
 
@@ -338,114 +338,11 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
                     SizedBox(height: 2.h),
 
                     /// CID Member (if exists)
-                    if (widget.chapterId == '6879e0be60ef1e65cb84bfa7') ...[
-                      _buildCidHeader(),
-                      GridView.builder(
-                        itemCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.symmetric(vertical: 1.h),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 3.w,
-                          mainAxisSpacing: 3.w,
-                          childAspectRatio: 0.75,
-                        ),
-                        itemBuilder: (context, index) {
-                          final dummy =
-                              index == 0 ? _staticCidMember : _dummyCid2;
-                          return othersMemberCard(
-                              member: dummy, isCidMember: true);
-                        },
-                      ),
-                      SizedBox(height: 2.h),
-                    ] else if (_cidMember != null) ...[
-                      _buildCidHeader(),
-                      GridView.builder(
-                        itemCount:
-                            widget.chapterId == '6878eb1a60ef1e65cb84aa90'
-                                ? 2
-                                : 1,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.symmetric(vertical: 1.h),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 3.w,
-                          mainAxisSpacing: 3.w,
-                          childAspectRatio: 0.75,
-                        ),
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return othersMemberCard(
-                                member: _cidMember!, isCidMember: true);
-                          } else {
-                            return othersMemberCard(
-                                member: _dummyCid1, isCidMember: true);
-                          }
-                        },
-                      ),
-                      SizedBox(height: 2.h),
-                    ] else if (_cidMember != null) ...[
-                      // ✅ Show real CID + optionally 1 static
-                      _buildCidHeader(),
-                      GridView.builder(
-                        itemCount:
-                            widget.chapterId == '6878eb1a60ef1e65cb84aa90'
-                                ? 2
-                                : 1,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.symmetric(vertical: 1.h),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 3.w,
-                          mainAxisSpacing: 3.w,
-                          childAspectRatio: 0.75,
-                        ),
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return othersMemberCard(
-                                member: _cidMember!, isCidMember: true);
-                          } else {
-                            return othersMemberCard(
-                                member: _dummyCid1, isCidMember: true);
-                          }
-                        },
-                      ),
-                      SizedBox(height: 2.h),
-                    ] else if (isLoading) ...[
-                      isLoading
-                          ? buildAllMembersTitleShimmer() // 🔄 Show shimmer placeholder while loading CID member
-                          : Container(
-                              width: 73.w,
-                              height: 3.3.h,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 3.w, vertical: 1.h),
-                              alignment: Alignment.centerLeft,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF2C2B2B),
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(10),
-                                  bottomRight: Radius.circular(10),
-                                ),
-                              ),
-                              child: Text(
-                                "CID MEMBER",
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12.sp,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                      SizedBox(height: 1.h),
+                    isLoading
+                        ? buildAllMembersTitleShimmer()
+                        : _buildCidMembers(),
 
-                      // 🌀 CID Shimmer
-                      buildShimmerGrid(itemCount: 1),
-
-                      SizedBox(height: 2.h),
-                    ],
+                    SizedBox(height: 2.h),
 
                     /// All Members Label
                     isLoading
@@ -617,6 +514,35 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
           color: Colors.white,
         ),
       ),
+    );
+  }
+}
+
+class CidMemberModel {
+  final String name;
+  final String companyName;
+  final String mobileNumber;
+  final String email;
+  final String roleName;
+  final String? profileImage;
+
+  CidMemberModel({
+    required this.name,
+    required this.companyName,
+    required this.mobileNumber,
+    required this.email,
+    required this.roleName,
+    this.profileImage,
+  });
+
+  factory CidMemberModel.fromJson(Map<String, dynamic> json) {
+    return CidMemberModel(
+      name: json['name'] ?? '',
+      companyName: json['companyName'] ?? '',
+      mobileNumber: json['mobileNumber'] ?? '',
+      email: json['email'] ?? '',
+      roleName: json['roleName'] ?? '',
+      profileImage: json['profileImage'],
     );
   }
 }

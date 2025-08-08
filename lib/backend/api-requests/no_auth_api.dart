@@ -908,7 +908,7 @@ class PublicRoutesApiService {
     return response;
   }
 
-  static Future<ApiResponse> fetchCidDetails(String cidId) async {
+  static Future<ApiResponse> fetchCidDetailsList(String chapterId) async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'auth_token');
 
@@ -923,7 +923,7 @@ class PublicRoutesApiService {
 
     try {
       final response = await makeRequest(
-        url: '$endPointbaseUrl/api/mobile/cid/$cidId',
+        url: '$endPointbaseUrl/api/mobile/chapters/headTableUsers/$chapterId',
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -933,11 +933,11 @@ class PublicRoutesApiService {
 
       if (response.isSuccess &&
           response.data != null &&
-          response.data is Map<String, dynamic>) {
+          response.data['data'] is List) {
         return ApiResponse(
           statusCode: response.statusCode,
           isSuccess: true,
-          data: response.data['data'], // ✅ assuming structure: { data: {...} }
+          data: response.data['data'], // ✅ List of CIDs
           message: response.data['message'] ?? 'Success',
         );
       }

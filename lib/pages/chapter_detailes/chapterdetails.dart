@@ -25,93 +25,25 @@ class MyChapterPage extends StatefulWidget {
 class _MyChapterPageState extends State<MyChapterPage> {
   bool isMyChapterSelected = true;
   String? cidId; // Declare at class level if not already
+  List<MemberModel> _cidMembers = [];
 
   List<DetailedMember> _detailedMembers = [];
   List<DetailedMember> _filteredMembers = [];
   MemberModel? _cidMember;
-  bool _showStaticCid = false;
   bool _showOnlyStaticCids = false;
   bool _showExtraStaticCid = false;
 
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
 
-  final MemberModel _staticCidMember1 = MemberModel(
-    id: 'static123',
-    name: 'Rajesh R',
-    company: 'NA',
-    phone: '9600111070',
-    role: 'CID',
-    website: 'NA',
-    chapterName: 'ARAM',
-    businessDescription: 'NA',
-    email: 'NA',
-    address: 'NA',
-    profileImageUrl: null,
-  );
-
-  final MemberModel _staticCidMember2 = MemberModel(
-    id: 'static456',
-    name: 'Gajendran K',
-    company: 'NA',
-    phone: '9841058328',
-    role: 'CID',
-    website: 'NA',
-    chapterName: 'ARAM',
-    businessDescription: 'NA',
-    email: 'NA',
-    address: 'NA',
-    profileImageUrl: null,
-  );
-
-  final MemberModel _staticCidMember3 = MemberModel(
-    id: 'static789',
-    name: 'Kirubakaran K',
-    company: 'NA',
-    phone: '8608036883',
-    role: 'CID',
-    website: 'NA',
-    chapterName: 'ARAM',
-    businessDescription: 'NA',
-    email: 'NA',
-    address: 'NA',
-    profileImageUrl: null,
-  );
-
   @override
   void initState() {
     super.initState();
+    _loadCidListFromApi();
 
     _fetchAllMemberDetails(); // Fetch all members
 
-    // ✅ Safely get ChapterProvider without listening to rebuilds
-    final chapterProvider =
-        Provider.of<ChapterProvider>(context, listen: false);
-    final cids = chapterProvider.chapterDetails?.cids ?? [];
-
-    if (cids.isNotEmpty) {
-      cidId = cids.first.id;
-
-      _fetchCidDetails(cidId!); // Fetch CID details
-    } else {}
-
-    _loadChapterId(); // Load stored chapter ID
     _searchController.addListener(_onSearchChanged); // Set up search listener
-  }
-
-  Future<void> _loadChapterId() async {
-    const storage = FlutterSecureStorage();
-    final chapterId = await storage.read(key: 'chapter_id');
-
-    if (chapterId == "6878eb1a60ef1e65cb84aa90") {
-      _showExtraStaticCid = true;
-    }
-
-    if (chapterId == "6879e0be60ef1e65cb84bfa7") {
-      _showOnlyStaticCids = true;
-    }
-
-    setState(() {});
   }
 
   void _onSearchChanged() {
@@ -194,41 +126,34 @@ class _MyChapterPageState extends State<MyChapterPage> {
     });
   }
 
-  Future<void> _fetchCidDetails(String cidId) async {
+  Future<void> _loadCidListFromApi() async {
+    const storage = FlutterSecureStorage();
+    final chapterId = await storage.read(key: 'chapter_id');
+    if (chapterId == null) return;
+
     final response = await retry(
-      () => PublicRoutesApiService.fetchCidDetails(cidId),
-      retries: 3,
-      delay: const Duration(seconds: 1),
-      logLabel: "CID $cidId",
+      () => PublicRoutesApiService.fetchCidDetailsList(chapterId),
+      logLabel: "Head Table Users",
     );
 
-    if (response != null && response.isSuccess && response.data != null) {
-      final data = response.data;
-
-      // 👇 Construct profile image URL if available
-      final profileImageObj = data['profileImage'];
-      final String? imageUrl = (profileImageObj != null)
-          ? "${UrlService.imageBaseUrl}/${profileImageObj['docPath']}/${profileImageObj['docName']}"
-          : null;
-
-      final member = MemberModel(
-        id: data['_id'] ?? '',
-        name: data['username'] ?? '',
-        company: data['companyName'] ?? '',
-        phone: data['mobileNumber'] ?? '',
-        role: data['role']?['name'] ?? '',
-        website: data['website'],
-        chapterName: data['chapterName'],
-        businessDescription: data['businessDescription'],
-        email: data['email'] ?? '',
-        address: data['address'],
-        profileImageUrl: imageUrl, // ✅ This line fixes the image
-      );
+    if (response != null && response.isSuccess && response.data is List) {
+      final List<dynamic> list = response.data;
+      final List<MemberModel> members = list.map((e) {
+        return MemberModel(
+          id: '', // No ID in new format
+          name: e['name'] ?? '',
+          company: e['companyName'] ?? '',
+          phone: e['mobileNumber'] ?? '',
+          role: e['roleName'] ?? '',
+          email: e['email'] ?? '',
+          profileImageUrl: null, // You can construct it if needed
+        );
+      }).toList();
 
       setState(() {
-        _cidMember = member;
+        _cidMembers = members;
       });
-    } else {}
+    }
   }
 
   @override
@@ -486,9 +411,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
               SizedBox(height: 2.h),
 
               // CID Member Section
-              if (_cidMember != null ||
-                  _showOnlyStaticCids ||
-                  _showExtraStaticCid) ...[
+              if (_cidMembers.isNotEmpty) ...[
                 Container(
                   width: 73.w,
                   height: 3.3.h,
@@ -511,23 +434,23 @@ class _MyChapterPageState extends State<MyChapterPage> {
                   ),
                 ),
                 SizedBox(height: 1.h),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_showOnlyStaticCids) ...[
-                      Expanded(child: MemberCard(member: _staticCidMember2)),
-                      SizedBox(width: 2.w),
-                      Expanded(child: MemberCard(member: _staticCidMember3)),
-                    ] else if (_cidMember != null) ...[
-                      Expanded(child: MemberCard(member: _cidMember!)),
-                      if (_showExtraStaticCid) ...[
-                        SizedBox(width: 2.w),
-                        Expanded(child: MemberCard(member: _staticCidMember1)),
-                      ],
-                    ] else ...[
-                      const Text("No CID member available"),
-                    ],
-                  ],
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: _cidMembers.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // number of items per row
+                      mainAxisSpacing: 2.h,
+                      crossAxisSpacing: 4.w,
+                      childAspectRatio: 0.65, // adjust for height/width ratio
+                    ),
+                    itemBuilder: (context, index) {
+                      final member = _cidMembers[index];
+                      return MemberCard(member: member);
+                    },
+                  ),
                 ),
                 SizedBox(height: 2.h),
               ],
