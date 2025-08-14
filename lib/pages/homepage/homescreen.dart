@@ -6,6 +6,7 @@ import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:grip/backend/providers/Homerefreshprovider.dart';
 import 'package:grip/backend/providers/chapter_provider.dart';
+import 'package:grip/backend/providers/dashboard_provider.dart';
 import 'package:grip/components/bottomappbartemp.dart';
 import 'package:grip/pages/allcount.dart';
 import 'package:grip/pages/homepage/customcard.dart';
@@ -61,6 +62,7 @@ class _HomescreenState extends State<Homescreen> {
     _loadUserData();
     _loadChapterDetails();
     fetchMember();
+    _reloadDashboard();
     Future.delayed(const Duration(milliseconds: 1000), _loadAllDashboardData);
   }
 
@@ -309,6 +311,17 @@ class _HomescreenState extends State<Homescreen> {
     }
   }
 
+  Future<void> _reloadDashboard() async {
+    try {
+      final dashboardProvider =
+          Provider.of<DashboardProvider>(context, listen: false);
+      await dashboardProvider.fetchDashboardData();
+    } catch (e) {
+      // Handle error if needed
+      debugPrint('Dashboard reload failed: $e');
+    }
+  }
+
   Future<void> _loadThankYouNotes() async {
     try {
       final response = await PublicRoutesApiService.fetchGivenThankYouNotes();
@@ -369,259 +382,281 @@ class _HomescreenState extends State<Homescreen> {
 
   @override
   Widget build(BuildContext context) {
+    final dashboardProvider =
+        Provider.of<DashboardProvider>(context, listen: false);
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      body: Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 2.h,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0.0, 0.0, 0.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // 👤 Profile + 🔔 Notification on the Left
-                      Row(
-                        children: [
-                          // Profile
-                          GestureDetector(
-                            onTap: () {
-                              context.push('/profilepage', extra: _memberData);
-                            },
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 30,
-                              backgroundImage: (_memberData?['personalDetails']
-                                          ?['profileImage'] !=
-                                      null)
-                                  ? NetworkImage(
-                                      "${UrlService.imageBaseUrl}/${_memberData?['personalDetails']['profileImage']['docPath']}/${_memberData?['personalDetails']['profileImage']['docName']}",
-                                    )
-                                  : const AssetImage(
-                                          'assets/images/profile.png')
-                                      as ImageProvider,
-                            ),
-                          ),
-                          SizedBox(width: 3.w),
+      body: RefreshIndicator(
+          color: const Color(0xFFFF3534), // loader color
+          onRefresh: () async {
+            // Call other functions if needed
+            fetchMember();
+            _loadChapterDetails();
 
-                          // Notification Icon
-                          GestureDetector(
-                            onTap: () {
-                              context.push('/notifications');
-                            },
-                            child: Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(100),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Image.asset(
-                                  Timages.noficationicon,
-                                  fit: BoxFit.contain,
+            // Reload dashboard data via provider
+            await dashboardProvider.fetchDashboardData();
+          },
+          child: Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 2.h,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0.0, 0.0, 0.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // 👤 Profile + 🔔 Notification on the Left
+                          Row(
+                            children: [
+                              // Profile
+                              GestureDetector(
+                                onTap: () {
+                                  context.push('/profilepage',
+                                      extra: _memberData);
+                                },
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  radius: 30,
+                                  backgroundImage:
+                                      (_memberData?['personalDetails']
+                                                  ?['profileImage'] !=
+                                              null)
+                                          ? NetworkImage(
+                                              "${UrlService.imageBaseUrl}/${_memberData?['personalDetails']['profileImage']['docPath']}/${_memberData?['personalDetails']['profileImage']['docName']}",
+                                            )
+                                          : const AssetImage(
+                                                  'assets/images/profile.png')
+                                              as ImageProvider,
                                 ),
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
+                              SizedBox(width: 3.w),
 
-                      Image.asset(
-                        Timages.griplogo,
-                        height: 90,
-                        width: 100,
-                      ),
-                    ],
-                  ),
-                ),
+                              // Notification Icon
+                              GestureDetector(
+                                onTap: () {
+                                  context.push('/notifications');
+                                },
+                                child: Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Image.asset(
+                                      Timages.noficationicon,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
 
-                // Top section with user info, avatar, and notification icon
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Welcome text
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "${_username ?? 'User'}", // ✅ Dynamic
-                            style: TTextStyles.usernametitle,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          Text(
-                            "${_memberData?['chapterInfo']?['chapterId']?['chapterName'] ?? 'Chapter'}",
-                            style: TTextStyles.userchap,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          Text(
-                            "Renewal date : 18th July 2026",
-                            style: TTextStyles.usersubtitle,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          Text(
-                            "India’s 1  Digital Business Networking Platform",
-                            style: TTextStyles.usersubtitle,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
+                          Image.asset(
+                            Timages.griplogo,
+                            height: 90,
+                            width: 100,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-                const SizedBox(height: 20),
 
-                Center(child: ReferralCarousel()),
-                SizedBox(
-                  height: 1.h,
-                ),
-                HomeDashboard(), // or wherever your home page is.
-                SizedBox(height: 1.5.h),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Referrals',
-                        style: TTextStyles.customcard,
-                        textAlign: TextAlign.left),
-                    SizedBox(height: 8),
-                    Customcard(
-                      title: "Referrals",
-                      value: _isReferralLoading
-                          ? '...'
-                          : _hasReferralError
-                              ? '0'
-                              : '$_referralCount',
-                      onTapAddView: () async {
-                        final result = await context.push('/addreferalpage');
-                        if (result == true) await _loadReferralSlips();
-                      },
-                      onTapView: () {
-                        context.push('/referralview', extra: _referralList);
-                      },
-                      imagePath: 'assets/images/referralmain.png',
+                    // Top section with user info, avatar, and notification icon
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Welcome text
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "${_username ?? 'User'}", // ✅ Dynamic
+                                style: TTextStyles.usernametitle,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              Text(
+                                "${_memberData?['chapterInfo']?['chapterId']?['chapterName'] ?? 'Chapter'}",
+                                style: TTextStyles.userchap,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              Text(
+                                "Renewal date : 18th July 2026",
+                                style: TTextStyles.usersubtitle,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              Text(
+                                "India’s 1  Digital Business Networking Platform",
+                                style: TTextStyles.usersubtitle,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
                     ),
-                    SizedBox(height: 16),
-                    Text('One-to-One',
-                        style: TTextStyles.customcard,
-                        textAlign: TextAlign.left),
-                    SizedBox(height: 8),
-                    Customcard(
-                      title: "One-to-One",
-                      value: _isOneToOneLoading
-                          ? '...'
-                          : _hasOneToOneError
-                              ? '0'
-                              : '$_oneToOneCount',
-                      onTapAddView: () async {
-                        final result = await context.push('/onetoone');
-                        if (result == true) await _loadOneToOneList();
-                      },
-                      onTapView: () {
-                        context.push('/viewone', extra: _oneToOneList);
-                      },
-                      imagePath: 'assets/images/testimonials.png',
+                    const SizedBox(height: 20),
+
+                    Center(child: ReferralCarousel()),
+                    SizedBox(
+                      height: 1.h,
                     ),
-                    SizedBox(height: 16),
-                    Text('Thank U Notes',
-                        style: TTextStyles.customcard,
-                        textAlign: TextAlign.left),
-                    SizedBox(height: 8),
-                    Customcard(
-                      title: "Thank U Notes",
-                      value: _isThankYouLoading
-                          ? '...'
-                          : _hasThankYouError
-                              ? '0'
-                              : '$_thankYouCount',
-                      onTapAddView: () async {
-                        final result = await context.push('/thankyounote');
-                        if (result == true) await _loadThankYouNotes();
-                      },
-                      onTapView: () {
-                        context.push('/thankyouview', extra: _givenNotes);
-                      },
-                      imagePath: 'assets/images/handshake.png',
+                    HomeDashboard(), // or wherever your home page is.
+                    SizedBox(height: 1.5.h),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Referrals',
+                            style: TTextStyles.customcard,
+                            textAlign: TextAlign.left),
+                        SizedBox(height: 8),
+                        Customcard(
+                          title: "Referrals",
+                          value: _isReferralLoading
+                              ? '...'
+                              : _hasReferralError
+                                  ? '0'
+                                  : '$_referralCount',
+                          onTapAddView: () async {
+                            final result =
+                                await context.push('/addreferalpage');
+                            if (result == true) await _loadReferralSlips();
+                            await _reloadDashboard();
+                          },
+                          onTapView: () {
+                            context.push('/referralview', extra: _referralList);
+                          },
+                          imagePath: 'assets/images/referralmain.png',
+                        ),
+                        SizedBox(height: 16),
+                        Text('One-to-One',
+                            style: TTextStyles.customcard,
+                            textAlign: TextAlign.left),
+                        SizedBox(height: 8),
+                        Customcard(
+                          title: "One-to-One",
+                          value: _isOneToOneLoading
+                              ? '...'
+                              : _hasOneToOneError
+                                  ? '0'
+                                  : '$_oneToOneCount',
+                          onTapAddView: () async {
+                            final result = await context.push('/onetoone');
+                            if (result == true) await _loadOneToOneList();
+                            await _reloadDashboard();
+                          },
+                          onTapView: () {
+                            context.push('/viewone', extra: _oneToOneList);
+                          },
+                          imagePath: 'assets/images/testimonials.png',
+                        ),
+                        SizedBox(height: 16),
+                        Text('Thank U Notes',
+                            style: TTextStyles.customcard,
+                            textAlign: TextAlign.left),
+                        SizedBox(height: 8),
+                        Customcard(
+                          title: "Thank U Notes",
+                          value: _isThankYouLoading
+                              ? '...'
+                              : _hasThankYouError
+                                  ? '0'
+                                  : '$_thankYouCount',
+                          onTapAddView: () async {
+                            final result = await context.push('/thankyounote');
+                            if (result == true) await _loadThankYouNotes();
+                            await _reloadDashboard();
+                          },
+                          onTapView: () {
+                            context.push('/thankyouview', extra: _givenNotes);
+                          },
+                          imagePath: 'assets/images/handshake.png',
+                        ),
+                        SizedBox(height: 16),
+                        Text('Testimonials',
+                            style: TTextStyles.customcard,
+                            textAlign: TextAlign.left),
+                        SizedBox(height: 8),
+                        Customcard(
+                          title: "Testimonials",
+                          value: _isTestimonialLoading
+                              ? '...'
+                              : _hasTestimonialError
+                                  ? '0'
+                                  : '$_testimonialCount',
+                          onTapAddView: () async {
+                            final result =
+                                await context.push('/addtestimonials');
+                            if (result == true) await _loadTestimonials();
+                            await _reloadDashboard();
+                          },
+                          onTapView: () {
+                            context.push('/viewtestimonials',
+                                extra: _testimonialList);
+                          },
+                          imagePath:
+                              'assets/images/fluent_person-feedback-16-filled.png',
+                        ),
+                        SizedBox(height: 16),
+                        Text('Visitors',
+                            style: TTextStyles.customcard,
+                            textAlign: TextAlign.left),
+                        SizedBox(height: 8),
+                        Customcard(
+                          title: "Visitors",
+                          value: _isVisitorLoading
+                              ? '...'
+                              : _hasVisitorError
+                                  ? '0'
+                                  : '$_visitorCount',
+                          onTapAddView: () async {
+                            final result = await context.push('/visitors');
+                            if (result == true) await _loadVisitors();
+                            await _reloadDashboard();
+                          },
+                          onTapView: () {
+                            context.push('/visitorsview', extra: _visitors);
+                          },
+                          imagePath: 'assets/images/visitors.png',
+                        ),
+                        SizedBox(height: 16),
+                        Text('Chapter Visitors',
+                            style: TTextStyles.customcard,
+                            textAlign: TextAlign.left),
+                        SizedBox(height: 8),
+                        Customcard(
+                          title: "Chapter Visitors – ( Last 7 Days )",
+                          value: '${_allvisitors.length}',
+                          onTapAddView: () {},
+                          onTapView: () async {
+                            final result = await context.push('/allvisitors',
+                                extra: _allvisitors);
+                            if (result == true) await _loadVisitorsData();
+                          },
+                          imagePath: 'assets/images/visitors.png',
+                          viewOnly: true,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 16),
-                    Text('Testimonials',
-                        style: TTextStyles.customcard,
-                        textAlign: TextAlign.left),
-                    SizedBox(height: 8),
-                    Customcard(
-                      title: "Testimonials",
-                      value: _isTestimonialLoading
-                          ? '...'
-                          : _hasTestimonialError
-                              ? '0'
-                              : '$_testimonialCount',
-                      onTapAddView: () async {
-                        final result = await context.push('/addtestimonials');
-                        if (result == true) await _loadTestimonials();
-                      },
-                      onTapView: () {
-                        context.push('/viewtestimonials',
-                            extra: _testimonialList);
-                      },
-                      imagePath:
-                          'assets/images/fluent_person-feedback-16-filled.png',
-                    ),
-                    SizedBox(height: 16),
-                    Text('Visitors',
-                        style: TTextStyles.customcard,
-                        textAlign: TextAlign.left),
-                    SizedBox(height: 8),
-                    Customcard(
-                      title: "Visitors",
-                      value: _isVisitorLoading
-                          ? '...'
-                          : _hasVisitorError
-                              ? '0'
-                              : '$_visitorCount',
-                      onTapAddView: () async {
-                        final result = await context.push('/visitors');
-                        if (result == true) await _loadVisitors();
-                      },
-                      onTapView: () {
-                        context.push('/visitorsview', extra: _visitors);
-                      },
-                      imagePath: 'assets/images/visitors.png',
-                    ),
-                    SizedBox(height: 16),
-                    Text('Chapter Visitors',
-                        style: TTextStyles.customcard,
-                        textAlign: TextAlign.left),
-                    SizedBox(height: 8),
-                    Customcard(
-                      title: "Chapter Visitors – ( Last 7 Days )",
-                      value: '${_allvisitors.length}',
-                      onTapAddView: () {},
-                      onTapView: () async {
-                        final result = await context.push('/allvisitors',
-                            extra: _allvisitors);
-                        if (result == true) await _loadVisitorsData();
-                      },
-                      imagePath: 'assets/images/visitors.png',
-                      viewOnly: true,
-                    ),
+                    SizedBox(height: 8.h)
                   ],
                 ),
-                SizedBox(height: 8.h)
-              ],
-            ),
-          )),
+              ))),
       bottomNavigationBar: CurvedBottomNavBar(), // <-- This adds the bottom bar
     );
   }

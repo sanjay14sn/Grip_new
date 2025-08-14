@@ -203,7 +203,7 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
         Container(
           width: 73.w,
           height: 3.3.h,
-          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+          padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
           alignment: Alignment.centerLeft,
           decoration: const BoxDecoration(
             color: Color(0xFF2C2B2B),

@@ -435,7 +435,7 @@ class _MyChapterPageState extends State<MyChapterPage> {
                 ),
                 SizedBox(height: 1.h),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w),
+                  padding: EdgeInsets.symmetric(horizontal: 1.w),
                   child: GridView.builder(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
