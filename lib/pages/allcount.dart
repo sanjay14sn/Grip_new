@@ -141,7 +141,7 @@ class HomeDashboard extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 2.w,
                 mainAxisSpacing: 1.5.h,
-                childAspectRatio: 2.2,
+                childAspectRatio: 2.3, // Slightly increased to avoid overflow
               ),
               itemBuilder: (context, index) {
                 final item = statData[index];
@@ -159,7 +159,7 @@ class HomeDashboard extends StatelessWidget {
                     ],
                   ),
                   padding:
-                      EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
+                      EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -175,10 +175,15 @@ class HomeDashboard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 1.5.h),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(item['value'], style: TTextStyles.CatNUM),
+                      SizedBox(height: 1.h),
+                      Flexible(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(item['value'], style: TTextStyles.CatNUM),
+                          ),
+                        ),
                       )
                     ],
                   ),

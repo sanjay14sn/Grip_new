@@ -83,11 +83,17 @@ class _ChangePinPageState extends State<ChangePinPage> {
       builder: (context, orientation, deviceType) {
         return Scaffold(
           backgroundColor: Colors.grey[100],
-          appBar: AppBar(
-            title: const Text("Change PIN"),
-            centerTitle: true,
-            backgroundColor: const Color(0xFFFF3534),
-          ),
+       appBar: AppBar(
+  title: const Text(
+    "Change PIN",
+    style: TextStyle(color: Colors.white), // Title text white
+  ),
+  centerTitle: true,
+  backgroundColor: const Color(0xFFFF3534),
+  foregroundColor: Colors.white, // Back button white
+  elevation: 0, // Optional: remove shadow for cleaner look
+),
+
           body: Padding(
             padding: EdgeInsets.all(6.w),
             child: Column(
