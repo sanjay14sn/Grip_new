@@ -45,7 +45,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         }
 
         final attendanceList = outerList.first['attendanceStatus'] ?? [];
-        print('📋 Attendance list: $attendanceList');
+    
 
         final updatedCounts = {
           'present': 0,

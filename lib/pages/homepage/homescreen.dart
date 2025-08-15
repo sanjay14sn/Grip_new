@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -318,7 +319,6 @@ class _HomescreenState extends State<Homescreen> {
       await dashboardProvider.fetchDashboardData();
     } catch (e) {
       // Handle error if needed
-      debugPrint('Dashboard reload failed: $e');
     }
   }
 

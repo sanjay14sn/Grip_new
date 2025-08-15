@@ -124,22 +124,42 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               SizedBox(height: 1.5.h),
               Center(
-                child: Text(
-                  fullName,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      fullName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      chapterName,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                    SizedBox(height: 4), // small spacing
+                    GestureDetector(
+                      onTap: () {
+                        context.push('/changePin');
+                      },
+                      child: Text(
+                        "Change PIN",
+                        style: TextStyle(
+                          color: const Color(0xFFFF3534),
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Center(
-                child: Text(
-                  chapterName,
-                  style: const TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12),
-                ),
-              ),
-              SizedBox(height: 2.h),
+
               SizedBox(height: 2.h),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),

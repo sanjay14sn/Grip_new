@@ -6,6 +6,7 @@ import 'package:grip/components/failure_attandance.dart';
 import 'package:grip/networkerror.dart';
 import 'package:grip/pages/Editprofile.dart';
 import 'package:grip/pages/Eventpage.dart';
+import 'package:grip/pages/changepin.dart';
 import 'package:grip/pages/chapter_detailes/chapterdetails.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/pages/chapter_detailes/mychapter/member_info.dart';
@@ -61,6 +62,11 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => LoginScreen(),
+    ),
+
+      GoRoute(
+      path: '/changePin',
+      builder: (context, state) => ChangePinPage(),
     ),
     GoRoute(
       path: '/homepage',
@@ -371,5 +377,6 @@ final GoRouter router = GoRouter(
         );
       },
     ),
+  
   ],
 );

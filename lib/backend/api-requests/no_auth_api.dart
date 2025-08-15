@@ -1764,4 +1764,50 @@ class PublicRoutesApiService {
       );
     }
   }
+
+  static Future<ApiResponse> changePin({
+    required String currentPin,
+    required String newPin,
+  }) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'auth_token');
+
+    if (token == null) {
+      return ApiResponse(
+        statusCode: 401,
+        isSuccess: false,
+        data: null,
+        message: 'Missing token',
+      );
+    }
+
+    try {
+      final response = await makeRequest(
+        url: '$endPointbaseUrl/api/mobile/members/change-pin',
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: {
+          "currentPin": currentPin,
+          "newPin": newPin,
+        },
+      );
+
+      return ApiResponse(
+        statusCode: response.statusCode,
+        isSuccess: response.isSuccess,
+        data: response.data,
+        message: response.data['message'] ?? '',
+      );
+    } catch (e) {
+      return ApiResponse(
+        statusCode: 500,
+        isSuccess: false,
+        data: null,
+        message: 'Error: $e',
+      );
+    }
+  }
 }

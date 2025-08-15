@@ -107,7 +107,7 @@ class _QRScanPageState extends State<QRScanPage> {
       final double distance =
           Geolocator.distanceBetween(userLat, userLng, qrLat, qrLng);
 
-      if (distance > 100) {
+      if (distance > 200) {
         throw Exception(
             "Attendance can only be marked when you're in the meeting location");
       }
@@ -118,7 +118,7 @@ class _QRScanPageState extends State<QRScanPage> {
 
       final response = await PublicRoutesApiService.markAttendance(meetingId);
 
-      await Future.delayed(const Duration(milliseconds: 700));
+      await Future.delayed(const Duration(milliseconds: 100));
       if (!context.mounted) return;
 
       Navigator.of(context).pop(); // dismiss loading

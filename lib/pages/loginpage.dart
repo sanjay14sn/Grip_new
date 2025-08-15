@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // ✅ Save chapterId separately
           final chapterId = userJson['chapterId'];
-          print('📦 chapterId: $chapterId'); // 👈 Debug print
+       
           if (chapterId != null) {
             await storage.write(key: 'chapter_id', value: chapterId);
           }
