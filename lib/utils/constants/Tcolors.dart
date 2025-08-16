@@ -40,7 +40,7 @@ class Tcolors {
   static const Color head_title_color = Color(0xFF262121);
   static const Color sub_title_color = Color(0xFF000000);
   static const Color title_color = Color(0xFFC83837);
-  static const Color divider = Color(0xFFC7C2C280);
+  static const Color divider = Color(0xffc7c2c280);
   static const Color homecard = Color(0xFFE3F2F5);
   static const Color smalll_button = Color(0xFFDC2A29);
 }

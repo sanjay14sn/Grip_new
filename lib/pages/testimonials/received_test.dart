@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
-import 'package:grip/pages/Eventpage.dart';
-import 'package:grip/pages/toastutill.dart';
 import 'package:grip/utils/theme/Textheme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sizer/sizer.dart';

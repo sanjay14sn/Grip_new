@@ -21,14 +21,14 @@ class NumberSearch extends StatefulWidget {
   final bool enableContactPicker;
 
   const NumberSearch({
-    Key? key,
+    super.key,
     required this.label,
     required this.isRequired,
     required this.controller,
     this.maxLines = 1,
     this.keyboardType = TextInputType.number,
     this.enableContactPicker = false,
-  }) : super(key: key);
+  });
 
   @override
   State<NumberSearch> createState() => _NumberSearchState();

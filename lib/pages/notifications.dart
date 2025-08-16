@@ -7,7 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:grip/backend/api-requests/imageurl.dart';
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({Key? key}) : super(key: key);
+  const NotificationsScreen({super.key});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();

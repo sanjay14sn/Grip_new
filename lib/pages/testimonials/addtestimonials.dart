@@ -13,6 +13,8 @@ import 'package:grip/utils/theme/Textheme.dart';
 import 'package:sizer/sizer.dart';
 
 class TestimonialSlipPage extends StatefulWidget {
+  const TestimonialSlipPage({super.key});
+
   @override
   State<TestimonialSlipPage> createState() => _TestimonialSlipPageState();
 }

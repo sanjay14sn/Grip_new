@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BottomAppBarMenu extends StatefulWidget {
+  const BottomAppBarMenu({super.key});
+
   @override
   _BottomAppBarMenuState createState() => _BottomAppBarMenuState();
 }
@@ -50,7 +52,7 @@ class _BottomAppBarMenuState extends State<BottomAppBarMenu> {
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
         notchMargin: 8,
-        child: Container(
+        child: SizedBox(
           height: 60,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,

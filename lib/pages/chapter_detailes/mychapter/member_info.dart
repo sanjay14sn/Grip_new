@@ -82,7 +82,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                         _menuItem(Icons.group, "Referrals", () {
                           final memberId = widget.member.id;
 
-                          if (memberId != null && memberId.isNotEmpty) {
+                          if (memberId.isNotEmpty) {
                             context.push(
                               '/Othersreferral',
                               extra: {
@@ -104,7 +104,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                         _menuItem(Icons.group_work, "One-To-One", () async {
                           final memberId = widget.member.id;
 
-                          if (memberId != null && memberId.isNotEmpty) {
+                          if (memberId.isNotEmpty) {
                             final response = await PublicRoutesApiService
                                 .fetchOthersOneToOnes(memberId);
 
@@ -118,7 +118,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                             () async {
                           final memberId = widget.member.id;
 
-                          if (memberId != null && memberId.isNotEmpty) {
+                          if (memberId.isNotEmpty) {
                             context.push(
                               '/Othersvisitors',
                               extra: {
@@ -158,7 +158,7 @@ class _ChapterDetailsState extends State<ChapterDetails> {
               ),
               Center(
                 child: Text(
-                  widget.member.role ?? "Member",
+                  widget.member.role ?? "Associate",
                   style: const TextStyle(
                     color: Color(0xFFC83837),
                     fontWeight: FontWeight.bold,

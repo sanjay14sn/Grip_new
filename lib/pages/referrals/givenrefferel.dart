@@ -16,15 +16,15 @@ class GivenReferralSlipPage extends StatelessWidget {
   }
 
   // 🌐 Construct profile image URL
-  String? buildImageUrl(Map<String, dynamic>? imageMap) {
-    final docPath = imageMap?['docPath'];
-    final docName = imageMap?['docName'];
+String buildImageUrl(Map<String, dynamic>? imageMap) {
+  final docPath = imageMap?['docPath'];
+  final docName = imageMap?['docName'];
 
-    if (docPath != null && docName != null) {
-      return "${UrlService.imageBaseUrl}/$docPath/$docName";
-    }
-    return null;
+  if (docPath != null && docName != null && docPath.isNotEmpty && docName.isNotEmpty) {
+    return "${UrlService.imageBaseUrl}/$docPath/$docName";
   }
+  return "assets/images/profile.png";
+}
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +109,7 @@ class GivenReferralSlipPage extends StatelessWidget {
                                 radius: 24,
                                 backgroundImage: imageUrl != null
                                     ? NetworkImage(imageUrl)
-                                    : const AssetImage('assets/images/person.png') as ImageProvider,
+                                    : AssetImage('assets/images/person.png') as ImageProvider,
                               ),
                               SizedBox(width: 3.w),
                               Column(

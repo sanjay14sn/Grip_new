@@ -77,7 +77,6 @@ class LocationProvider with ChangeNotifier {
               '${placemark.street}, ${placemark.subLocality}, ${placemark.subAdministrativeArea}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}, ${placemark.postalCode}';
         } else {}
       }
-    } catch (e) {
     } finally {
       isFetching = false;
       notifyListeners();

@@ -142,7 +142,7 @@ class _AllVisitorsViewpageState extends State<AllVisitorsViewpage> {
                         const TextSpan(
                           text: "Invited By: ",
                           style: TextStyle(
-                            color: const Color(0xFFC6221A),
+                            color: Color(0xFFC6221A),
                             fontWeight: FontWeight.w600,
                             fontSize: 11,
                           ),

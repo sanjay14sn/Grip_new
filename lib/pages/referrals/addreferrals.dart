@@ -128,7 +128,7 @@ class _ReferralPageState extends State<ReferralPage> {
         maxLength: maxLength,
         decoration: InputDecoration(
           counterText: "",
-          hintText: isRequired ? "$label" : label,
+          hintText: isRequired ? label : label,
           hintStyle: TTextStyles.visitorsdetails,
           filled: true,
           fillColor: Colors.grey[200],
@@ -483,9 +483,10 @@ class _ReferralPageState extends State<ReferralPage> {
                                   onChanged: (val) {
                                     setState(() {
                                       toldThemYouWouldCall = val!;
-                                      if (val)
+                                      if (val) {
                                         givenYourCard =
                                             false; // ensure only one is selected
+                                      }
                                     });
                                   },
                                   title: const Text("Told Them You Would Call"),
@@ -501,9 +502,10 @@ class _ReferralPageState extends State<ReferralPage> {
                                   onChanged: (val) {
                                     setState(() {
                                       givenYourCard = val!;
-                                      if (val)
+                                      if (val) {
                                         toldThemYouWouldCall =
                                             false; // ensure only one is selected
+                                      }
                                     });
                                   },
                                   title: const Text("Given Your Card"),
@@ -605,7 +607,7 @@ Widget buildInputField(
       keyboardType: keyboardType,
       maxLines: maxLines,
       decoration: InputDecoration(
-        hintText: isRequired ? "$label" : label,
+        hintText: isRequired ? label : label,
         hintStyle: TTextStyles.visitorsdetails,
         filled: true,
         fillColor: Colors.grey[200],

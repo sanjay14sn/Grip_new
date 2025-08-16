@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class SelectionPage extends StatelessWidget {
   final List<String> personList;
 
-  const SelectionPage({required this.personList});
+  const SelectionPage({super.key, required this.personList});
 
   @override
   Widget build(BuildContext context) {

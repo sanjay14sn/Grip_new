@@ -42,12 +42,11 @@ class _FilterDialogState extends State<FilterDialog> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            dialogBackgroundColor: Colors.white,
             colorScheme: const ColorScheme.light(
               primary: Color(0xFFC6221A), // Red color like your button
               onPrimary: Colors.white,
               onSurface: Colors.black,
-            ),
+            ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
           ),
           child: child!,
         );

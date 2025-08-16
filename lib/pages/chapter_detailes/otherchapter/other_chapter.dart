@@ -10,7 +10,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class ChapterSelector extends StatefulWidget {
-  const ChapterSelector({Key? key}) : super(key: key);
+  const ChapterSelector({super.key});
 
   @override
   State<ChapterSelector> createState() => _ChapterSelectorState();

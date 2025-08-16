@@ -286,12 +286,11 @@ class _VisitorFormPageState extends State<VisitorFormPage> {
               builder: (context, child) {
                 return Theme(
                   data: Theme.of(context).copyWith(
-                    dialogBackgroundColor: Colors.white,
                     colorScheme: const ColorScheme.light(
                       primary: Color(0xFFC6221A),
                       onPrimary: Colors.white,
                       onSurface: Colors.black,
-                    ),
+                    ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
                   ),
                   child: child!,
                 );

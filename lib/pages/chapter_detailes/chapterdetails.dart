@@ -16,7 +16,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class MyChapterPage extends StatefulWidget {
-  const MyChapterPage({Key? key}) : super(key: key);
+  const MyChapterPage({super.key});
 
   @override
   State<MyChapterPage> createState() => _MyChapterPageState();
@@ -27,11 +27,11 @@ class _MyChapterPageState extends State<MyChapterPage> {
   String? cidId; // Declare at class level if not already
   List<MemberModel> _cidMembers = [];
 
-  List<DetailedMember> _detailedMembers = [];
+  final List<DetailedMember> _detailedMembers = [];
   List<DetailedMember> _filteredMembers = [];
   MemberModel? _cidMember;
-  bool _showOnlyStaticCids = false;
-  bool _showExtraStaticCid = false;
+  final bool _showOnlyStaticCids = false;
+  final bool _showExtraStaticCid = false;
 
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();

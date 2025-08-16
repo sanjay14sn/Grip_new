@@ -80,7 +80,7 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
           });
 
           success = true;
-        } catch (e, stackTrace) {
+        } catch (e) {
           setState(() => isLoading = false);
           break;
         }
@@ -149,6 +149,50 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
       }).toList();
     });
   }
+
+
+Widget buildCidMembersShimmer({int itemCount = 3}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // CID Header Shimmer
+      Container(
+        width: 73.w,
+        height: 3.3.h,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+          ),
+        ),
+      ),
+      SizedBox(height: 1.h),
+
+      // Grid shimmer for CID Members
+      GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: itemCount,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 2.h,
+          crossAxisSpacing: 4.w,
+          childAspectRatio: 0.65,
+        ),
+        itemBuilder: (context, index) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(10),
+            ),
+          );
+        },
+      ),
+      SizedBox(height: 2.h),
+    ],
+  );
+}
 
   Widget _buildSearchBar() {
     return Container(
@@ -223,7 +267,7 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
         ),
         SizedBox(height: 1.h),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          padding: EdgeInsets.symmetric(horizontal: 1.w,vertical: 1.w),
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -339,8 +383,9 @@ class _OtherChapterPageState extends State<OtherChapterPage> {
 
                     /// CID Member (if exists)
                     isLoading
-                        ? buildAllMembersTitleShimmer()
-                        : _buildCidMembers(),
+    ? buildCidMembersShimmer(itemCount: 3)
+    : _buildCidMembers(),
+
 
                     SizedBox(height: 2.h),
 

@@ -30,7 +30,7 @@ class _HomescreenState extends State<Homescreen> {
   int _thankYouCount = 0;
   List<dynamic> _allvisitors = [];
   List<dynamic> _visitors = [];
-  bool _isLoading = true;
+  final bool _isLoading = true;
   int _visitorCount = 0;
   List<dynamic> _oneToOneList = [];
   int _oneToOneCount = 0;
@@ -51,10 +51,10 @@ class _HomescreenState extends State<Homescreen> {
   bool _isVisitorLoading = true;
 
 // Error flags
-  bool _hasReferralError = false;
+  final bool _hasReferralError = false;
   bool _hasOneToOneError = false;
   bool _hasTestimonialError = false;
-  bool _hasThankYouError = false;
+  final bool _hasThankYouError = false;
   bool _hasVisitorError = false;
 
   @override
@@ -244,8 +244,9 @@ class _HomescreenState extends State<Homescreen> {
 
   Future<void> _loadTestimonials() async {
     try {
-      if (mounted)
+      if (mounted) {
         setState(() => _isTestimonialLoading = true); // ✅ use correct flag
+      }
 
       final response = await PublicRoutesApiService.getTestimonialGivenList();
 
@@ -481,7 +482,7 @@ class _HomescreenState extends State<Homescreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "${_username ?? 'User'}", // ✅ Dynamic
+                                _username ?? 'User', // ✅ Dynamic
                                 style: TTextStyles.usernametitle,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,

@@ -8,7 +8,7 @@ class TabButton extends StatelessWidget {
   final bool leftRadius;
   final bool rightRadius;
 
-  const TabButton({
+  const TabButton({super.key, 
     required this.title,
     required this.isSelected,
     this.leftRadius = false,

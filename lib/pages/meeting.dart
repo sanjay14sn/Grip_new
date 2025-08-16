@@ -75,7 +75,7 @@ class _MeetingDetailsPageState extends State<MeetingDetailsPage> {
         setState(() {
           _attendanceCounts = updatedCounts;
         });
-      } catch (e, stack) {
+      } catch (e) {
       
       }
     } else {

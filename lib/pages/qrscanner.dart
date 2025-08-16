@@ -13,6 +13,8 @@ import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 
 class QRScanPage extends StatefulWidget {
+  const QRScanPage({super.key});
+
   @override
   State<QRScanPage> createState() => _QRScanPageState();
 }

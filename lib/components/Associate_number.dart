@@ -21,7 +21,7 @@ class CustomInputField extends StatefulWidget {
   final void Function(String? uid)? onUidFetched;
 
   const CustomInputField({
-    Key? key,
+    super.key,
     required this.label,
     required this.isRequired,
     required this.controller,
@@ -29,7 +29,7 @@ class CustomInputField extends StatefulWidget {
     this.keyboardType = TextInputType.number,
     this.enableContactPicker = false,
     this.onUidFetched,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomInputField> createState() => _CustomInputFieldState();
@@ -191,7 +191,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
                 FilteringTextInputFormatter.digitsOnly,
               ],
               decoration: InputDecoration(
-                hintText: widget.isRequired ? "${widget.label}" : widget.label,
+                hintText: widget.isRequired ? widget.label : widget.label,
                 hintStyle: TTextStyles.visitorsdetails,
                 filled: true,
                 fillColor: Colors.grey[200],

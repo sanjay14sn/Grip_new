@@ -36,7 +36,7 @@ class ChapterProvider extends ChangeNotifier {
         _chapterDetails = null;
         _members = [];
       }
-    } catch (e, stack) {
+    } catch (e) {
       _chapterDetails = null;
       _members = [];
     }

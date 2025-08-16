@@ -469,7 +469,7 @@ class _OneToOneSlipPageState extends State<OneToOneSlipPage> {
                             color: Color(0xFF50A6C5),
                             dashPattern: [6, 6],
                             strokeWidth: 1.5,
-                            child: Container(
+                            child: SizedBox(
                               width: 351,
                               height: 80,
                               child: Center(

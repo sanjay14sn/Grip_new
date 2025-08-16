@@ -7,7 +7,7 @@ import 'package:sizer/sizer.dart';
 
 class MemberCard extends StatelessWidget {
   final MemberModel member;
-  const MemberCard({required this.member});
+  const MemberCard({super.key, required this.member});
 
   @override
   Widget build(BuildContext context) {
@@ -66,16 +66,15 @@ class MemberCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (member.phone != null)
-                        Padding(
-                          padding: EdgeInsets.only(top: 0.5.h),
-                          child: Text(
-                            "📞 ${member.phone!}",
-                            style: TTextStyles.membercard,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 0.5.h),
+                        child: Text(
+                          "📞 ${member.phone!}",
+                          style: TTextStyles.membercard,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                      ),
                     ],
                   ),
                 ),
