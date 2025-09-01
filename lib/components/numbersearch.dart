@@ -7,7 +7,6 @@ import 'package:grip/backend/api-requests/imageurl.dart';
 import 'package:grip/backend/api-requests/no_auth_api.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
-import 'package:http/http.dart' as http;
 import 'package:go_router/go_router.dart';
 import 'package:grip/pages/chapter_detailes/membermodel.dart';
 import 'package:grip/utils/theme/Textheme.dart';

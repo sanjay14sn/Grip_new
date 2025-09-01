@@ -69,7 +69,7 @@ class MemberCard extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(top: 0.5.h),
                         child: Text(
-                          "📞 ${member.phone!}",
+                          "📞 ${member.phone}",
                           style: TTextStyles.membercard,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

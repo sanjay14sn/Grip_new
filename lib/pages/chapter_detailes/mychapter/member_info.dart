@@ -128,6 +128,20 @@ class _ChapterDetailsState extends State<ChapterDetails> {
                             );
                           } else {}
                         }),
+                        _menuItem(Icons.business, "Business",
+                            () async {
+                          final memberId = widget.member.id;
+
+                          if (memberId.isNotEmpty) {
+                            context.push(
+                              '/businessgiven',
+                              extra: {
+                                'memberId': widget.member.id,
+                                'memberName': widget.member.name,
+                              },
+                            );
+                          } else {}
+                        }),
                       ],
                     ),
                     SizedBox(height: 2.h),

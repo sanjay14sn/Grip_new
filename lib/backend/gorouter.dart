@@ -19,6 +19,7 @@ import 'package:grip/pages/one_to_one/recived_one_to_one.dart';
 import 'package:grip/pages/one_to_one/viewone_to_one.dart';
 import 'package:grip/pages/one_to_one/viewmembers.dart';
 import 'package:grip/pages/othersview.dart/otherreferral.dart';
+import 'package:grip/pages/othersview.dart/othersbusiness.dart';
 import 'package:grip/pages/othersview.dart/otherstest.dart';
 import 'package:grip/pages/othersview.dart/othersvisitors.dart';
 import 'package:grip/pages/payment/membershipdetails.dart';
@@ -335,6 +336,16 @@ final GoRouter router = GoRouter(
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>;
         return OtherReferralViewPage(
+          memberId: extra['memberId'],
+          memberName: extra['memberName'],
+        );
+      },
+    ),
+    GoRoute(
+      path: '/businessgiven',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        return OthersThankyouViewPage(
           memberId: extra['memberId'],
           memberName: extra['memberName'],
         );

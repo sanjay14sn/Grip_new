@@ -1809,4 +1809,43 @@ class PublicRoutesApiService {
       );
     }
   }
+  static Future<ApiResponse> fetchotherGivenThankYouNotes(String memberId) async {
+  const storage = FlutterSecureStorage();
+  final token = await storage.read(key: 'auth_token');
+
+  if (token == null || token.isEmpty) {
+    return ApiResponse(
+      statusCode: 401,
+      isSuccess: false,
+      data: null,
+      message: 'User not authenticated',
+    );
+  }
+
+  try {
+    final response = await makeRequest(
+      url: '$endPointbaseUrl/api/mobile/thankyouslips/given/list/$memberId',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    return ApiResponse(
+      statusCode: response.statusCode,
+      isSuccess: response.isSuccess,
+      data: response.data['data'],
+      message: response.data['message'] ?? 'Success',
+    );
+  } catch (e) {
+    return ApiResponse(
+      statusCode: 500,
+      isSuccess: false,
+      data: null,
+      message: 'Error: $e',
+    );
+  }
+}
+
 }

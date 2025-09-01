@@ -13,7 +13,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace 'com.sanjaysn.grip' // ✅ Updated from 'com.example.grip'
+    namespace 'com.sanjaysn.grip' // ✅ App package name
     compileSdk 35
     ndkVersion flutter.ndkVersion
 
@@ -28,7 +28,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.sanjaysn.grip" // ✅ CORRECT
+        applicationId "com.sanjaysn.grip" // ✅ Must match Play Console package
         minSdkVersion 21
         targetSdkVersion 35
         versionCode flutter.versionCode
@@ -40,7 +40,7 @@ android {
         release {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
-            storeFile file("$rootDir/app/${keystoreProperties['storeFile']}")
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
             storePassword keystoreProperties['storePassword']
         }
     }
